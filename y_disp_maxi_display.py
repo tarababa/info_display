@@ -1024,9 +1024,24 @@ def menu_weather_forecast(forecasts,navigate,menuIndex,pageIndex,cls,display):
   layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, 'Precipitation: ')
   x=x+char_pixel_width('Precipitation: ')
   layer4.selectFont('8x8.yfm')  
-  for c in item.precipitation.precipitation:
-    layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, c)
-    x=x+char_pixel_width(c,'8x8')
+  if item.precipitation.precipitation.find('-')!=-1:
+    #percipitation range then display hyphen using Small font 
+    #this is purely cosmetic.
+    precipitation=item.precipitation.precipitation.split('-')
+    for c in precipitation[0]: 
+      layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, c)
+      x=x+char_pixel_width(c,'8x8')
+    layer4.selectFont('Small.yfm')  
+    layer4.drawText(x+1,y, YDisplayLayer.ALIGN.TOP_LEFT, '-')
+    x=x+char_pixel_width('-','Small')
+    layer4.selectFont('8x8.yfm')  
+    for c in precipitation[1]:
+      layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, c)
+      x=x+char_pixel_width(c,'8x8')
+  else:      
+    for c in item.precipitation.precipitation:
+      layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, c)
+      x=x+char_pixel_width(c,'8x8')
   for c in ' '+item.precipitation.unit:
     layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, c)
     x=x+char_pixel_width(c,'8x8')
