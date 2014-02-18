@@ -8,7 +8,7 @@ This project uses two Yoctopuce modules, a the maxi display and the meteo module
   http://www.yoctopuce.com/EN/products/usb-environmental-sensors/yocto-meteo
 
 Using the output from the meteo module temprature, humidity and barometric pressure information is aggragated and shown in
-in the form of grahps on the display module.
+in the form of graphs on the display module.
 
 Furthermore weatherforecast data is pulled from the yr.no rss and can be viewed on the display. 
 
