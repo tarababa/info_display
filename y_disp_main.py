@@ -63,7 +63,7 @@ def do_timers(timer, work_queue):
   logger = logging.getLogger(LOGGER)  
   logger.info('got timer[' + timer + ']')
   if timer=='WEATHER':
-    work_queue.put( y_disp_global.MESSAGE('MAIN','WEATHER','GET_WEATHER_FORECAST','LANGEBAANLAGOON', None))
+    work_queue.put( y_disp_global.MESSAGE('MAIN','WEATHER','GET_WEATHER_FORECAST','ALL', None))
   elif timer=='METEO':
     work_queue.put( y_disp_global.MESSAGE('MAIN','METEO','METEO','GET_SENSOR_DATA',None))
   else:
@@ -114,8 +114,8 @@ def main():
   weather_thread.name = 'WHEATHER'  
   weather_thread.deamon=False
   weather_thread.start()
-  #start repeating weather timer
-  weather_timer_thread = timers.RepeatingTimer(3600, function=do_timers, args=('WEATHER',weather_q))
+  #start repeating weather timer (times out every six hours)
+  weather_timer_thread = timers.RepeatingTimer(21600, function=do_timers, args=('WEATHER',weather_q))
   weather_timer_thread.name = 'WEATHER_TIMER'
   weather_timer_thread.start()   
 
