@@ -1088,9 +1088,9 @@ def menu_exchange_rate(rates,navigate,menuIndex,pageIndex,cls,display):
   #in its own samples array
   for myRate in rates:
     samples.append(data(myRate[menuIndex].rate))
-  showGraph(0,0,92, 40, 99999, samples, display)
+  showGraph(0,0,100, 40, 99999, samples, display)
   minData, maxData, sampleSize = getMinMaxAndSampleSize(samples)
-  showMinMax(93,0,'','%2.4f'%minData,'%2.4f'%maxData ,display)
+  showMinMax(101,0,'','%2.4f'%minData,'%2.4f'%maxData ,display)
   showCurrent(0,39,myRate[menuIndex].to_currency,samples[-1].sample, '1 '+myRate[menuIndex].from_currency+'=' ,display)
   
   #return the current page index
@@ -1172,7 +1172,7 @@ def display_deamon(main_q, meteo_q, message_q):
               #Update exchange rate screen if ative# 
               ######################################
               if activeMenu.id == ('menu_exchange_rate'):
-                menu_exchange_rate(exchangeData,activeMenu.navigate,menuIndex,pageIndex,False,module.display)              
+                menu_exchange_rate(exchangeData,None,menuIndex,pageIndex,False,module.display)              
 
           #######################################
           #MESSAGES FROM WEATHER FORECAST MODULE#

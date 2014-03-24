@@ -34,7 +34,7 @@ class Menu():
                    dict(id='menu_meteo_p_graph', multimenu=False, multipage=False, navigate=None, date=True, date_x=70, date_y=63, time=True, time_x=87, time_y=50),
                    dict(id='menu_meteo_summary', multimenu=False, multipage=False, navigate=None, date=True, date_x=0, date_y=63, time=True, time_x=95, time_y=63)],
                   [dict(id='menu_weather_forecast', multimenu=True, multipage=True, navigate=None, date=False, date_x=None, date_y=None, time=False, time_x=None, time_y=None)], 
-                  [dict(id='menu_exchange_rate',    multimenu=True, multipage=False, navigate=None, date=True, date_x=40, date_y=63, time=True, time_x=102, time_y=63)], 
+                  [dict(id='menu_exchange_rate',    multimenu=True, multipage=False, navigate=None, date=True, date_x=40, date_y=63, time=True, time_x=101, time_y=63)], 
                   [dict(id='menu_show_characters_small',  multimenu=False, multipage=False, navigate=None, date=False, date_x=None, date_y=None, time=False, time_x=None, time_y=None), 
                    dict(id='menu_show_characters_8x8',    multimenu=False, multipage=True, navigate=None, date=False, date_x=None, date_y=None, time=False, time_x=None, time_y=None),
                    dict(id='menu_show_characters_medium', multimenu=False, multipage=True, navigate=None, date=False, date_x=None, date_y=None, time=False, time_x=None, time_y=None)] 
