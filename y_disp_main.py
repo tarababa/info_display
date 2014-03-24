@@ -30,6 +30,7 @@ import y_disp_global
 import y_disp_weather_yr
 import y_meteo, y_button
 import y_disp_maxi_display
+import exchange_rates_yahoo
 import timers
 sys.path.append(os.path.join("..","YoctoLib.python.12553","Sources"))
 from yocto_api import *
@@ -66,6 +67,8 @@ def do_timers(timer, work_queue):
     work_queue.put( y_disp_global.MESSAGE('MAIN','WEATHER','GET_WEATHER_FORECAST','ALL', None))
   elif timer=='METEO':
     work_queue.put( y_disp_global.MESSAGE('MAIN','METEO','METEO','GET_SENSOR_DATA',None))
+  elif timer=='EXCHANGE':
+    work_queue.put( y_disp_global.MESSAGE('MAIN','EXCHANGE','GET_EXCHANGE_RATE','ALL', None))
   else:
     logger.info ('no action defined for timer[' + timer + ']')
   
@@ -94,6 +97,7 @@ def main():
   weather_q = queue.Queue()    
   meteo_q   = queue.Queue()
   button_q  = queue.Queue()
+  exchange_q= queue.Queue()
 
 
   ###############################
@@ -118,6 +122,20 @@ def main():
   weather_timer_thread = timers.RepeatingTimer(21600, function=do_timers, args=('WEATHER',weather_q))
   weather_timer_thread.name = 'WEATHER_TIMER'
   weather_timer_thread.start()   
+  
+  ##############################
+  # start exchange rate thread # 
+  ##############################
+  exchange_q.put( y_disp_global.MESSAGE('MAIN','EXCHANGE','GET_EXCHANGE_RATE','ALL', None))
+  #create and start weather forecaset thread
+  exchange_thread = threading.Thread(target=exchange_rates_yahoo.exchange_rate_deamon, args=(main_q, display_q, exchange_q))
+  exchange_thread.name = 'EXCHANGE'  
+  exchange_thread.deamon=False
+  exchange_thread.start()
+  #start repeating exchange rate timer (times out every minute)
+  exchange_timer_thread = timers.RepeatingTimer(60, function=do_timers, args=('EXCHANGE',exchange_q))
+  exchange_timer_thread.name = 'WEATHER_TIMER'
+  exchange_timer_thread.start()     
 
   #############################
   # start meteo module thread # 
@@ -167,11 +185,13 @@ def main():
           #cancel timer threads
           meteo_timer_thread.cancel()
           weather_timer_thread.cancel()
+          exchange_timer_thread.cancel()
           #send shutdown message to all modules
-          button_q.put(  y_disp_global.MESSAGE('MAIN','BUTTON', 'SHUTDOWN',None,None))
-          meteo_q.put(   y_disp_global.MESSAGE('MAIN','METEO',  'SHUTDOWN',None,None))
-          weather_q.put( y_disp_global.MESSAGE('MAIN','WEATHER','SHUTDOWN',None,None))
-          display_q.put( y_disp_global.MESSAGE('MAIN','DISPLAY','SHUTDOWN',None,None))          
+          button_q.put(  y_disp_global.MESSAGE('MAIN','BUTTON',  'SHUTDOWN',None,None))
+          meteo_q.put(   y_disp_global.MESSAGE('MAIN','METEO',   'SHUTDOWN',None,None))
+          weather_q.put( y_disp_global.MESSAGE('MAIN','WEATHER', 'SHUTDOWN',None,None))
+          display_q.put( y_disp_global.MESSAGE('MAIN','DISPLAY', 'SHUTDOWN',None,None))          
+          exchange_q.put(y_disp_global.MESSAGE('MAIN','EXCHANGE','SHUTDOWN',None,None))          
         else:
           logger.warning('got unknown message')
       else:
@@ -179,8 +199,8 @@ def main():
     except queue.Empty as err:
       logger.info('queue empty')
     except:
-      logger.error('unexpected error ['+ str(sys.exc_info()[0]) +']')        
-      
+      logger.error('unexpected error ['+ str(traceback.format_exc()) +']')        
+
       
   logger.debug('done')    
    

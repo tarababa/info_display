@@ -1061,6 +1061,41 @@ def menu_weather_forecast(forecasts,navigate,menuIndex,pageIndex,cls,display):
   return menuIndex,pageIndex
   
 #------------------------------------------------------------------------------#
+# menu_exchange_rate: menu point, show exchange rate                           #
+#                                                                              #
+# Parameters: rates      array of all exchange rates                           #
+#             navigate   Navigation UP, DOWN, MENU_UP, MENU_DOWN               #
+#             pageIndex current page index                                     #
+#             menuIndex current menu index                                     #
+#             cls       When true screen is cleared before showing information #
+#             display   an instance of the yocto maxi display                  #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 28.01.2014 Initial version                                       #
+#------------------------------------------------------------------------------# 
+def menu_exchange_rate(rates,navigate,menuIndex,pageIndex,cls,display):
+  logger = logging.getLogger(LOGGER)
+  
+  #get the correct menuIndex and pageIndex page from the forecasts
+  menuIndex,pageIndex = multimenuNavigator(rates[0],navigate,menuIndex,pageIndex)
+
+  samples=[]
+  #clear layers 1,2 and 3
+  if cls:
+    clearScreen(display)
+    cls==False    
+  #get a particular conversion and store it
+  #in its own samples array
+  for myRate in rates:
+    samples.append(data(myRate[menuIndex].rate))
+  showGraph(0,0,92, 40, 99999, samples, display)
+  minData, maxData, sampleSize = getMinMaxAndSampleSize(samples)
+  showMinMax(93,0,'','%2.4f'%minData,'%2.4f'%maxData ,display)
+  showCurrent(0,39,myRate[menuIndex].to_currency,samples[-1].sample, '1 '+myRate[menuIndex].from_currency+'=' ,display)
+  
+  #return the current page index
+  return menuIndex,pageIndex  
+#------------------------------------------------------------------------------#
 # display_deamon: Instanciates a display module which is responsible for show- #
 #                 desired information.                                         #
 #                 Some logic is implemented here to aggrate (meteo) information#
@@ -1083,7 +1118,8 @@ def display_deamon(main_q, meteo_q, message_q):
   pageIndex  = None
   menuIndex  = None
   displayData= None
-  meteoData  = []
+  meteoData     = []
+  exchangeData  = []
   forecasts  = None
   
   #initialize module
@@ -1123,6 +1159,20 @@ def display_deamon(main_q, meteo_q, message_q):
             ##############################################
             if activeMenu.id in ('menu_meteo_t_graph','menu_meteo_p_graph','menu_meteo_h_graph','menu_meteo_summary'):
               getattr(sys.modules[__name__],activeMenu.id)(displayData,message.subtype,False,module.display)
+              
+          ####################################
+          #MESSAGES FROM EXCHANGE RATE MODULE#
+          ####################################
+          elif message.type == 'EXCHANGE_RATES': 
+            if message.subtype == 'GRAPH':
+              #Append meteo data to list so that we have
+              #historical data to show a graph
+              exchangeData.append(message.content)
+              ######################################  
+              #Update exchange rate screen if ative# 
+              ######################################
+              if activeMenu.id == ('menu_exchange_rate'):
+                menu_exchange_rate(exchangeData,activeMenu.navigate,menuIndex,pageIndex,False,module.display)              
 
           #######################################
           #MESSAGES FROM WEATHER FORECAST MODULE#
@@ -1160,6 +1210,11 @@ def display_deamon(main_q, meteo_q, message_q):
             ##########################            
             elif activeMenu.id == 'menu_weather_forecast':
               menuIndex,pageIndex=menu_weather_forecast(forecasts,activeMenu.navigate,menuIndex,pageIndex,clearScreen,module.display)
+            #######################
+            #EXCHANGE RATE SCREENS#
+            #######################            
+            elif activeMenu.id == 'menu_exchange_rate':
+              menuIndex,pageIndex=menu_exchange_rate(exchangeData,activeMenu.navigate,menuIndex,pageIndex,clearScreen,module.display)
             ###################
             #TEST SCREEN FONTS#
             ###################
@@ -1193,6 +1248,11 @@ def display_deamon(main_q, meteo_q, message_q):
         #make sure we dont have more than 128 samples of meteo data
         try:
           meteoData=meteoData[-128:]
+        except Exception as err:
+          logger.error(str(err))
+        #make sure we dont have more than 128 samples of exchange data
+        try:
+          exchangeData=exchangeData[-128:]
         except Exception as err:
           logger.error(str(err))
           
