@@ -657,8 +657,11 @@ def multipageNavigator(pages,navigate,menuIndex,pageIndex):
       pageIndex = pageIndex + 1
   elif navigate in ('MENU_UP','MENU_DOWN'):
     None
+  elif naviage == None:
+    #not necessarily a problem
+    logger.warning('value for navigate[None]')
   else:
-    logger.error('unexpected value for page[' + str(navigate) + ']') 
+    logger.error('unexpected value for navigate[' + str(navigate) + ']') 
   return menuIndex,pageIndex
 #------------------------------------------------------------------------------#
 # multimenuNavigator: Navigate through dynamically created menu items          #
@@ -693,8 +696,10 @@ def multimenuNavigator(menus,navigate,menuIndex,pageIndex):
       menuIndex = menuIndex - 1
   elif navigate in ('UP','DOWN'):
     None
+  elif navigate == None:
+    logger.warning('value for navigate[None]')
   else:
-    logger.error('unexpected value for page[' + str(navigate) + ']') 
+    logger.error('unexpected value for navigate[' + str(navigate) + ']') 
   return menuIndex,pageIndex
 #------------------------------------------------------------------------------#
 # menu_show_characters_small: for test purposes, shows alphabet in small font  #
