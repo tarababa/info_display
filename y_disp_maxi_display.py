@@ -657,7 +657,7 @@ def multipageNavigator(pages,navigate,menuIndex,pageIndex):
       pageIndex = pageIndex + 1
   elif navigate in ('MENU_UP','MENU_DOWN'):
     None
-  elif naviage == None:
+  elif navigate == None:
     #not necessarily a problem
     logger.warning('value for navigate[None]')
   else:
