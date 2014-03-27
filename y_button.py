@@ -110,9 +110,45 @@ def get_module(name):
 # 1.00    hta 09.11.2013 Initial version                                       #
 #------------------------------------------------------------------------------#   
 def do_buttons(module):
+  #Initialize variables
+  module_name        = None  
+  ymodule            = None  
+  button1            = None
+  pulsecounter1      = None
+  prevcounter1       = None
+  buttonpressed1     = None
+  prevpressed1       = None 
+  button2            = None
+  pulsecounter2      = None
+  prevcounter2       = None 
+  buttonpressed2     = None
+  prevpressed2       = None 
+  button3            = None
+  pulsecounter3      = None
+  prevcounter3       = None
+  buttonpressed3     = None
+  prevpressed3       = None 
+  button4            = None
+  pulsecounter4      = None
+  prevcounter4       = None
+  buttonpressed4     = None
+  prevpressed4       = None 
+  button5            = None
+  pulsecounter5      = None
+  prevcounter5       = None
+  buttonpressed5     = None
+  prevpressed5       = None
+  button6            = None
+  pulsecounter6      = None
+  prevcounter6       = None
+  buttonpressed6     = None
+  prevpressed6       = None
+  current            = None 
+  uptime             = None
+    
   logger = logging.getLogger(LOGGER)
   #if we previously created a valid instance of the 
-  #meteo module then we use that one.
+  #button module then we use that one.
   if  isinstance(module, button_module) and module.module != None:
     module_name        = module.module_name       
     ymodule            = module.module            
@@ -133,45 +169,11 @@ def do_buttons(module):
     buttonpressed5     = module.buttonpressed5
     button6            = module.button6   
     pulsecounter6      = module.pulsecounter6
-    prevcounter6       = module.prevcounter6
     buttonpressed6     = module.buttonpressed6
     current            = module.current          
     uptime             = module.uptime
-  else: 
-    module_name        = None  
-    ymodule            = None  
-    button1            = None
-    pulsecounter1      = None
-    prevcounter1       = None
-    buttonpressed1     = None
-    prevpressed1       = None 
-    button2            = None
-    pulsecounter2      = None
-    prevcounter2       = None 
-    buttonpressed2     = None
-    prevpressed2       = None 
-    button3            = None
-    pulsecounter3      = None
-    prevcounter3       = None
-    buttonpressed3     = None
-    prevpressed3       = None 
-    button4            = None
-    pulsecounter4      = None
-    prevcounter4       = None
-    buttonpressed4     = None
-    prevpressed4       = None 
-    button5            = None
-    pulsecounter5      = None
-    prevcounter5       = None
-    buttonpressed5     = None
-    prevpressed5       = None
-    button6            = None
-    pulsecounter6      = None
-    prevcounter6       = None
-    buttonpressed6     = None
-    prevpressed6       = None
-    current            = None 
-    uptime             = None
+
+
     
   try:
     #button module ready to go?  
@@ -242,32 +244,32 @@ def do_buttons(module):
         prevpressed6 = buttonpressed6      
       current = ymodule.get_usbCurrent()
       uptime  = ymodule.get_upTime()/1000
-      logger.debug('pulsecounter1['   + str(pulsecounter1)  +'] '+
-                   'prevcounter1['    + str(prevcounter1)   +'] '+
-                   'buttonpressed1['  + str(buttonpressed1) +'] '+
-                   'prevpressed1['    + str(prevpressed1)   +'] '+
-                   'pulsecounter2['   + str(pulsecounter2)  +'] '+
-                   'prevcounter2['    + str(prevcounter2)   +'] '+
-                   'buttonpressed2['  + str(buttonpressed2) +'] '+
-                   'prevpressed2['    + str(prevpressed2)   +'] '+
-                   'pulsecounter3['   + str(pulsecounter3)  +'] '+
-                   'prevcounter3['    + str(prevcounter3)   +'] '+
-                   'buttonpressed3['  + str(buttonpressed3) +'] '+
-                   'prevpressed3['    + str(prevpressed3)   +'] '+
-                   'pulsecounter4['   + str(pulsecounter4)  +'] '+
-                   'prevcounter4['    + str(prevcounter4)   +'] '+
-                   'buttonpressed4['  + str(buttonpressed4) +'] '+
-                   'prevpressed4['    + str(prevpressed4)   +'] '+
-                   'pulsecounter5['   + str(pulsecounter5)  +'] '+
-                   'prevcounter5['    + str(prevcounter5)   +'] '+
-                   'buttonpressed5['  + str(buttonpressed5) +'] '+
-                   'prevpressed5['    + str(prevpressed5)   +'] '+
-                   'pulsecounter6['   + str(pulsecounter6)  +'] '+
-                   'prevcounter6['    + str(prevcounter6)   +'] '+
-                   'buttonpressed6['  + str(buttonpressed6) +'] '+
-                   'prevpressed6['    + str(prevpressed6)   +'] '+
-                   'current['     + '%2.2f' % current     +' mA]' +
-                   'uptime['      + str(uptime)           +' s]'  )
+      #logger.debug('pulsecounter1['   + str(pulsecounter1)  +'] '+
+      #            'prevcounter1['    + str(prevcounter1)   +'] '+
+      #            'buttonpressed1['  + str(buttonpressed1) +'] '+
+      #            'prevpressed1['    + str(prevpressed1)   +'] '+
+      #            'pulsecounter2['   + str(pulsecounter2)  +'] '+
+      #            'prevcounter2['    + str(prevcounter2)   +'] '+
+      #            'buttonpressed2['  + str(buttonpressed2) +'] '+
+      #            'prevpressed2['    + str(prevpressed2)   +'] '+
+      #            'pulsecounter3['   + str(pulsecounter3)  +'] '+
+      #            'prevcounter3['    + str(prevcounter3)   +'] '+
+      #            'buttonpressed3['  + str(buttonpressed3) +'] '+
+      #            'prevpressed3['    + str(prevpressed3)   +'] '+
+      #            'pulsecounter4['   + str(pulsecounter4)  +'] '+
+      #            'prevcounter4['    + str(prevcounter4)   +'] '+
+      #            'buttonpressed4['  + str(buttonpressed4) +'] '+
+      #            'prevpressed4['    + str(prevpressed4)   +'] '+
+      #            'pulsecounter5['   + str(pulsecounter5)  +'] '+
+      #            'prevcounter5['    + str(prevcounter5)   +'] '+
+      #            'buttonpressed5['  + str(buttonpressed5) +'] '+
+      #            'prevpressed5['    + str(prevpressed5)   +'] '+
+      #            'pulsecounter6['   + str(pulsecounter6)  +'] '+
+      #            'prevcounter6['    + str(prevcounter6)   +'] '+
+      #            'buttonpressed6['  + str(buttonpressed6) +'] '+
+      #            'prevpressed6['    + str(prevpressed6)   +'] '+
+      #            'current['     + '%2.2f' % current     +' mA]' +
+      #            'uptime['      + str(uptime)           +' s]'  )
     else:
       #Module has not been intialized or is not online
       #then go and try to intialize the module

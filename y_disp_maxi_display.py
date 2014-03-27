@@ -1268,11 +1268,14 @@ def display_deamon(main_q, meteo_q, message_q):
     except queue.Empty as err:
       if module.module != None:
         if activeMenu != None:
-          showDateTime(activeMenu,module.display)
+          try:
+            showDateTime(activeMenu,module.display)
+          except YAPI.YAPI_Exception as err:
+              logger.error(str(err))
+              module = display_module(None,None,None,None,None)
     except YAPI.YAPI_Exception as err:
       logger.error(str(err))
-      module.module = None
-      module.module_name = None           
+      module = display_module(None,None,None,None,None)
     except:
       logger.error('unexpected error ['+ str(traceback.format_exc()) +']')        
         

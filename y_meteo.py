@@ -107,7 +107,19 @@ def get_module(name):
 # 1.00    hta 09.11.2013 Initial version                                       #
 #------------------------------------------------------------------------------#   
 def meteo_data(module):
+  #init variables
+  module_name        = None
+  ymodule            = None
+  humidity_sensor    = None
+  pressure_sensor    = None
+  temperature_sensor = None
+  humidity           = None
+  pressure           = None
+  temperature        = None
+  current            = None
+  uptime             = None
   logger = logging.getLogger(LOGGER)
+  
   #if we previously created a valid instance of the 
   #meteo module then we use that one.
   if  isinstance(module, meteo_module) and module.module != None:
@@ -121,17 +133,6 @@ def meteo_data(module):
     temperature        = module.temperature       
     current            = module.current          
     uptime             = module.uptime
-  else: 
-    module_name        = None
-    ymodule            = None
-    humidity_sensor    = None
-    pressure_sensor    = None
-    temperature_sensor = None
-    humidity           = None
-    pressure           = None
-    temperature        = None
-    current            = None
-    uptime             = None
     
   try:
     #meteo module ready to go?  
