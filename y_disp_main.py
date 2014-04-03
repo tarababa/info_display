@@ -21,7 +21,7 @@
 
 
 import os,sys
-import logging
+import logging,traceback
 import queue, threading
 import urllib, urllib.parse, urllib.request
 import xml.etree.ElementTree as ET
@@ -199,7 +199,7 @@ def main():
     except queue.Empty as err:
       logger.info('queue empty')
     except:
-      logger.error('unexpected error ['+ str(traceback.format_exc()) +']')        
+      logger.error('unexpected error ['+ str(traceback.format_exe()) + ']')        
 
       
   logger.debug('done')    
