@@ -106,7 +106,7 @@ def general_configuration():
   # get configuration from ini file #
   ###################################
   config = configparser.ConfigParser(allow_no_value=True)
-  config.read('./etc/config.ini')
+  config.read('./etc/config.ini',encoding='utf-8')
   set_CONFIG(config)
 #------------------------------------------------------------------------------#
 # init: Read log.ini file. This file whether the various modules should        #
