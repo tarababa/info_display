@@ -28,7 +28,7 @@ class Menu():
   def __init__(self):
     #define the structure of the menu. This structure defines which menu is 
     #shown next when the up, down, left or right button is pressed.
-    self.menu = [ [dict(id='menu_startup', multimenu=False, multipage=False, navigate=None, date=False, date_x=None, date_y=None, time=False, time_x=None, time_y=None)],
+    self.menu = [ [dict(id='menu_startup', multimenu=False, multipage=False, navigate=None, date=True, date_x=70, date_y=63, time=True, time_x=87, time_y=50)],
                   [dict(id='menu_meteo_t_graph', multimenu=False, multipage=False, navigate=None, date=True, date_x=70, date_y=63, time=True, time_x=87, time_y=50),
                    dict(id='menu_meteo_h_graph', multimenu=False, multipage=False, navigate=None, date=True, date_x=70, date_y=63, time=True, time_x=87, time_y=50),
                    dict(id='menu_meteo_p_graph', multimenu=False, multipage=False, navigate=None, date=True, date_x=70, date_y=63, time=True, time_x=87, time_y=50),

@@ -390,6 +390,9 @@ def button_deamon(main_q, message_q, display_q):
     if module.module == None:
       time.sleep(1)
       
+  #initialized, send active menu to display module
+  display_q.put(y_disp_global.MESSAGE('BUTTON','DISPLAY','MENU', None, myMenu.active()))
+  
   #listen for message to execute.
   while not shutdown:
     logger.debug('going to listen on message queue')

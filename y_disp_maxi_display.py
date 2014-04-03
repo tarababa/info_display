@@ -31,6 +31,7 @@ import y_disp_global,y_meteo,y_disp_weather_yr,menu
 sys.path.append(os.path.join("..","YoctoLib.python.12553","Sources"))
 from yocto_api import *
 from yocto_display import *
+from yocto_files import *
 
 
 LOGGER         = 'MAXIDISPLAY'  #name of logger for the main module
@@ -55,7 +56,7 @@ def init():
   y_disp_global.init_log(LOGGER) 
 
 #------------------------------------------------------------------------------#
-# get_module: Get an instance of the yoctopuce disppaly module                 #
+# get_module: Get an instance of the yoctopuce display module                  #
 #                                                                              #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
@@ -1100,6 +1101,154 @@ def menu_exchange_rate(rates,navigate,menuIndex,pageIndex,cls,display):
   
   #return the current page index
   return menuIndex,pageIndex  
+
+
+
+#------------------------------------------------------------------------------#
+# menu_start: start screen                                                     #
+#                                                                              #
+# Parameters: pageIndex current page index                                     #
+#             menuIndex current menu index                                     #
+#             cls       When true screen is cleared before showing information #
+#             display   an instance of the yocto maxi display                  #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 03.04.2014 Initial version                                       #
+#------------------------------------------------------------------------------# 
+def menu_startup(menuIndex,pageIndex,cls,display):
+  logger = logging.getLogger(LOGGER)
+  logger.debug('start')
+  if cls:
+    clearScreen(display)
+    cls==False    
+  
+  display.set_brightness(100)
+  display.playSequence("tom.seq")
+  #wait until sequence has completed!
+  time.sleep(4)
+  display.set_brightness(100)
+  
+  #static display of TOM the moose
+  layer4=display.get_displayLayer(4)
+  layer4.reset()
+  layer4.clear()
+  layer4.hide()
+  layer4.drawImage(0,0, 'tom.gif')
+  layer4.drawImage(32,40, 'tom_text.gif')
+  display.swapLayerContent(4,1)
+  logger.debug('done')
+
+
+  #return the current page index
+  return menuIndex,pageIndex  
+#------------------------------------------------------------------------------#
+# upload_file: uploads a file to the displays file system, only if file does   #
+#                                                                              #
+# Parameters: path       full path to file on local filesystem                 #
+#             files      an instance of the yocto maxi display file system     #
+#             overwrite  default false
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 03.04.2014 Initial version                                       #
+#------------------------------------------------------------------------------# 
+def upload_file(path,files,overwrite=False):
+  logger = logging.getLogger(LOGGER)
+  
+  if not(overwrite):
+    filelist=files.get_list(path.split('/')[-1])
+    
+  if overwrite or len(filelist)<=0:
+    with open(path, mode='rb') as file:
+      fileContent=file.read()
+      files.upload(path, fileContent)      
+      file.close()
+  else:
+    logger.info('file['+path.split('/')[-1]+']already exists')
+      
+    
+#------------------------------------------------------------------------------#
+# create_sequence: create the TOM startup sequence                             #
+#                                                                              #
+# Parameters: name       name of the sequence                                  #
+#             display    an instance of the yocto maxi display module          #
+#             files      an instance of the yocto maxi display file system     #
+#             overwrite  default false
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 03.04.2014 Initial version                                       #
+#------------------------------------------------------------------------------# 
+def create_sequence(name,display,files,overwrite=False):
+  logger = logging.getLogger(LOGGER)
+  
+  if not(overwrite):
+    filelist=files.get_list(name)
+    
+  if overwrite or len(filelist)<=0:
+    display.resetAll()
+    brightness=display.get_brightness()
+    display.set_brightness(100)
+    display.newSequence()
+    layer0=disp.get_displayLayer(0)
+    layer0.clear()
+    layer0.hide()
+    layer0.drawImage(64,0, 'tom.gif')
+    layer0.setLayerPosition(64,0, 0)
+    layer0.unhide()
+    layer0.setLayerPosition(-64,0, 2000)
+
+    layer1=disp.get_displayLayer(1)
+    layer1.clear()
+    layer1.hide()
+    layer1.drawImage(0,40, 'tom_text.gif')
+    layer1.setLayerPosition(128+128,0, 0)
+    layer1.unhide()
+    layer1.setLayerPosition(32,0, 2000)
+
+    display.pauseSequence(3000) #3000ms
+    display.fade(0,1500)
+    display.pauseSequence(1500) #1500ms
+    layer1.reset()
+    layer0.reset()
+    display.saveSequence("tom.seq") 
+    display.set_brightness(brightness)
+  else:
+    logger.info('sequence ['+name+'] already set for startup') 
+    
+#------------------------------------------------------------------------------#
+# do_create_sequence: define and create the TOM startup sequence               #
+#                                                                              #
+# Parameters: module    an instance of the yocto maxi display module          #
+#             overwrite  default false
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 28.01.2014 Initial version                                       #
+#------------------------------------------------------------------------------# 
+def do_create_sequence(module,overwrite=False):    
+  logger = logging.getLogger(LOGGER)
+  #get the filesystem
+  files = YFiles.FindFiles(module.module_name + '.files')
+  if not files.isOnline():
+    logger.error('filesystem['+module.module_name + '.files] not online')
+  else:
+    #upload image files
+    upload_file('img/tom.gif',files,overwrite)
+    upload_file('img/tom_text.gif',files,overwrite)
+    create_sequence('tom.seq',module.display,files,overwrite)
+  
+    #try and set the sequence as our startup sequence
+    if overwrite or module.display.get_startupSeq()==None or module.display.get_startupSeq!='tom.seq':
+      #sequence has not been set yet or overwrite specified.
+      filelist=files.get_list('tom.seq')
+      if len(filelist)!=0:
+        #sequence exists, lets set it as the startup sequence
+        module.display.set_startupSeq('tom.seq')
+        #write configuration to flash memory
+        module.module.saveToFlash()
+      else:
+        logger.error('Sequence[tom.seq] not found on filesystem')
+    else:
+      logger.info('Sequence[tom.seq] is already set as startup sequence')    
+    
 #------------------------------------------------------------------------------#
 # display_deamon: Instanciates a display module which is responsible for show- #
 #                 desired information.                                         #
@@ -1133,6 +1282,9 @@ def display_deamon(main_q, meteo_q, message_q):
     if module.module == None:
       time.sleep(1)
       
+  #create startup sequence
+  do_create_sequence(module)
+  
   #listen for message to execute.
   while not shutdown:
     try:
@@ -1178,7 +1330,7 @@ def display_deamon(main_q, meteo_q, message_q):
               ######################################
               if activeMenu.id == ('menu_exchange_rate'):
                 menu_exchange_rate(exchangeData,None,menuIndex,pageIndex,False,module.display)              
-
+          
           #######################################
           #MESSAGES FROM WEATHER FORECAST MODULE#
           #######################################
@@ -1190,8 +1342,7 @@ def display_deamon(main_q, meteo_q, message_q):
           #########################################
           #MESSAGES FROM (YOCTOPUCE) BUTTON MODULE#
           #########################################
-          elif message.type == 'MENU' and message.subtype == None:
-            
+          if message.type == 'MENU' and message.subtype == None:
             if activeMenu.id != message.content.id:
               #new menu then screen must be cleared..
               clearScreen=True
@@ -1202,10 +1353,15 @@ def display_deamon(main_q, meteo_q, message_q):
               #call page with index zero is shown.
               pageIndex=None
             activeMenu=message.content 
+            ################
+            #STARTUP SCREEN#
+            ################            
+            if activeMenu.id == 'menu_startup':
+              menuIndex,pageIndex=menu_startup(menuIndex,pageIndex,clearScreen,module.display)
             ###########################
             #METEO INFORMATION SCREENS#
             ###########################
-            if activeMenu.id in ('menu_meteo_t_graph','menu_meteo_p_graph','menu_meteo_h_graph','menu_meteo_summary'):
+            elif activeMenu.id in ('menu_meteo_t_graph','menu_meteo_p_graph','menu_meteo_h_graph','menu_meteo_summary'):
               getattr(sys.modules[__name__],activeMenu.id)(meteoData,'GRAPH',clearScreen,module.display)
               if activeMenu.id == 'menu_meteo_summary':
                 #request refresh of sensor readings
@@ -1310,11 +1466,8 @@ def main():
   
   #go try connect to module  
   module=do_display(init_module())
-  showGraph(0,0,80, 32, 9999, testData(), module.display)
-  minData, maxData, sampleSize = getMinMaxAndSampleSize(testData())
-  showMinMax(80,0,'°C','%2.0f'%minData,'%2.0f'%maxData ,module.display)  
-  showCurrent(0,39,'°C','%2.2f'%testData()[-15].sample,'Temperature' ,module.display)
-  showDateTime(70,47,module.display)
+  do_create_sequence(module)
+  module.display.playSequence("tom.seq")
   
 if __name__ == '__main__':
   
