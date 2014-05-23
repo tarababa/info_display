@@ -57,16 +57,6 @@ def init():
   y_disp_global.init_args()
   y_disp_global.init_log(LOGGER) 
   
-def location(loc):
-  logger = logging.getLogger(LOGGER)
-  logger.debug('loc['+loc+']')  
-  if loc=='LANGEBAANLAGOON':
-    #http://www.yr.no/place/South_Africa/Western_Cape/Langebaan_Lagoon/varsel.rss    
-    #alternative for xml document:
-    #http://www.yr.no/place/South_Africa/Western_Cape/Langebaan_Lagoon/forecast.xml
-    #weatherapi documentation:
-    #http://api.yr.no/weatherapi/documentation
-    return 'South_Africa/Western_Cape/Langebaan_Lagoon'
 
 ################################################################################
 # process a title tag of a forcast item

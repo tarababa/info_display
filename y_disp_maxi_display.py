@@ -1102,7 +1102,78 @@ def menu_exchange_rate(rates,navigate,menuIndex,pageIndex,cls,display):
   #return the current page index
   return menuIndex,pageIndex  
 
+#------------------------------------------------------------------------------#
+# menu_radio: show channel playing and volume                                  #
+#                                                                              #
+# Parameters: radio_info dictionary containing radio information               #
+#             display   an instance of the yocto maxi display                  #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 23.05.2014 Initial version                                       #
+#------------------------------------------------------------------------------# 
+def menu_radio(radio_info,cls,display):
+  logger = logging.getLogger(LOGGER)
+  #clear layers 1,2 and 3
+  if cls:
+    clearScreen(display)
+    #also layer 0
+    layer=display.get_displayLayer(0)
+    layer.clear()     
+    cls==False    
+      
+  #prepare radio info
+  #but do not show it
+  layer4=display.get_displayLayer(4)
+  layer4.hide()
+  layer4.clear()
+  
+  layer4.selectFont('Small.yfm')  
+  layer4.drawText(64,15, YDisplayLayer.ALIGN.TOP_CENTER, radio_info.get('name','...'))
+  layer4.drawText(64,25, YDisplayLayer.ALIGN.TOP_CENTER, radio_info.get('title',''))
+  layer4.drawText(0,48, YDisplayLayer.ALIGN.TOP_LEFT, 'Volume: ' + radio_info.get('volume'))
+  layer4.drawBar(0,58, (127/100)*int(radio_info.get('volume')),63)
+  #get layer 0, and use it do display the
+  #summary prepared on layer4
+  
+  layer0=display.get_displayLayer(0)
+  display.swapLayerContent(4,0)   
+  
+#------------------------------------------------------------------------------#
+# do_radio: user has chose radio menu, so we must inform the radio module and  #
+#           and request it to be turned on                                     #
+#                                                                              #
+# Parameters: navigate  Navigation UP, DOWN, MENU_UP, MENU_DOWN                #
+#             pageIndex current page index                                     #
+#             menuIndex current menu index                                     #
+#             radio_q   queue on which radio thread listens for messages       #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 28.01.2014 Initial version                                       #
+#------------------------------------------------------------------------------# 
+def do_radio(navigate, pageIndex, menuIndex, radio_q):
+  logger = logging.getLogger(LOGGER)
+  
+  #when MENU_UP or MENU_DOWN we request next or previous
+  #previous channel from the radio module
+  #when UP or DOWN then request increase  
+  #or decrease of volume from radio module  
+  if pageIndex is None:
+    pageIndex=0
+    menuIndex=0
+    radio_q.put( y_disp_global.MESSAGE('DISPLAY','RADIO','PLAY','ON', 'turn radio on'))        
+  elif navigate == 'MENU_UP':
+    radio_q.put( y_disp_global.MESSAGE('DISPLAY','RADIO','CHANNEL','PREV', 'request previous channel'))    
+  elif navigate == 'MENU_DOWN':
+    radio_q.put( y_disp_global.MESSAGE('DISPLAY','RADIO','CHANNEL','NEXT', 'request next channel'))    
+  elif navigate == 'UP':
+    radio_q.put( y_disp_global.MESSAGE('DISPLAY','RADIO','VOLUME','UP', 'request increase volume'))     
+  elif navigate == 'DOWN':
+    radio_q.put( y_disp_global.MESSAGE('DISPLAY','RADIO','VOLUME','DOWN', 'request decrease volume'))  
+  else:
+    logger.warning('unexpected value of navigate['+navigate+']')  
+    
 
+  return menuIndex,pageIndex  
 
 #------------------------------------------------------------------------------#
 # menu_start: start screen                                                     #
@@ -1119,6 +1190,7 @@ def menu_startup(menuIndex,pageIndex,cls,display):
   logger = logging.getLogger(LOGGER)
   logger.debug('start')
   if cls:
+    #clear 1..4
     clearScreen(display)
     cls==False    
   
@@ -1259,7 +1331,7 @@ def do_create_sequence(module,overwrite=False):
 # version who when       description                                           #
 # 1.00    hta 09.11.2013 Initial version                                       #
 #------------------------------------------------------------------------------# 
-def display_deamon(main_q, meteo_q, message_q):
+def display_deamon(main_q, meteo_q, radio_q, message_q):
   shutdown = False
   message  = None
   module   = init_module()
@@ -1272,6 +1344,7 @@ def display_deamon(main_q, meteo_q, message_q):
   pageIndex  = None
   menuIndex  = None
   displayData= None
+  radioInfo  = None
   meteoData     = []
   exchangeData  = []
   forecasts  = None
@@ -1339,10 +1412,22 @@ def display_deamon(main_q, meteo_q, message_q):
             if activeMenu.id=='menu_weather_forecast':
               menu_weather_forecast(forecasts,None,menuIndex,pageIndex,False,module.display)
 
+          ############################
+          #MESSAGES FROM RADIO MODULE#
+          ############################
+          elif message.type == 'RADIO':
+            radio_info=message.content
+            logger.debug('radio_info['+str(radio_info)+']')
+            if activeMenu.id=='menu_radio':
+              if radio_info is not None:
+                #only once radio_info has been initialised
+                menu_radio(radio_info,clearScreen,module.display)
+                clearScreen=False
+              
           #########################################
           #MESSAGES FROM (YOCTOPUCE) BUTTON MODULE#
           #########################################
-          if message.type == 'MENU' and message.subtype == None:
+          elif message.type == 'MENU' and message.subtype == None:
             if activeMenu.id != message.content.id:
               #new menu then screen must be cleared..
               clearScreen=True
@@ -1376,6 +1461,11 @@ def display_deamon(main_q, meteo_q, message_q):
             #######################            
             elif activeMenu.id == 'menu_exchange_rate':
               menuIndex,pageIndex=menu_exchange_rate(exchangeData,activeMenu.navigate,menuIndex,pageIndex,clearScreen,module.display)
+            ##############
+            #RADIO SCREEN#
+            ##############            
+            elif activeMenu.id == 'menu_radio':
+              menuIndex,pageIndex=do_radio(activeMenu.navigate,menuIndex,pageIndex,radio_q)
             ###################
             #TEST SCREEN FONTS#
             ###################

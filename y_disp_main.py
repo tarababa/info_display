@@ -30,6 +30,7 @@ import y_disp_global
 import y_disp_weather_yr
 import y_meteo, y_button
 import y_disp_maxi_display
+import y_radio
 import exchange_rates_yahoo
 import timers
 sys.path.append(os.path.join("..","YoctoLib.python.12553","Sources"))
@@ -69,6 +70,8 @@ def do_timers(timer, work_queue):
     work_queue.put( y_disp_global.MESSAGE('MAIN','METEO','METEO','GET_SENSOR_DATA',None))
   elif timer=='EXCHANGE':
     work_queue.put( y_disp_global.MESSAGE('MAIN','EXCHANGE','GET_EXCHANGE_RATE','ALL', None))
+  elif timer=='RADIO':
+    work_queue.put( y_disp_global.MESSAGE('MAIN','RADIO','REFRESH','RADIO_INFO', None))
   else:
     logger.info ('no action defined for timer[' + timer + ']')
   
@@ -98,13 +101,14 @@ def main():
   meteo_q   = queue.Queue()
   button_q  = queue.Queue()
   exchange_q= queue.Queue()
+  radio_q   = queue.Queue()
 
 
   ###############################
   # start display module thread # 
   ###############################
   #create and start meteo module thread
-  display_thread = threading.Thread(target=y_disp_maxi_display.display_deamon, args=(main_q, meteo_q, display_q))
+  display_thread = threading.Thread(target=y_disp_maxi_display.display_deamon, args=(main_q, meteo_q, radio_q, display_q))
   display_thread.name = 'DISPLAY'
   display_thread.deamon=False
   display_thread.start()
@@ -136,6 +140,20 @@ def main():
   exchange_timer_thread = timers.RepeatingTimer(60, function=do_timers, args=('EXCHANGE',exchange_q))
   exchange_timer_thread.name = 'WEATHER_TIMER'
   exchange_timer_thread.start()     
+  
+  ######################
+  # start radio thread # 
+  ######################
+  radio_q.put( y_disp_global.MESSAGE('MAIN','RADIO','INIT','RADIO_INFO',None))
+  #create and start meteo module thread
+  radio_thread = threading.Thread(target=y_radio.radio_deamon, args=(main_q, radio_q, display_q))
+  radio_thread.name = 'RADIO'
+  radio_thread.deamon=False
+  radio_thread.start()
+  #start repeating radio timer
+  radio_timer_thread = timers.RepeatingTimer(60, function=do_timers, args=('RADIO',radio_q))
+  radio_timer_thread.name = 'RADIO_TIMER'
+  radio_timer_thread.start()    
 
   #############################
   # start meteo module thread # 
@@ -186,12 +204,14 @@ def main():
           meteo_timer_thread.cancel()
           weather_timer_thread.cancel()
           exchange_timer_thread.cancel()
+          radio_timer_thread.cancel()
           #send shutdown message to all modules
           button_q.put(  y_disp_global.MESSAGE('MAIN','BUTTON',  'SHUTDOWN',None,None))
           meteo_q.put(   y_disp_global.MESSAGE('MAIN','METEO',   'SHUTDOWN',None,None))
           weather_q.put( y_disp_global.MESSAGE('MAIN','WEATHER', 'SHUTDOWN',None,None))
           display_q.put( y_disp_global.MESSAGE('MAIN','DISPLAY', 'SHUTDOWN',None,None))          
           exchange_q.put(y_disp_global.MESSAGE('MAIN','EXCHANGE','SHUTDOWN',None,None))          
+          radio_q.put(   y_disp_global.MESSAGE('MAIN','RADIO','SHUTDOWN',None,None))          
         else:
           logger.warning('got unknown message')
       else:
