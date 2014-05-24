@@ -1131,6 +1131,7 @@ def menu_radio(radio_info,cls,display):
   layer4.drawText(64,15, YDisplayLayer.ALIGN.TOP_CENTER, radio_info.get('name','...'))
   layer4.drawText(64,25, YDisplayLayer.ALIGN.TOP_CENTER, radio_info.get('title',''))
   layer4.drawText(0,48, YDisplayLayer.ALIGN.TOP_LEFT, 'Volume: ' + radio_info.get('volume'))
+  layer4.drawText(105,48, YDisplayLayer.ALIGN.TOP_LEFT, '[' + radio_info.get('state','stop') + ']')
   layer4.drawBar(0,58, (127/100)*int(radio_info.get('volume')),63)
   #get layer 0, and use it do display the
   #summary prepared on layer4

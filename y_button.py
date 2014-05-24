@@ -374,7 +374,7 @@ def trace_result(result,logger):
 # version who when       description                                           #
 # 1.00    hta 09.11.2013 Initial version                                       #
 #------------------------------------------------------------------------------# 
-def button_deamon(main_q, message_q, display_q):
+def button_deamon(main_q, message_q, display_q, radio_q):
   shutdown = False
   message  = None   
   module   = init_module()
@@ -420,8 +420,14 @@ def button_deamon(main_q, message_q, display_q):
         #button 6 pressed? this is our exit button which
         #sends shutdown to all threads
         if (module.pulsecounter6 >= (module.prevcounter6+2)) or (module.pulsecounter6 >= (module.prevcounter6+1) and module.buttonpressed6):
-          message = y_disp_global.MESSAGE('BUTTON','MAIN','SHUTDOWN',None,None)
-          main_q.put(message)            
+          #if the radio menu is active we use button 6 to toggle the radio on/off 
+          #rather then for shutting down the info_display program.
+          if myMenu.active().id == 'menu_radio':
+            message = y_disp_global.MESSAGE('BUTTON','RADIO','PLAY','TOGGLE',None)
+            radio_q.put(message)                
+          else:
+            message = y_disp_global.MESSAGE('BUTTON','MAIN','SHUTDOWN',None,None)
+            main_q.put(message)            
         #button 1 pressed? this is the navigate LEFT button
         if (module.pulsecounter1 >= (module.prevcounter1+2)) or (module.pulsecounter1 >= (module.prevcounter1+1) and module.buttonpressed1):
           myMenu.left()

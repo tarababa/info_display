@@ -173,7 +173,7 @@ def main():
   # start button module thread # 
   ##############################
   #create and start meteo module thread
-  button_thread = threading.Thread(target=y_button.button_deamon, args=(main_q, button_q, display_q))
+  button_thread = threading.Thread(target=y_button.button_deamon, args=(main_q, button_q, display_q, radio_q))
   button_thread.name = 'BUTTON'
   button_thread.deamon=False
   button_thread.start()
