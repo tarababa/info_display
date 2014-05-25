@@ -247,7 +247,7 @@ def yr_save_weathericons():
 #------------------------------------------------------------------------------#
 # trace_forecast: Trace forcast to a log file, get a logger if none is provided#
 #                                                                              #
-# Parameters: forecast  forecast record as defined in y_disp_weather           #
+# Parameters: forecast  forecast record as defined in weather_yr               #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 23.01.2014 Initial version                                       #
@@ -258,7 +258,7 @@ def trace_forecast(forecast):
 #------------------------------------------------------------------------------#
 # trace_forecast: writes forecast record to logger                             #
 #                                                                              #
-# Parameters: forecast  forecast record as defined in y_disp_weather           #
+# Parameters: forecast  forecast record as defined in weather_yr               #
 #             logger    which logger to use for tracing of the forecast        #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
@@ -306,8 +306,8 @@ def trace_forecast(forecast,logger):
 def get_forecast_config():
   logger = logging.getLogger(LOGGER)
   forecast_config=[]
-  for config in y_disp_global.CONFIG['y_disp_weather_yr'] :
-    location,url=y_disp_global.CONFIG['y_disp_weather_yr'][config].split(',')
+  for config in y_disp_global.CONFIG['weather_yr'] :
+    location,url=y_disp_global.CONFIG['weather_yr'][config].split(',')
     #fix non-ascii characters in URL
     url    = urllib.parse.urlsplit(url)
     url    = list(url)    

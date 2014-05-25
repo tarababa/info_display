@@ -26,7 +26,7 @@ import queue, threading
 import collections
 import time
 from time import localtime, strftime
-import y_disp_global,y_meteo,y_disp_weather_yr,menu
+import y_disp_global,y_meteo,weather_yr,menu
 # add ../YoctoLib.python.12553/Sources to the PYTHONPATH
 sys.path.append(os.path.join("..","YoctoLib.python.12553","Sources"))
 from yocto_api import *

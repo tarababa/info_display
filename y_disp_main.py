@@ -27,7 +27,7 @@ import urllib, urllib.parse, urllib.request
 import xml.etree.ElementTree as ET
 import collections
 import y_disp_global
-import y_disp_weather_yr
+import weather_yr
 import y_meteo, y_button
 import y_disp_maxi_display
 import y_radio
@@ -118,7 +118,7 @@ def main():
   #################################
   weather_q.put( y_disp_global.MESSAGE('MAIN','WEATHER','GET_WEATHER_FORECAST','ALL', None))
   #create and start weather forecaset thread
-  weather_thread = threading.Thread(target=y_disp_weather_yr.weather_deamon, args=(main_q, display_q, weather_q))
+  weather_thread = threading.Thread(target=weather_yr.weather_deamon, args=(main_q, display_q, weather_q))
   weather_thread.name = 'WHEATHER'  
   weather_thread.deamon=False
   weather_thread.start()
@@ -193,7 +193,7 @@ def main():
         #WEATHER FORECAST#
         ##################
         if message.type == 'WEATHER_FORECAST': 
-          y_disp_weather_yr.trace_forecast(message.content,logger)
+          weather_yr.trace_forecast(message.content,logger)
         ##################
         #SHUTDOWN REQUEST#
         ##################
