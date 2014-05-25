@@ -929,7 +929,7 @@ def char_pixel_width(string, font='Small'):
       width=width+16;  
     else:
       width=width+undef_width
-      logger.warning('pixel width not defined for character['+str(c)+']')
+      logger.debug('pixel width not defined for character['+str(c)+']')
   return width
 #------------------------------------------------------------------------------#
 # menu_weather_forecast: menu point, show weatherforcast                       #
