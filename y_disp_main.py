@@ -30,7 +30,7 @@ import y_disp_global
 import weather_yr
 import y_meteo, y_button
 import y_disp_maxi_display
-import y_radio
+import radio
 import exchange_rates_yahoo
 import timers
 sys.path.append(os.path.join("..","YoctoLib.python.12553","Sources"))
@@ -146,7 +146,7 @@ def main():
   ######################
   radio_q.put( y_disp_global.MESSAGE('MAIN','RADIO','INIT','RADIO_INFO',None))
   #create and start meteo module thread
-  radio_thread = threading.Thread(target=y_radio.radio_deamon, args=(main_q, radio_q, display_q))
+  radio_thread = threading.Thread(target=radio.radio_deamon, args=(main_q, radio_q, display_q))
   radio_thread.name = 'RADIO'
   radio_thread.deamon=False
   radio_thread.start()
