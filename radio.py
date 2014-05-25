@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 ################################################################################
 # Application         : Get Weatherforcast from YR.NO
 # File                : $HeadURL:  $
@@ -29,18 +27,16 @@ logger = None
 
 
 #------------------------------------------------------------------------------#
-# init: Read config.ini and setup logging                                      #
-#       Content of config.ini as made available globally to all modules through#
-#       through the configuration module                                       #
+# init: Content of config.ini as made available globally to all modules through#
+#       through the configuration module and has been setup by the main        #
+#       information_display module. So here we only need to setup a logger     #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 09.11.2013 Initial version                                       #
 # 1.10    hta 25.05.2015 Removed call to arguments, corrected description      #
 #------------------------------------------------------------------------------#
 def init():
-  configuration.general_configuration();
-  configuration.logging_configuration();
-  configuration.init_log(LOGGER); 
+  configuration.init_log(LOGGER);  
 #------------------------------------------------------------------------------#
 # init_radio: intialize a MPD client                                           #
 #                                                                              #
@@ -360,19 +356,3 @@ def radio_deamon(result_q, message_q, display_q):
       
   logger.debug('done')    
 
-def main():
-  global logger
-  #Initialize
-  init()
-  logger = logging.getLogger(LOGGER)  
-  mpdc=init_radio()
-  mpdc.clear()
-  mpdc.load('myPlayList.m3u')
-  mpdc.play(10)
-  mpdc.setvol(80)
-  logger.debug('status['+str(mpdc.status())+']')
-  logger.debug('status['+str(mpdc.stats())+']')
-  logger.debug('currentsong['+str(mpdc.currentsong())+']')
-  
-if __name__ == '__main__':
-  main()

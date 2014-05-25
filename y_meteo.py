@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 ################################################################################
 # Application         : Get Weatherforcast from YR.NO
 # File                : $HeadURL:  $
@@ -18,8 +16,7 @@
 
 import os,sys
 import time
-import argparse
-import logging, logging.handlers
+import logging
 import queue, threading
 import collections
 import configuration
@@ -35,17 +32,15 @@ LOGGER = 'METEO'     #name of logger for the yoctopuce weather module
 
 meteo_module   = collections.namedtuple('meteo_module', 'module module_name humidity_sensor pressure_sensor temperature_sensor humidity pressure temperature current uptime')
 #------------------------------------------------------------------------------#
-# init: Read config.ini and setup logging                                      #
-#       Content of config.ini as made available globally to all modules through#
-#       through the configuration module                                       #
+# init: Content of config.ini as made available globally to all modules through#
+#       through the configuration module and has been setup by the main        #
+#       information_display module. So here we only need to setup a logger     #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 09.11.2013 Initial version                                       #
 # 1.10    hta 25.05.2015 Removed call to arguments, corrected description      #
 #------------------------------------------------------------------------------#
 def init():
-  configuration.general_configuration();
-  configuration.logging_configuration();
   configuration.init_log(LOGGER); 
 #------------------------------------------------------------------------------#
 # get_module: Get an instance of the yoctopuce meteo module                    #
@@ -291,15 +286,4 @@ def meteo_deamon(result_q, message_q, display_q):
       
   logger.debug('done')    
 
-def main():
-  #Initialize
-  init()
-  logger = logging.getLogger(LOGGER)  
-  module=meteo_module(None,None,None,None,None,None,None,None,None,None)  
-  while True:
-    module=meteo_data(module)
-    time.sleep (1.5)
-      
-  
-if __name__ == '__main__':
-  main()
+

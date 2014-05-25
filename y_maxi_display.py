@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 ################################################################################
 # Application         : Yoctopuce display control
 # File                : $HeadURL:  $
@@ -22,7 +20,7 @@
 
 import os,sys,math,decimal
 import logging,traceback
-import queue, threading
+import queue
 import collections
 import time
 from time import localtime, strftime
@@ -42,18 +40,16 @@ display_module = collections.namedtuple('display_module', 'module module_name di
 
 
 #------------------------------------------------------------------------------#
-# init: Read config.ini and setup logging                                      #
-#       Content of config.ini as made available globally to all modules through#
-#       through the configuration module                                       #
+# init: Content of config.ini as made available globally to all modules through#
+#       through the configuration module and has been setup by the main        #
+#       information_display module. So here we only need to setup a logger     #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 09.11.2013 Initial version                                       #
 # 1.10    hta 25.05.2015 Removed call to arguments, corrected description      #
 #------------------------------------------------------------------------------#
 def init():
-  configuration.general_configuration()
-  configuration.logging_configuration()
-  configuration.init_log(LOGGER) 
+  configuration.init_log(LOGGER);  
 
 #------------------------------------------------------------------------------#
 # get_module: Get an instance of the yoctopuce display module                  #
@@ -1527,39 +1523,4 @@ def display_deamon(main_q, meteo_q, radio_q, message_q):
       logger.error('unexpected error ['+ str(traceback.format_exc()) +']')        
         
   logger.debug('done')    
-      
-      
-     
-#------------------------------------------------------------------------------#
-# testData: Returns a list of test data consisting of 128 samples              #
-#                                                                              #
-#------------------------------------------------------------------------------#
-# version who when       description                                           #
-# 1.00    hta 27.01.2014 Initial version                                       #
-#------------------------------------------------------------------------------#     
-def testData():
-  testData=[]
-  for i in range (0,128):
-    testData.append(data(math.sin(i/5)))
-  return testData
-#------------------------------------------------------------------------------#
-# main:                                                                        #
-#                                                                              #
-#------------------------------------------------------------------------------#
-# version who when       description                                           #
-# 1.00    hta 09.11.2013 Initial version                                       #
-#------------------------------------------------------------------------------#
-def main():
-  #get commandline arguments, config.ini and setup logging
-  init();
-  logger = logging.getLogger(LOGGER)  
-  logger.debug('start')
-  
-  #go try connect to module  
-  module=do_display(init_module())
-  do_create_sequence(module)
-  module.display.playSequence("tom.seq")
-  
-if __name__ == '__main__':
-  
-  main()
+

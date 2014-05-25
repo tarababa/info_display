@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 ################################################################################
 # Application         : Holds, sets and returns globally relevant values
 # File                : $HeadURL:  $

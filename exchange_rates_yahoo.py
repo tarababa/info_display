@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 ################################################################################
 # Application         : Get exchange rates from yahoo
 # File                : $HeadURL:  $
@@ -16,9 +14,8 @@
 
 
 import os,sys
-import argparse
-import logging, logging.handlers,traceback
-import queue, threading
+import logging, traceback
+import queue
 import urllib, urllib.parse, urllib.request
 import xml.etree.ElementTree as ET
 import collections
@@ -28,23 +25,19 @@ import configuration
 LOGGER = 'EXCHANGE'  #name of logger for this module
 
 #define collections to hold exchange rates
-exchange_rate               = collections.namedtuple("exchange_rate","from_currency to_currency rate date time ask bid")
-
-
+exchange_rate = collections.namedtuple("exchange_rate","from_currency to_currency rate date time ask bid")
 
 #------------------------------------------------------------------------------#
-# init: Read config.ini and setup logging                                      #
-#       Content of config.ini as made available globally to all modules through#
-#       through the configuration module                                       #
+# init: Content of config.ini as made available globally to all modules through#
+#       through the configuration module and has been setup by the main        #
+#       information_display module. So here we only need to setup a logger     #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 09.11.2013 Initial version                                       #
 # 1.10    hta 25.05.2015 Removed call to arguments, corrected description      #
 #------------------------------------------------------------------------------#
 def init():
-  configuration.general_configuration()
-  configuration.logging_configuration()
-  configuration.init_log(LOGGER) 
+  configuration.init_log(LOGGER); 
 
 #------------------------------------------------------------------------------#
 # yahoo_exchange_rate_xml: get exchange rate in XML format from yahoo          #
@@ -201,31 +194,4 @@ def exchange_rate_deamon(main_q,display_q,message_q):
       
   logger.debug('done')    
       
-#------------------------------------------------------------------------------#
-# main: for standalone testing purposes                                        #
-#                                                                              #
-# Parameters:          None                                                    #
-#                                                                              #
-# ReturnValues:  list of location names and associated URLs                    #
-#------------------------------------------------------------------------------#
-# version who when       description                                           #
-# 1.00    hta 24.03.2014 Initial version                                       #
-#------------------------------------------------------------------------------#        
-def main():
-  #get commandline arguments and setup logging
-  init()
-  logger = logging.getLogger(LOGGER)
-  #get configuration
-  exchange_rate_config=get_exchange_rate_config()
-  
-  rates = []
-  
-  #Loop through all configured exchange rates
-  for config in exchange_rate_config:
-    rates.append(yahoo_exchange_rate_xml(config))  
-  #trace result
-  for rate in rates:
-    trace_exchange_rate(rate,logger)
-    
-if __name__ == '__main__':
-  main()
+

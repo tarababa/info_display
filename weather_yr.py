@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 ################################################################################
 # Application         : Get Weatherforcast from YR.NO
 # File                : $HeadURL:  $
@@ -17,9 +15,8 @@
 
 
 import os,sys
-import argparse
-import logging, logging.handlers,traceback
-import queue, threading
+import logging, traceback
+import queue
 import urllib, urllib.parse, urllib.request
 import xml.etree.ElementTree as ET
 import collections
@@ -40,22 +37,17 @@ forecast_item_wind          = collections.namedtuple("wind","description strengt
 forecast_item_precipitation = collections.namedtuple("precipitation","precipitation unit time_from time_to")
 forecast_item_symbol        = collections.namedtuple("symbol","image")
 
-
-
 #------------------------------------------------------------------------------#
-# init: Read config.ini and setup logging                                      #
-#       Content of config.ini as made available globally to all modules through#
-#       through the configuration module                                       #
+# init: Content of config.ini as made available globally to all modules through#
+#       through the configuration module and has been setup by the main        #
+#       information_display module. So here we only need to setup a logger     #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 09.11.2013 Initial version                                       #
 # 1.10    hta 25.05.2015 Removed call to arguments, corrected description      #
 #------------------------------------------------------------------------------#
 def init():
-  configuration.general_configuration()
-  configuration.logging_configuration()
-  configuration.init_log(LOGGER) 
-  
+  configuration.init_log(LOGGER); 
 
 ################################################################################
 # process a title tag of a forcast item
@@ -362,18 +354,4 @@ def weather_deamon(main_q,display_q,message_q):
       logger.error('unexpected error ['+  str(traceback.format_exc()) +']')        
       
   logger.debug('done')    
-      
-      
-def main():
-  #get commandline arguments and setup logging
-  init()
-  logger = logging.getLogger(LOGGER)  
-  #get forecast
-  forecast=yr_rss('LANGEBAANLAGOON')
-  #write forcast to tracefile
-  trace_forecast(forecast)
-  if  configuration.ARGS.setup == True:
-    yr_save_weathericons()
-  
-if __name__ == '__main__':
-  main()
+

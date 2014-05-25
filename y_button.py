@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 ################################################################################
 # Application         : manage buttons
 # File                : $HeadURL:  $
@@ -18,9 +16,8 @@
 
 import os,sys
 import time
-import argparse
-import logging, logging.handlers
-import queue, threading
+import logging, traceback
+import queue
 import collections
 import configuration
 import menu
@@ -38,17 +35,15 @@ button_module  = collections.namedtuple('button_module', 'module module_name ' +
                                                          'button5 pulsecounter5 prevcounter5 buttonpressed5 prevpressed5 button6 pulsecounter6 prevcounter6 buttonpressed6 prevpressed6 ' +
                                                          'current uptime')
 #------------------------------------------------------------------------------#
-# init: Read config.ini and setup logging                                      #
-#       Content of config.ini as made available globally to all modules through#
-#       through the configuration module                                       #
+# init: Content of config.ini as made available globally to all modules through#
+#       through the configuration module and has been setup by the main        #
+#       information_display module. So here we only need to setup a logger     #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 09.11.2013 Initial version                                       #
 # 1.10    hta 25.05.2015 Removed call to arguments, corrected description      #
 #------------------------------------------------------------------------------#
 def init():
-  configuration.general_configuration();
-  configuration.logging_configuration();
   configuration.init_log(LOGGER); 
 #------------------------------------------------------------------------------#
 # get_module: Get an instance of the yoctopuce meteo module                    #
@@ -470,17 +465,5 @@ def button_deamon(main_q, message_q, display_q, radio_q):
           myMenu.ok()
           logger.info('OK, activeMenu['+str(myMenu.active().id)+']') 
     except:
-      logger.error('unexpected error ['+ str(sys.exc_info()[0]) +']')        
-          
-def main():
-  #Initialize
-  init()
-  logger = logging.getLogger(LOGGER)  
-  module=do_buttons(init_module())  
-  while True:
-    module=do_buttons(module)
-    time.sleep (5)
-      
-  
-if __name__ == '__main__':
-  main()
+      logger.error('unexpected error ['+ str(traceback.format_exc()) +']')       
+

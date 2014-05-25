@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 ################################################################################
 # Application         : Yoctopuce display control
 # File                : $HeadURL:  $
@@ -23,8 +21,8 @@
 import os,sys
 import logging,traceback
 import queue, threading
-import urllib, urllib.parse, urllib.request
-import xml.etree.ElementTree as ET
+#import urllib, urllib.parse, urllib.request
+#import xml.etree.ElementTree as ET
 import collections
 import configuration
 import weather_yr
@@ -224,5 +222,4 @@ def main():
    
   
 if __name__ == '__main__':
-  
   main()
