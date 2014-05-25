@@ -18,11 +18,11 @@
 
 import os,sys
 import time
-import logging, logging.handlers
-import queue, threading
+import logging, traceback
+import queue
 import urllib, urllib.parse, urllib.request
-import y_disp_global
 from mpd import MPDClient, CommandError
+import y_disp_global
 
 LOGGER = 'RADIO'     #name of logger 
 logger = None
@@ -195,19 +195,15 @@ def previousStation(radio_info, mpdc):
 #------------------------------------------------------------------------------# 
 def refreshRadioInfo(playlist,mpdc):            
   global logger
-  try:
-    #get dictionary containing playlist length, volume, state
-    radio_info=mpdc.status()
-    #update dictionary in particular name of station playing.
-    radio_info.update(mpdc.currentsong())
-    #no name for current channel set, then use the one from the configured playlist
-    if radio_info.get('name','?') == '?':
-      radio_info.update({'name':playlist[int(radio_info.get('song',0))][0]})
-    return radio_info
-  except:
-    logger.error('unexpected error ['+ str(sys.exc_info()[0]) +']')        
-    return None
-    
+  
+  #get dictionary containing playlist length, volume, state
+  radio_info=mpdc.status()
+  #update dictionary in particular name of station playing.
+  radio_info.update(mpdc.currentsong())
+  #no name for current channel set, then use the one from the configured playlist
+  if radio_info.get('name','?') == '?':
+    radio_info.update({'name':playlist[int(radio_info.get('song',0))][0]})
+  return radio_info
 
 #------------------------------------------------------------------------------#
 # get_playlist_config: return a list of all radiostations which should be made #
@@ -297,6 +293,14 @@ def radio_deamon(result_q, message_q, display_q):
     logger.info('going to listen on message queue')
     try:
       message=message_q.get(timeout=60)
+      #if mdpc failed to initialize earlier or if connection was 
+      #reset we try to establish connection again
+      while mpdc is None:
+         mpdc=init_radio
+         #still no connection, let's 
+         #wait and try again
+         if mdpc is None:
+           time.sleep(2)
       radio_info=refreshRadioInfo(playlist,mpdc)
       if isinstance(message, y_disp_global.MESSAGE):
         logger.debug('message.sender['   + str(message.sender)  + ']')
@@ -348,8 +352,11 @@ def radio_deamon(result_q, message_q, display_q):
       radio_info=refreshRadioInfo(playlist,mpdc)
       message = y_disp_global.MESSAGE('RADIO','DISPLAY','RADIO','REFRESH',radio_info)
       display_q.put(message) 
+    except ConnectionResetError as err:
+      logger.warning('connection has been reset')
+      mdpc=None
     except:
-      logger.error('unexpected error ['+ str(sys.exc_info()[0]) +']')        
+      logger.error('unexpected error ['+ str(traceback.format_exc()) +']')        
             
       
   logger.debug('done')    

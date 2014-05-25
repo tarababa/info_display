@@ -219,7 +219,7 @@ def main():
     except queue.Empty as err:
       logger.info('queue empty')
     except:
-      logger.error('unexpected error ['+ str(traceback.format_exe()) + ']')        
+      logger.error('unexpected error ['+ str(traceback.format_exc()) + ']')        
 
       
   logger.debug('done')    
