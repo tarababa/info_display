@@ -29,7 +29,7 @@ import collections
 import y_disp_global
 import weather_yr
 import y_meteo, y_button
-import y_disp_maxi_display
+import y_maxi_display
 import radio
 import exchange_rates_yahoo
 import timers
@@ -108,7 +108,7 @@ def main():
   # start display module thread # 
   ###############################
   #create and start meteo module thread
-  display_thread = threading.Thread(target=y_disp_maxi_display.display_deamon, args=(main_q, meteo_q, radio_q, display_q))
+  display_thread = threading.Thread(target=y_maxi_display.display_deamon, args=(main_q, meteo_q, radio_q, display_q))
   display_thread.name = 'DISPLAY'
   display_thread.deamon=False
   display_thread.start()
