@@ -26,7 +26,7 @@ import queue, threading
 import collections
 import time
 from time import localtime, strftime
-import y_disp_global,y_meteo,weather_yr,menu
+import configuration,y_meteo,weather_yr,menu
 # add ../YoctoLib.python.12553/Sources to the PYTHONPATH
 sys.path.append(os.path.join("..","YoctoLib.python.12553","Sources"))
 from yocto_api import *
@@ -42,18 +42,18 @@ display_module = collections.namedtuple('display_module', 'module module_name di
 
 
 #------------------------------------------------------------------------------#
-# init: Read config.ini, read startup arguments and setup logging              #
-#       Content of config.ini and the startup arguments are made available     #
-#       globally to all modules through y_disp_global                          #
+# init: Read config.ini and setup logging                                      #
+#       Content of config.ini as made available globally to all modules through#
+#       through the configuration module                                       #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 09.11.2013 Initial version                                       #
+# 1.10    hta 25.05.2015 Removed call to arguments, corrected description      #
 #------------------------------------------------------------------------------#
 def init():
-  y_disp_global.general_configuration()
-  y_disp_global.logging_configuration()
-  y_disp_global.init_args()
-  y_disp_global.init_log(LOGGER) 
+  configuration.general_configuration()
+  configuration.logging_configuration()
+  configuration.init_log(LOGGER) 
 
 #------------------------------------------------------------------------------#
 # get_module: Get an instance of the yoctopuce display module                  #
@@ -143,9 +143,9 @@ def do_display(module):
     else:
       #Yocto module has not been intialized or is not online
       #then go and try to intialize the module
-      if y_disp_global.CONFIG.has_option('y_maxi_display','logical_name'):
+      if configuration.CONFIG.has_option('y_maxi_display','logical_name'):
         #if configured get a specific module
-        ymodule = get_module(y_disp_global.CONFIG['y_maxi_display']['logical_name'])
+        ymodule = get_module(configuration.CONFIG['y_maxi_display']['logical_name'])
       else:
         #not configured get any module
         ymodule = get_module(None)          
@@ -1161,15 +1161,15 @@ def do_radio(navigate, pageIndex, menuIndex, radio_q):
   if pageIndex is None:
     pageIndex=0
     menuIndex=0
-    radio_q.put( y_disp_global.MESSAGE('DISPLAY','RADIO','PLAY','ON', 'turn radio on'))        
+    radio_q.put( configuration.MESSAGE('DISPLAY','RADIO','PLAY','ON', 'turn radio on'))        
   elif navigate == 'MENU_UP':
-    radio_q.put( y_disp_global.MESSAGE('DISPLAY','RADIO','CHANNEL','PREV', 'request previous channel'))    
+    radio_q.put( configuration.MESSAGE('DISPLAY','RADIO','CHANNEL','PREV', 'request previous channel'))    
   elif navigate == 'MENU_DOWN':
-    radio_q.put( y_disp_global.MESSAGE('DISPLAY','RADIO','CHANNEL','NEXT', 'request next channel'))    
+    radio_q.put( configuration.MESSAGE('DISPLAY','RADIO','CHANNEL','NEXT', 'request next channel'))    
   elif navigate == 'UP':
-    radio_q.put( y_disp_global.MESSAGE('DISPLAY','RADIO','VOLUME','UP', 'request increase volume'))     
+    radio_q.put( configuration.MESSAGE('DISPLAY','RADIO','VOLUME','UP', 'request increase volume'))     
   elif navigate == 'DOWN':
-    radio_q.put( y_disp_global.MESSAGE('DISPLAY','RADIO','VOLUME','DOWN', 'request decrease volume'))  
+    radio_q.put( configuration.MESSAGE('DISPLAY','RADIO','VOLUME','DOWN', 'request decrease volume'))  
   else:
     logger.warning('unexpected value of navigate['+navigate+']')  
     
@@ -1337,7 +1337,7 @@ def display_deamon(main_q, meteo_q, radio_q, message_q):
   message  = None
   module   = init_module()
   #setup logging
-  y_disp_global.init_log(LOGGER)
+  configuration.init_log(LOGGER)
   logger = logging.getLogger(LOGGER)
   #init local variables
   cleanScreen = False
@@ -1369,7 +1369,7 @@ def display_deamon(main_q, meteo_q, radio_q, message_q):
       else:
         #Received a message, type and subtype define 
         #what is to be done with the messasge
-        if isinstance(message, y_disp_global.MESSAGE):
+        if isinstance(message, configuration.MESSAGE):
           logger.debug('message.sender['   + str(message.sender)  + ']')
           logger.debug('message.receiver[' + str(message.receiver)+ ']')
           logger.debug('message.type['     + str(message.type)    + ']')
@@ -1451,7 +1451,7 @@ def display_deamon(main_q, meteo_q, radio_q, message_q):
               getattr(sys.modules[__name__],activeMenu.id)(meteoData,'GRAPH',clearScreen,module.display)
               if activeMenu.id == 'menu_meteo_summary':
                 #request refresh of sensor readings
-                meteo_q.put(y_disp_global.MESSAGE('DISPLAY','METEO','REFRESH',None,None))
+                meteo_q.put(configuration.MESSAGE('DISPLAY','METEO','REFRESH',None,None))
             ##########################
             #WEATHER FORECAST SCREENS#
             ##########################            

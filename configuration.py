@@ -21,37 +21,15 @@
 
 
 import os,sys
-import argparse
 import collections
 import logging, logging.handlers
 import configparser
 
-ARGS   = {}         #startup arguments, globally available
 CONFIG = None       #configuration from config.ini
 LOGGING= None       #logging configuration from ini file
 
 MESSAGE   = collections.namedtuple('message', 'sender receiver type subtype content')
 
-#------------------------------------------------------------------------------#
-# set_ARGS: set globally available startup parameters                          #
-#                                                                              #
-#------------------------------------------------------------------------------#
-# version who when       description                                           #
-# 1.00    hta 09.11.2013 Initial version                                       #
-#------------------------------------------------------------------------------#
-def set_ARGS(args):
-  global ARGS 
-  ARGS = args
-#------------------------------------------------------------------------------#
-# get_ARGS: returns globally available startup parameters                      #
-#                                                                              #
-#------------------------------------------------------------------------------#
-# version who when       description                                           #
-# 1.00    hta 09.11.2013 Initial version                                       #
-#------------------------------------------------------------------------------#
-def get_ARGS():
-  global ARGS 
-  return ARGS
 #------------------------------------------------------------------------------#
 # set_CONFIG: set globally available configuration (from config.ini)           #
 #                                                                              #
@@ -72,7 +50,6 @@ def set_CONFIG(config):
 def get_CONFIG():
   global CONFIG
   return CONFIG
-
 #------------------------------------------------------------------------------#
 # set_LOGGING: set globally available logging configuration (from logging.ini) #
 #                                                                              #
@@ -122,29 +99,6 @@ def logging_configuration():
   config = configparser.ConfigParser(allow_no_value=True)
   config.read('./etc/log.ini')
   set_LOGGING(config)
-
-#------------------------------------------------------------------------------#
-# init: Read startup parameters                                                #
-#                                                                              #
-#------------------------------------------------------------------------------#
-# version who when       description                                           #
-# 1.00    hta 17.11.2013 Initial version                                       #
-#------------------------------------------------------------------------------#  
-def init_args():  
-  ##############################
-  # get command line arguments #
-  ##############################
-  parser = argparse.ArgumentParser(description='Weather and exchange rate information')
-  #should Yocto display be setup
-  #Loads imsages to display.
-  parser.add_argument('-s','--setup','--SETUP', 
-                      action='store_true',
-                      help='When option present Yocto display will be setup', 
-                      default=False)
-  args = (parser.parse_args())
-  
-  set_ARGS(args)
-
 #------------------------------------------------------------------------------#
 # init: initialize logger                                                      #
 #                                                                              #
@@ -195,11 +149,4 @@ def init_log(LOGGER):
     rfh.setFormatter(formatter)
     #rfh (rotating filehandler to logger
     logger.addHandler(rfh)
-  
-  # 'application' code
-  # logger.debug('debug message')
-  # logger.info('info message')
-  # logger.warn('warn message')
-  # logger.error('error message')
-  # logger.critical('critical message')  
   

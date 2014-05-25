@@ -22,26 +22,25 @@ import logging, traceback
 import queue
 import urllib, urllib.parse, urllib.request
 from mpd import MPDClient, CommandError
-import y_disp_global
+import configuration
 
 LOGGER = 'RADIO'     #name of logger 
 logger = None
 
 
 #------------------------------------------------------------------------------#
-# init: Read config.ini, read startup arguments and setup logging              #
-#       Content of config.ini and the startup arguments are made available     #
-#       globally to all modules through y_disp_global                          #
-#       Only used when module is ran on its own, for test purposes             #
+# init: Read config.ini and setup logging                                      #
+#       Content of config.ini as made available globally to all modules through#
+#       through the configuration module                                       #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 09.11.2013 Initial version                                       #
+# 1.10    hta 25.05.2015 Removed call to arguments, corrected description      #
 #------------------------------------------------------------------------------#
 def init():
-  y_disp_global.general_configuration();
-  y_disp_global.logging_configuration();
-  y_disp_global.init_args();
-  y_disp_global.init_log(LOGGER); 
+  configuration.general_configuration();
+  configuration.logging_configuration();
+  configuration.init_log(LOGGER); 
 #------------------------------------------------------------------------------#
 # init_radio: intialize a MPD client                                           #
 #                                                                              #
@@ -55,8 +54,8 @@ def init_radio():
   try:
     mpdc = MPDClient()               # create client object
     mpdc.timeout = 10                # network timeout in seconds (floats allowed), default: None
-    mpdc.connect(str(y_disp_global.CONFIG['radio']['mpd_server']),
-                 int(y_disp_global.CONFIG['radio']['mpd_port']))  # connect to localhost:6600
+    mpdc.connect(str(configuration.CONFIG['radio']['mpd_server']),
+                 int(configuration.CONFIG['radio']['mpd_port']))  # connect to localhost:6600
     logger.info('initialized mpdc, version['+mpdc.mpd_version+']')
     return mpdc
   except:
@@ -219,8 +218,8 @@ def refreshRadioInfo(playlist,mpdc):
 def get_playlist_config():
   global logger
   playlist_config=[]
-  for config in y_disp_global.CONFIG['radio_playlist'] :
-    url,station=y_disp_global.CONFIG['radio_playlist'][config].split(',')
+  for config in configuration.CONFIG['radio_playlist'] :
+    url,station=configuration.CONFIG['radio_playlist'][config].split(',')
     #fix non-ascii characters in URL
     url    = urllib.parse.urlsplit(url)
     url    = list(url)    
@@ -243,7 +242,7 @@ def get_playlist_config():
 def doInitPlaylist(mpdc):            
   global logger
   #first remove the playlist we want to create
-  playlistName=y_disp_global.CONFIG['radio']['playlist_name']
+  playlistName=configuration.CONFIG['radio']['playlist_name']
   #try to remove the playlist if it exists
   try:
     mpdc.rm(playlistName)
@@ -278,7 +277,7 @@ def radio_deamon(result_q, message_q, display_q):
   message  = None
   mpdc     = None
   #setup logging
-  y_disp_global.init_log(LOGGER)
+  configuration.init_log(LOGGER)
   logger = logging.getLogger(LOGGER)
   #initialize music player deamon client
   #create in instance 
@@ -302,7 +301,7 @@ def radio_deamon(result_q, message_q, display_q):
          if mdpc is None:
            time.sleep(2)
       radio_info=refreshRadioInfo(playlist,mpdc)
-      if isinstance(message, y_disp_global.MESSAGE):
+      if isinstance(message, configuration.MESSAGE):
         logger.debug('message.sender['   + str(message.sender)  + ']')
         logger.debug('message.receiver[' + str(message.receiver)+ ']')
         logger.debug('message.type['     + str(message.type)    + ']')
@@ -345,12 +344,12 @@ def radio_deamon(result_q, message_q, display_q):
       if not shutdown:
         radio_info=refreshRadioInfo(playlist,mpdc)
         logger.debug(str(radio_info))
-        message = y_disp_global.MESSAGE('RADIO','DISPLAY','RADIO','REFRESH',radio_info)
+        message = configuration.MESSAGE('RADIO','DISPLAY','RADIO','REFRESH',radio_info)
         display_q.put(message)        
     except queue.Empty as err:
       logger.debug ('queue empty ' + str(err))
       radio_info=refreshRadioInfo(playlist,mpdc)
-      message = y_disp_global.MESSAGE('RADIO','DISPLAY','RADIO','REFRESH',radio_info)
+      message = configuration.MESSAGE('RADIO','DISPLAY','RADIO','REFRESH',radio_info)
       display_q.put(message) 
     except ConnectionResetError as err:
       logger.warning('connection has been reset')

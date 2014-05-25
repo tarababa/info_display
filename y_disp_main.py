@@ -26,7 +26,7 @@ import queue, threading
 import urllib, urllib.parse, urllib.request
 import xml.etree.ElementTree as ET
 import collections
-import y_disp_global
+import configuration
 import weather_yr
 import y_meteo, y_button
 import y_maxi_display
@@ -39,21 +39,19 @@ from yocto_display import *
 
 LOGGER = 'MAIN'  #name of logger for the main module
 
-
-        
 #------------------------------------------------------------------------------#
-# init: Read config.ini, log.ini, starup arguments and setup logging           #
-#       Content of config.ini and the startup arguments are made available     #
-#       globally to all modules through y_disp_global                          #
+# init: Read config.ini and setup logging                                      #
+#       Content of config.ini as made available globally to all modules through#
+#       through the configuration module                                       #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 09.11.2013 Initial version                                       #
+# 1.10    hta 25.05.2015 Removed call to arguments, corrected description      #
 #------------------------------------------------------------------------------#
 def init():
-  y_disp_global.general_configuration();
-  y_disp_global.logging_configuration();
-  y_disp_global.init_args();
-  y_disp_global.init_log(LOGGER);
+  configuration.general_configuration();
+  configuration.logging_configuration();
+  configuration.init_log(LOGGER);
 #------------------------------------------------------------------------------#
 # do_timers: processes timers, put message in relevant work_queues             #
 #                                                                              #
@@ -65,13 +63,13 @@ def do_timers(timer, work_queue):
   logger = logging.getLogger(LOGGER)  
   logger.info('got timer[' + timer + ']')
   if timer=='WEATHER':
-    work_queue.put( y_disp_global.MESSAGE('MAIN','WEATHER','GET_WEATHER_FORECAST','ALL', None))
+    work_queue.put( configuration.MESSAGE('MAIN','WEATHER','GET_WEATHER_FORECAST','ALL', None))
   elif timer=='METEO':
-    work_queue.put( y_disp_global.MESSAGE('MAIN','METEO','METEO','GET_SENSOR_DATA',None))
+    work_queue.put( configuration.MESSAGE('MAIN','METEO','METEO','GET_SENSOR_DATA',None))
   elif timer=='EXCHANGE':
-    work_queue.put( y_disp_global.MESSAGE('MAIN','EXCHANGE','GET_EXCHANGE_RATE','ALL', None))
+    work_queue.put( configuration.MESSAGE('MAIN','EXCHANGE','GET_EXCHANGE_RATE','ALL', None))
   elif timer=='RADIO':
-    work_queue.put( y_disp_global.MESSAGE('MAIN','RADIO','REFRESH','RADIO_INFO', None))
+    work_queue.put( configuration.MESSAGE('MAIN','RADIO','REFRESH','RADIO_INFO', None))
   else:
     logger.info ('no action defined for timer[' + timer + ']')
   
@@ -87,7 +85,7 @@ def test_():
   init();
   logger = logging.getLogger(LOGGER)  
   logger.debug('start')
-  logger.debug(y_disp_global.CONFIG['y_meteo']['weather_station_logical_name'])
+  logger.debug(configuration.CONFIG['y_meteo']['weather_station_logical_name'])
 def main():
   #get commandline arguments, config.ini and setup logging
   init();
@@ -116,7 +114,7 @@ def main():
   #################################
   # start weather forecast thread # 
   #################################
-  weather_q.put( y_disp_global.MESSAGE('MAIN','WEATHER','GET_WEATHER_FORECAST','ALL', None))
+  weather_q.put( configuration.MESSAGE('MAIN','WEATHER','GET_WEATHER_FORECAST','ALL', None))
   #create and start weather forecaset thread
   weather_thread = threading.Thread(target=weather_yr.weather_deamon, args=(main_q, display_q, weather_q))
   weather_thread.name = 'WHEATHER'  
@@ -130,7 +128,7 @@ def main():
   ##############################
   # start exchange rate thread # 
   ##############################
-  exchange_q.put( y_disp_global.MESSAGE('MAIN','EXCHANGE','GET_EXCHANGE_RATE','ALL', None))
+  exchange_q.put( configuration.MESSAGE('MAIN','EXCHANGE','GET_EXCHANGE_RATE','ALL', None))
   #create and start weather forecaset thread
   exchange_thread = threading.Thread(target=exchange_rates_yahoo.exchange_rate_deamon, args=(main_q, display_q, exchange_q))
   exchange_thread.name = 'EXCHANGE'  
@@ -144,7 +142,7 @@ def main():
   ######################
   # start radio thread # 
   ######################
-  radio_q.put( y_disp_global.MESSAGE('MAIN','RADIO','INIT','RADIO_INFO',None))
+  radio_q.put( configuration.MESSAGE('MAIN','RADIO','INIT','RADIO_INFO',None))
   #create and start meteo module thread
   radio_thread = threading.Thread(target=radio.radio_deamon, args=(main_q, radio_q, display_q))
   radio_thread.name = 'RADIO'
@@ -158,7 +156,7 @@ def main():
   #############################
   # start meteo module thread # 
   #############################
-  meteo_q.put( y_disp_global.MESSAGE('MAIN','METEO','METEO','GET_SENSOR_DATA',None))
+  meteo_q.put( configuration.MESSAGE('MAIN','METEO','METEO','GET_SENSOR_DATA',None))
   #create and start meteo module thread
   meteo_thread = threading.Thread(target=y_meteo.meteo_deamon, args=(main_q, meteo_q, display_q))
   meteo_thread.name = 'METEO'
@@ -184,7 +182,7 @@ def main():
   while not shutdown:
     try:
       message = main_q.get(30)
-      if isinstance(message, y_disp_global.MESSAGE):
+      if isinstance(message, configuration.MESSAGE):
         logger.debug('message.sender['   + str(message.sender)  + ']')
         logger.debug('message.receiver[' + str(message.receiver)+ ']')
         logger.debug('message.type['     + str(message.type)    + ']')
@@ -206,12 +204,12 @@ def main():
           exchange_timer_thread.cancel()
           radio_timer_thread.cancel()
           #send shutdown message to all modules
-          button_q.put(  y_disp_global.MESSAGE('MAIN','BUTTON',  'SHUTDOWN',None,None))
-          meteo_q.put(   y_disp_global.MESSAGE('MAIN','METEO',   'SHUTDOWN',None,None))
-          weather_q.put( y_disp_global.MESSAGE('MAIN','WEATHER', 'SHUTDOWN',None,None))
-          display_q.put( y_disp_global.MESSAGE('MAIN','DISPLAY', 'SHUTDOWN',None,None))          
-          exchange_q.put(y_disp_global.MESSAGE('MAIN','EXCHANGE','SHUTDOWN',None,None))          
-          radio_q.put(   y_disp_global.MESSAGE('MAIN','RADIO','SHUTDOWN',None,None))          
+          button_q.put(  configuration.MESSAGE('MAIN','BUTTON',  'SHUTDOWN',None,None))
+          meteo_q.put(   configuration.MESSAGE('MAIN','METEO',   'SHUTDOWN',None,None))
+          weather_q.put( configuration.MESSAGE('MAIN','WEATHER', 'SHUTDOWN',None,None))
+          display_q.put( configuration.MESSAGE('MAIN','DISPLAY', 'SHUTDOWN',None,None))          
+          exchange_q.put(configuration.MESSAGE('MAIN','EXCHANGE','SHUTDOWN',None,None))          
+          radio_q.put(   configuration.MESSAGE('MAIN','RADIO','SHUTDOWN',None,None))          
         else:
           logger.warning('got unknown message')
       else:

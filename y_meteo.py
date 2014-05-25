@@ -22,7 +22,7 @@ import argparse
 import logging, logging.handlers
 import queue, threading
 import collections
-import y_disp_global
+import configuration
 
 # add ../YoctoLib.python.12553/Sources to the PYTHONPATH
 sys.path.append(os.path.join("..","YoctoLib.python.12553","Sources"))
@@ -35,19 +35,18 @@ LOGGER = 'METEO'     #name of logger for the yoctopuce weather module
 
 meteo_module   = collections.namedtuple('meteo_module', 'module module_name humidity_sensor pressure_sensor temperature_sensor humidity pressure temperature current uptime')
 #------------------------------------------------------------------------------#
-# init: Read config.ini, read startup arguments and setup logging              #
-#       Content of config.ini and the startup arguments are made available     #
-#       globally to all modules through y_disp_global                          #
-#       Only used when module is ran on its own, for test purposes             #
+# init: Read config.ini and setup logging                                      #
+#       Content of config.ini as made available globally to all modules through#
+#       through the configuration module                                       #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 09.11.2013 Initial version                                       #
+# 1.10    hta 25.05.2015 Removed call to arguments, corrected description      #
 #------------------------------------------------------------------------------#
 def init():
-  y_disp_global.general_configuration();
-  y_disp_global.logging_configuration();
-  y_disp_global.init_args();
-  y_disp_global.init_log(LOGGER); 
+  configuration.general_configuration();
+  configuration.logging_configuration();
+  configuration.init_log(LOGGER); 
 #------------------------------------------------------------------------------#
 # get_module: Get an instance of the yoctopuce meteo module                    #
 #                                                                              #
@@ -164,9 +163,9 @@ def meteo_data(module):
     else:
       #Module has not been intialized or is not online
       #then go and try to intialize the module
-      if y_disp_global.CONFIG.has_option('y_meteo','weather_station_logical_name'):
+      if configuration.CONFIG.has_option('y_meteo','weather_station_logical_name'):
         #if configured get a specific module
-        ymodule = get_module(y_disp_global.CONFIG['y_meteo']['weather_station_logical_name'])
+        ymodule = get_module(configuration.CONFIG['y_meteo']['weather_station_logical_name'])
       else:
         #not configured get any module
        ymodule = get_module(None)          
@@ -238,7 +237,7 @@ def meteo_deamon(result_q, message_q, display_q):
   message  = None    
   module   = init_module()
   #setup logging
-  y_disp_global.init_log(LOGGER)
+  configuration.init_log(LOGGER)
   logger = logging.getLogger(LOGGER)
   
   #intialize module  
@@ -252,7 +251,7 @@ def meteo_deamon(result_q, message_q, display_q):
     logger.info('going to listen on message queue')
     try:
       message=message_q.get(timeout=5)
-      if isinstance(message, y_disp_global.MESSAGE):
+      if isinstance(message, configuration.MESSAGE):
         logger.debug('message.sender['   + str(message.sender)  + ']')
         logger.debug('message.receiver[' + str(message.receiver)+ ']')
         logger.debug('message.type['     + str(message.type)    + ']')
@@ -267,10 +266,10 @@ def meteo_deamon(result_q, message_q, display_q):
             #Send result to display thread
             #but only if we actually got data
             if module.module != None and module.humidity!=None:
-              display_q.put(y_disp_global.MESSAGE('METEO','DISPLAY','METEO_DATA','GRAPH',module))
+              display_q.put(configuration.MESSAGE('METEO','DISPLAY','METEO_DATA','GRAPH',module))
           elif message.subtype == 'REFRESH':
             #Display module requested and upated of meteo data
-            display_q.put( y_disp_global.MESSAGE('METEO','DISPLAY','METEO_DATA','REFRESH',meteo_data(module)))
+            display_q.put( configuration.MESSAGE('METEO','DISPLAY','METEO_DATA','REFRESH',meteo_data(module)))
         ##################
         #SHUTDOWN REQUEST#
         ##################
@@ -284,7 +283,7 @@ def meteo_deamon(result_q, message_q, display_q):
       #current sensor readings and send them to
       #the display module
       module=meteo_data(module)
-      message = y_disp_global.MESSAGE('METEO','DISPLAY','METEO_DATA','REFRESH',module)
+      message = configuration.MESSAGE('METEO','DISPLAY','METEO_DATA','REFRESH',module)
       display_q.put(message)
     except:
       logger.error('unexpected error ['+ str(sys.exc_info()[0]) +']')        

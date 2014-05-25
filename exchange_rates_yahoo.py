@@ -22,7 +22,7 @@ import queue, threading
 import urllib, urllib.parse, urllib.request
 import xml.etree.ElementTree as ET
 import collections
-import y_disp_global
+import configuration
 
 
 LOGGER = 'EXCHANGE'  #name of logger for this module
@@ -33,19 +33,18 @@ exchange_rate               = collections.namedtuple("exchange_rate","from_curre
 
 
 #------------------------------------------------------------------------------#
-# init: Read config.ini, read startup arguments and setup logging              #
-#       Content of config.ini and the startup arguments are made available     #
-#       globally to all modules through y_disp_global                          #
-#       Only used when module is ran on its own, for test purposes             #
+# init: Read config.ini and setup logging                                      #
+#       Content of config.ini as made available globally to all modules through#
+#       through the configuration module                                       #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 09.11.2013 Initial version                                       #
+# 1.10    hta 25.05.2015 Removed call to arguments, corrected description      #
 #------------------------------------------------------------------------------#
 def init():
-  y_disp_global.general_configuration()
-  y_disp_global.logging_configuration()
-  y_disp_global.init_args()
-  y_disp_global.init_log(LOGGER) 
+  configuration.general_configuration()
+  configuration.logging_configuration()
+  configuration.init_log(LOGGER) 
 
 #------------------------------------------------------------------------------#
 # yahoo_exchange_rate_xml: get exchange rate in XML format from yahoo          #
@@ -132,8 +131,8 @@ def get_exchange_rate_config():
   logger = logging.getLogger(LOGGER)
   exchange_config=[]
   url_yahooapi='http://query.yahooapis.com/v1/public/yql?q=select * from yahoo.finance.xchange where pair in ("#PAIR")&diagnostics=false&env=store://datatables.org/alltableswithkeys'
-  for config in y_disp_global.CONFIG['exchange_rates_yahoo'] :
-    from_currency,to_currency=y_disp_global.CONFIG['exchange_rates_yahoo'][config].split(',')
+  for config in configuration.CONFIG['exchange_rates_yahoo'] :
+    from_currency,to_currency=configuration.CONFIG['exchange_rates_yahoo'][config].split(',')
     #replace #PAIR tag in url_yahooapi with exchange rate pair
     url =url_yahooapi.replace('#PAIR', from_currency+to_currency)
     #fix encoding "non-ascii" characters in URL
@@ -166,7 +165,7 @@ def exchange_rate_deamon(main_q,display_q,message_q):
   while not shutdown:
     try:
       message=message_q.get(timeout=120)
-      if isinstance(message, y_disp_global.MESSAGE):
+      if isinstance(message, configuration.MESSAGE):
         logger.debug('message.sender['   + str(message.sender)  + ']')
         logger.debug('message.receiver[' + str(message.receiver)+ ']')
         logger.debug('message.type['     + str(message.type)    + ']')
@@ -179,7 +178,7 @@ def exchange_rate_deamon(main_q,display_q,message_q):
           #Loop through all configured location urls
           for config in exchange_rate_config:
             rates.append(yahoo_exchange_rate_xml(config))
-          display_q.put( y_disp_global.MESSAGE('EXCHANGE','DISPLAY','EXCHANGE_RATES','GRAPH', rates))
+          display_q.put( configuration.MESSAGE('EXCHANGE','DISPLAY','EXCHANGE_RATES','GRAPH', rates))
         ##################    
         #SHUTDOWN MESSAGE#
         ##################

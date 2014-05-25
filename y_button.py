@@ -22,7 +22,7 @@ import argparse
 import logging, logging.handlers
 import queue, threading
 import collections
-import y_disp_global
+import configuration
 import menu
 
 # add ../YoctoLib.python.12553/Sources to the PYTHONPATH
@@ -38,19 +38,18 @@ button_module  = collections.namedtuple('button_module', 'module module_name ' +
                                                          'button5 pulsecounter5 prevcounter5 buttonpressed5 prevpressed5 button6 pulsecounter6 prevcounter6 buttonpressed6 prevpressed6 ' +
                                                          'current uptime')
 #------------------------------------------------------------------------------#
-# init: Read config.ini, read startup arguments and setup logging              #
-#       Content of config.ini and the startup arguments are made available     #
-#       globally to all modules through y_disp_global                          #
-#       Only used when module is ran on its own, for test purposes             #
+# init: Read config.ini and setup logging                                      #
+#       Content of config.ini as made available globally to all modules through#
+#       through the configuration module                                       #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 09.11.2013 Initial version                                       #
+# 1.10    hta 25.05.2015 Removed call to arguments, corrected description      #
 #------------------------------------------------------------------------------#
 def init():
-  y_disp_global.general_configuration();
-  y_disp_global.logging_configuration();
-  y_disp_global.init_args();
-  y_disp_global.init_log(LOGGER); 
+  configuration.general_configuration();
+  configuration.logging_configuration();
+  configuration.init_log(LOGGER); 
 #------------------------------------------------------------------------------#
 # get_module: Get an instance of the yoctopuce meteo module                    #
 #                                                                              #
@@ -273,9 +272,9 @@ def do_buttons(module):
     else:
       #Module has not been intialized or is not online
       #then go and try to intialize the module
-      if y_disp_global.CONFIG.has_option('y_button','button_logical_name'):
+      if configuration.CONFIG.has_option('y_button','button_logical_name'):
         #if configured get a specific module
-        ymodule = get_module(y_disp_global.CONFIG['y_button']['button_logical_name'])
+        ymodule = get_module(configuration.CONFIG['y_button']['button_logical_name'])
       else:
         #not configured get any module
        ymodule = get_module(None)          
@@ -379,7 +378,7 @@ def button_deamon(main_q, message_q, display_q, radio_q):
   message  = None   
   module   = init_module()
   #setup logging
-  y_disp_global.init_log(LOGGER)
+  configuration.init_log(LOGGER)
   logger = logging.getLogger(LOGGER)
   #instanciate menu
   myMenu=menu.Menu()
@@ -391,14 +390,14 @@ def button_deamon(main_q, message_q, display_q, radio_q):
       time.sleep(1)
       
   #initialized, send active menu to display module
-  display_q.put(y_disp_global.MESSAGE('BUTTON','DISPLAY','MENU', None, myMenu.active()))
+  display_q.put(configuration.MESSAGE('BUTTON','DISPLAY','MENU', None, myMenu.active()))
   
   #listen for message to execute.
   while not shutdown:
     logger.debug('going to listen on message queue')
     try:
       message=message_q.get(timeout=1)
-      if isinstance(message, y_disp_global.MESSAGE):
+      if isinstance(message, configuration.MESSAGE):
         logger.debug('message.sender['   + str(message.sender)  + ']')
         logger.debug('message.receiver[' + str(message.receiver)+ ']')
         logger.debug('message.type['     + str(message.type)    + ']')
@@ -423,22 +422,22 @@ def button_deamon(main_q, message_q, display_q, radio_q):
           #if the radio menu is active we use button 6 to toggle the radio on/off 
           #rather then for shutting down the info_display program.
           if myMenu.active().id == 'menu_radio':
-            message = y_disp_global.MESSAGE('BUTTON','RADIO','PLAY','TOGGLE',None)
+            message = configuration.MESSAGE('BUTTON','RADIO','PLAY','TOGGLE',None)
             radio_q.put(message)                
           else:
-            message = y_disp_global.MESSAGE('BUTTON','MAIN','SHUTDOWN',None,None)
+            message = configuration.MESSAGE('BUTTON','MAIN','SHUTDOWN',None,None)
             main_q.put(message)            
         #button 1 pressed? this is the navigate LEFT button
         if (module.pulsecounter1 >= (module.prevcounter1+2)) or (module.pulsecounter1 >= (module.prevcounter1+1) and module.buttonpressed1):
           myMenu.left()
           #inform display module
-          display_q.put(y_disp_global.MESSAGE('BUTTON','DISPLAY','MENU', None, myMenu.active()))
+          display_q.put(configuration.MESSAGE('BUTTON','DISPLAY','MENU', None, myMenu.active()))
           logger.info('left, activeMenu['+str(myMenu.active().id)+']')
         #button 2 pressed? this is the navigate RIGHT button
         elif (module.pulsecounter2 >= (module.prevcounter2+2)) or (module.pulsecounter2 >= (module.prevcounter2+1) and module.buttonpressed2):
           myMenu.right()
           #inform display module        
-          display_q.put(y_disp_global.MESSAGE('BUTTON','DISPLAY','MENU', None, myMenu.active()))
+          display_q.put(configuration.MESSAGE('BUTTON','DISPLAY','MENU', None, myMenu.active()))
           logger.info('right, activeMenu['+str(myMenu.active().id)+']')
         #button 3 pressed? this is the navigate UP button
         elif (module.pulsecounter3 >= (module.prevcounter3+2)) or (module.pulsecounter3 >= (module.prevcounter3+1) and module.buttonpressed3):
@@ -447,9 +446,9 @@ def button_deamon(main_q, message_q, display_q, radio_q):
           # make sure pageindex is set to 0 when up or down button is pressed
           # and the OK button is no longer active
           if not myMenu.getOk():
-            display_q.put(y_disp_global.MESSAGE('BUTTON','DISPLAY','MENU','RESET_PAGEINDEX', myMenu.active()))                
+            display_q.put(configuration.MESSAGE('BUTTON','DISPLAY','MENU','RESET_PAGEINDEX', myMenu.active()))                
           #inform display module
-          display_q.put(y_disp_global.MESSAGE('BUTTON','DISPLAY','MENU', None, myMenu.active()))
+          display_q.put(configuration.MESSAGE('BUTTON','DISPLAY','MENU', None, myMenu.active()))
           logger.info('up, activeMenu['+str(myMenu.active().id)+']')
         #button 4 pressed? this is the navigate DOWN button
         elif (module.pulsecounter4 >= (module.prevcounter4+2)) or (module.pulsecounter4 >= (module.prevcounter4+1) and module.buttonpressed4):
@@ -458,9 +457,9 @@ def button_deamon(main_q, message_q, display_q, radio_q):
           # make sure pageindex is set to 0 when up or down button is pressed
           # and the OK button is no longer active
           if not myMenu.getOk():
-            display_q.put(y_disp_global.MESSAGE('BUTTON','DISPLAY','MENU','RESET_PAGEINDEX', myMenu.active()))          
+            display_q.put(configuration.MESSAGE('BUTTON','DISPLAY','MENU','RESET_PAGEINDEX', myMenu.active()))          
           #inform display module        
-          display_q.put(y_disp_global.MESSAGE('BUTTON','DISPLAY','MENU', None, myMenu.active()))
+          display_q.put(configuration.MESSAGE('BUTTON','DISPLAY','MENU', None, myMenu.active()))
           logger.info('down, activeMenu['+str(myMenu.active().id)+']')
         #button 5 pressed? this is the OK button, this button is used to "lock" 
         #multipage screens whereupon the up/down buttons can be used to page 

@@ -23,7 +23,7 @@ import queue, threading
 import urllib, urllib.parse, urllib.request
 import xml.etree.ElementTree as ET
 import collections
-import y_disp_global
+import configuration
 
 
 LOGGER = 'WEATHER'  #name of logger for the weather module
@@ -43,19 +43,18 @@ forecast_item_symbol        = collections.namedtuple("symbol","image")
 
 
 #------------------------------------------------------------------------------#
-# init: Read config.ini, read startup arguments and setup logging              #
-#       Content of config.ini and the startup arguments are made available     #
-#       globally to all modules through y_disp_global                          #
-#       Only used when module is ran on its own, for test purposes             #
+# init: Read config.ini and setup logging                                      #
+#       Content of config.ini as made available globally to all modules through#
+#       through the configuration module                                       #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 09.11.2013 Initial version                                       #
+# 1.10    hta 25.05.2015 Removed call to arguments, corrected description      #
 #------------------------------------------------------------------------------#
 def init():
-  y_disp_global.general_configuration()
-  y_disp_global.logging_configuration()
-  y_disp_global.init_args()
-  y_disp_global.init_log(LOGGER) 
+  configuration.general_configuration()
+  configuration.logging_configuration()
+  configuration.init_log(LOGGER) 
   
 
 ################################################################################
@@ -306,8 +305,8 @@ def trace_forecast(forecast,logger):
 def get_forecast_config():
   logger = logging.getLogger(LOGGER)
   forecast_config=[]
-  for config in y_disp_global.CONFIG['weather_yr'] :
-    location,url=y_disp_global.CONFIG['weather_yr'][config].split(',')
+  for config in configuration.CONFIG['weather_yr'] :
+    location,url=configuration.CONFIG['weather_yr'][config].split(',')
     #fix non-ascii characters in URL
     url    = urllib.parse.urlsplit(url)
     url    = list(url)    
@@ -328,7 +327,7 @@ def weather_deamon(main_q,display_q,message_q):
   while not shutdown:
     try:
       message=message_q.get(timeout=120)
-      if isinstance(message, y_disp_global.MESSAGE):
+      if isinstance(message, configuration.MESSAGE):
         logger.debug('message.sender['   + str(message.sender)  + ']')
         logger.debug('message.receiver[' + str(message.receiver)+ ']')
         logger.debug('message.type['     + str(message.type)    + ']')
@@ -341,7 +340,7 @@ def weather_deamon(main_q,display_q,message_q):
           #Loop through all configured location urls
           for config in forecastConfig:
             forecasts.append(yr_rss(config))
-          display_q.put( y_disp_global.MESSAGE('WEATHER','MAIN','WEATHER_FORECAST','ALL', forecasts))
+          display_q.put( configuration.MESSAGE('WEATHER','MAIN','WEATHER_FORECAST','ALL', forecasts))
         ##################    
         #SHUTDOWN MESSAGE#
         ##################
@@ -373,7 +372,7 @@ def main():
   forecast=yr_rss('LANGEBAANLAGOON')
   #write forcast to tracefile
   trace_forecast(forecast)
-  if  y_disp_global.ARGS.setup == True:
+  if  configuration.ARGS.setup == True:
     yr_save_weathericons()
   
 if __name__ == '__main__':
