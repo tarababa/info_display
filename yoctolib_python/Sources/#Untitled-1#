@@ -1,0 +1,11 @@
+    def _json_get_array_j(self, json):
+        try:
+            json_str = YByte2String(json)
+            j = YAPI.TJsonParser(json_str, False)
+        except YAPI.JsonError:
+            #( exception handling working in both  in 2.x and 3.x
+            e = sys.exc_info()[1]
+            self._throw(YAPI.IO_ERROR, "unexpected JSON structure: " + e.msg)
+            return YAPI.IO_ERROR
+            
+        return j.data.items
