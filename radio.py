@@ -288,13 +288,13 @@ def radio_deamon(result_q, message_q, display_q):
     logger.info('going to listen on message queue')
     try:
       message=message_q.get(timeout=60)
-      #if mdpc failed to initialize earlier or if connection was 
+      #if mpdc failed to initialize earlier or if connection was 
       #reset we try to establish connection again
       while mpdc is None:
          mpdc=init_radio
          #still no connection, let's 
          #wait and try again
-         if mdpc is None:
+         if mpdc is None:
            time.sleep(2)
       radio_info=refreshRadioInfo(playlist,mpdc)
       if isinstance(message, configuration.MESSAGE):
@@ -344,14 +344,22 @@ def radio_deamon(result_q, message_q, display_q):
         display_q.put(message)        
     except queue.Empty as err:
       logger.debug ('queue empty ' + str(err))
-      radio_info=refreshRadioInfo(playlist,mpdc)
-      message = configuration.MESSAGE('RADIO','DISPLAY','RADIO','REFRESH',radio_info)
-      display_q.put(message) 
+      try:
+        radio_info=refreshRadioInfo(playlist,mpdc)
+        message = configuration.MESSAGE('RADIO','DISPLAY','RADIO','REFRESH',radio_info)
+        display_q.put(message)
+      except ConnectionResetError:
+        logger.warning('connection has been reset')
+        mpdc=None
+      except:
+        logger.error('unexpected error ['+ str(traceback.format_exc()) +']')   
+        mpdc=None        
     except ConnectionResetError as err:
       logger.warning('connection has been reset')
-      mdpc=None
+      mpdc=None
     except:
-      logger.error('unexpected error ['+ str(traceback.format_exc()) +']')        
+      logger.error('unexpected error ['+ str(traceback.format_exc()) +']')   
+      mpdc=None
             
       
   logger.debug('done')    
