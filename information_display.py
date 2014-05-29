@@ -21,8 +21,6 @@
 import os,sys
 import logging,traceback
 import queue, threading
-#import urllib, urllib.parse, urllib.request
-#import xml.etree.ElementTree as ET
 import collections
 import configuration
 import weather_yr
@@ -31,9 +29,6 @@ import y_maxi_display
 import radio
 import exchange_rates_yahoo
 import timers
-sys.path.append(os.path.join("..","YoctoLib.python.12553","Sources"))
-from yocto_api import *
-from yocto_display import *
 
 LOGGER = 'MAIN'  #name of logger for the main module
 

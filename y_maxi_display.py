@@ -25,8 +25,7 @@ import collections
 import time
 from time import localtime, strftime
 import configuration,y_meteo,weather_yr,menu
-# add ../YoctoLib.python.12553/Sources to the PYTHONPATH
-sys.path.append(os.path.join("..","YoctoLib.python.12553","Sources"))
+sys.path.append(os.path.join('yoctolib_python','Sources'))
 from yocto_api import *
 from yocto_display import *
 from yocto_files import *
@@ -1194,7 +1193,7 @@ def menu_startup(menuIndex,pageIndex,cls,display):
   display.set_brightness(100)
   display.playSequence("tom.seq")
   #wait until sequence has completed!
-  time.sleep(4)
+  time.sleep(5)
   display.set_brightness(100)
   
   #static display of TOM the moose
@@ -1202,8 +1201,8 @@ def menu_startup(menuIndex,pageIndex,cls,display):
   layer4.reset()
   layer4.clear()
   layer4.hide()
-  layer4.drawImage(0,0, 'tom.gif')
-  layer4.drawImage(32,40, 'tom_text.gif')
+  layer4.drawImage(0,0, 'img/tom.gif')
+  layer4.drawImage(32,40, 'img/tom_text.gif')
   display.swapLayerContent(4,1)
   logger.debug('done')
 
@@ -1223,11 +1222,15 @@ def menu_startup(menuIndex,pageIndex,cls,display):
 def upload_file(path,files,overwrite=False):
   logger = logging.getLogger(LOGGER)
   
+  logger.debug('looking for['+path+']')
+  
   if not(overwrite):
-    filelist=files.get_list(path.split('/')[-1])
+    filelist=files.get_list(path)
+    logger.debug('filelist['+str(filelist)+']')
     
   if overwrite or len(filelist)<=0:
     with open(path, mode='rb') as file:
+      logger.debug('uploading'+path+']')
       fileContent=file.read()
       files.upload(path, fileContent)      
       file.close()
@@ -1257,18 +1260,18 @@ def create_sequence(name,display,files,overwrite=False):
     brightness=display.get_brightness()
     display.set_brightness(100)
     display.newSequence()
-    layer0=disp.get_displayLayer(0)
+    layer0=display.get_displayLayer(0)
     layer0.clear()
     layer0.hide()
-    layer0.drawImage(64,0, 'tom.gif')
+    layer0.drawImage(64,0, 'img/tom.gif')
     layer0.setLayerPosition(64,0, 0)
     layer0.unhide()
     layer0.setLayerPosition(-64,0, 2000)
 
-    layer1=disp.get_displayLayer(1)
+    layer1=display.get_displayLayer(1)
     layer1.clear()
     layer1.hide()
-    layer1.drawImage(0,40, 'tom_text.gif')
+    layer1.drawImage(0,40, 'img/tom_text.gif')
     layer1.setLayerPosition(128+128,0, 0)
     layer1.unhide()
     layer1.setLayerPosition(32,0, 2000)

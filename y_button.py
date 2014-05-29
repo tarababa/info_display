@@ -21,9 +21,7 @@ import queue
 import collections
 import configuration
 import menu
-
-# add ../YoctoLib.python.12553/Sources to the PYTHONPATH
-sys.path.append(os.path.join("..","YoctoLib.python.12553","Sources"))
+sys.path.append(os.path.join('yoctolib_python','Sources'))
 from yocto_api import *
 from yocto_anbutton import *
 

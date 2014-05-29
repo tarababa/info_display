@@ -20,9 +20,7 @@ import logging, traceback
 import queue, threading
 import collections
 import configuration
-
-# add ../YoctoLib.python.12553/Sources to the PYTHONPATH
-sys.path.append(os.path.join("..","YoctoLib.python.12553","Sources"))
+sys.path.append(os.path.join('yoctolib_python','Sources'))
 from yocto_api import *
 from yocto_humidity import *
 from yocto_temperature import *
