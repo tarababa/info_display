@@ -16,7 +16,7 @@
 
 import os,sys
 import time
-import logging
+import logging, traceback
 import queue, threading
 import collections
 import configuration
@@ -281,7 +281,7 @@ def meteo_deamon(result_q, message_q, display_q):
       message = configuration.MESSAGE('METEO','DISPLAY','METEO_DATA','REFRESH',module)
       display_q.put(message)
     except:
-      logger.error('unexpected error ['+ str(sys.exc_info()[0]) +']')        
+      logger.error('unexpected error ['+ str(traceback.format_exc()) +']')   
             
       
   logger.debug('done')    
