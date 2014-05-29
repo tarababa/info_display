@@ -55,7 +55,7 @@ def init_radio():
     logger.info('initialized mpdc, version['+mpdc.mpd_version+']')
     return mpdc
   except:
-    logger.error('unexpected error ['+ str(sys.exc_info()[0]) +']')      
+    logger.error('unexpected error ['+ str(traceback.format_exc()) +']')   
     return None
 #------------------------------------------------------------------------------#
 # volUp: turn volume up, to maximum of 100                                     #
@@ -291,7 +291,7 @@ def radio_deamon(result_q, message_q, display_q):
       #if mpdc failed to initialize earlier or if connection was 
       #reset we try to establish connection again
       while mpdc is None:
-         mpdc=init_radio
+         mpdc=init_radio()
          #still no connection, let's 
          #wait and try again
          if mpdc is None:
