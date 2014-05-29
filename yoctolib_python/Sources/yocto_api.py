@@ -3418,7 +3418,7 @@ class YFunction(object):
             e = sys.exc_info()[1]
             self._throw(YAPI.IO_ERROR, "unexpected JSON structure: " + e.msg)
             return YAPI.IO_ERROR
-        return j.GetAllChilds(None)
+        return j.data.items        
 
     def _json_get_string(self, json):
         try:
