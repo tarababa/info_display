@@ -60,7 +60,13 @@ def yahoo_exchange_rate_xml(config):
   #create request
   req = urllib.request.Request(url, None, headers)
   #read xml tree
-  xml_rate = ET.parse(urllib.request.urlopen(req)).getroot()
+  try:
+    xml_rate = ET.parse(urllib.request.urlopen(req)).getroot()
+  except:
+    #sometimes we get urllib.error.HTTPError: HTTP Error 400: Bad Request
+    #to try and figure out what went wrong we trace the request
+    logger.error('req['+str(req)+']')
+    logger.error('unexpected error ['+  str(traceback.format_exc()) +']') 
   
   #get exchange rate
   for rate in xml_rate.iter('rate'):
