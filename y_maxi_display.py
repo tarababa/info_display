@@ -656,7 +656,7 @@ def multipageNavigator(pages,navigate,menuIndex,pageIndex):
     None
   elif navigate == None:
     #not necessarily a problem
-    logger.warning('value for navigate[None]')
+    logger.debug('value for navigate[None]')
   else:
     logger.error('unexpected value for navigate[' + str(navigate) + ']') 
   return menuIndex,pageIndex
@@ -694,7 +694,7 @@ def multimenuNavigator(menus,navigate,menuIndex,pageIndex):
   elif navigate in ('UP','DOWN'):
     None
   elif navigate == None:
-    logger.warning('value for navigate[None]')
+    logger.debug('value for navigate[None]')
   else:
     logger.error('unexpected value for navigate[' + str(navigate) + ']') 
   return menuIndex,pageIndex
