@@ -232,3 +232,6 @@ img/tom.bmp
 #loadshedding.js#
 mpd_setup.txt
 *.js#
+callbacktest.py
+testYfiles.py
+#callbacktest.py#
