@@ -49,7 +49,7 @@ def init_radio():
   global logger
   try:
     mpdc = MPDClient()               # create client object
-    mpdc.timeout = 10                # network timeout in seconds (floats allowed), default: None
+    mpdc.timeout = None              # network timeout in seconds (floats allowed), default: None
     mpdc.connect(str(configuration.CONFIG['radio']['mpd_server']),
                  int(configuration.CONFIG['radio']['mpd_port']))  # connect to localhost:6600
     logger.info('initialized mpdc, version['+mpdc.mpd_version+']')
@@ -85,7 +85,6 @@ def volUp(inc, radio_info, mpdc):
 # 1.00    hta 24.05.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
 def volDown(dec, radio_info, mpdc):            
-  global logger
   global logger
   logger.debug('dec['+str(dec)+']')
   if int(radio_info.get('volume',50))-dec < 0:
@@ -334,29 +333,33 @@ def radio_deamon(result_q, message_q, display_q):
         elif message.type == 'SHUTDOWN':
           shutdown=True
           logger.warning('got SHUTDOWN request, shutting down')
-          mpdc.stop()
-          mpdc.close()
-          mpdc.disconnect()
+          if mpdc is not None:
+            mpdc.stop()
+            mpdc.close()
+            mpdc.disconnect()
       if not shutdown:
         radio_info=refreshRadioInfo(playlist,mpdc)
         logger.debug(str(radio_info))
         message = configuration.MESSAGE('RADIO','DISPLAY','RADIO','REFRESH',radio_info)
-        display_q.put(message)        
+        display_q.put(message)       
+        logger.info('done, closing connection to MPD')
+        mpdc.close()
+        mpdc.disconnect()
+        mpdc=None
     except queue.Empty as err:
       logger.debug ('queue empty ' + str(err))
       try:
+        mpdc=init_radio()
         radio_info=refreshRadioInfo(playlist,mpdc)
         message = configuration.MESSAGE('RADIO','DISPLAY','RADIO','REFRESH',radio_info)
         display_q.put(message)
-      except ConnectionResetError:
-        logger.warning('connection has been reset')
-        mpdc=None
+        logger.info('done, closing connection to MPD')
+        mpdc.close()
+        mpdc.disconnect()
+        mpdc=None        
       except:
         logger.error('unexpected error ['+ str(traceback.format_exc()) +']')   
         mpdc=None        
-    except ConnectionResetError as err:
-      logger.warning('connection has been reset')
-      mpdc=None
     except:
       logger.error('unexpected error ['+ str(traceback.format_exc()) +']')   
       mpdc=None
