@@ -38,6 +38,7 @@
 Content of this package:
 ------------------------
 Documentation/       API Reference, in HTML and PDF format
+Examples/            Directory with sample programs in Python
 Sources/             Source code of the high-level library (in Python)
 Sources/cdll/        Low-level library (C source code with makefile 
                      to build this library is available in the C++ library)

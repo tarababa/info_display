@@ -1,6 +1,6 @@
 #*********************************************************************
 #*
-#* $Id: yocto_wakeupmonitor.py 15257 2014-03-06 10:19:36Z seb $
+#* $Id: yocto_wakeupmonitor.py 16242 2014-05-15 15:30:08Z seb $
 #*
 #* Implements yFindWakeUpMonitor(), the high-level API for WakeUpMonitor functions
 #*
@@ -310,7 +310,7 @@ class YWakeUpMonitor(YFunction):
         currTime = self.get_rtcTime()
         if not (currTime != 0):
             self._throw(YAPI.RTC_NOT_READY, "RTC time not set")
-        self.set_nextWakeUp(currTime+secUntilWakeUp)
+        self.set_nextWakeUp(currTime+secUntilWakeUp+secBeforeSleep)
         self.set_sleepCountdown(secBeforeSleep)
         return YAPI.SUCCESS
 
