@@ -73,7 +73,7 @@ def get_module(name):
     # catch things like: "OSError: exception: access violation writing 0x0000000000000000"
     logger.error(str(err))
     return None
-  if name == None:
+  if name == None or name == '':
     #No particular logical name or serial number specified
     #then just get the first humidity sensor and determine
     #its module
@@ -89,8 +89,8 @@ def get_module(name):
   else:
     logger.debug('looking for specific module with logical name[' + name + ']')
     module = YModule.FindModule(name)
-    if module == None:
-      logger.error('failed to module for name['+name+']')
+    if str(module).endswith('unresolved'):
+      logger.error('failed to find module for name['+name+']')
       return None
     else:
       logger.info('got module.get_serialNumber['+ module.get_serialNumber() +']'+
@@ -116,11 +116,14 @@ def get_module(name):
 def doValueChangeCallback(data,value):
   global logger, button_q
   userData = data.get_userData()  
-  logger.debug('got button['+userData['button'] +'] value['+value+']')
-  if int(value) < 10:
-    #button pressed
-    message = configuration.MESSAGE('BUTTON','BUTTON','BUTTON','PRESSED',userData['button'])
-    button_q.put(message)        
+  logger.info('got button['+userData['button'] +'] value['+value+']')
+  try:
+    if int(value) < 10:
+      #button pressed
+      message = configuration.MESSAGE('BUTTON','BUTTON','BUTTON','PRESSED',userData['button'])
+      button_q.put(message)     
+  except Exception as err:
+    logger.error('unexpected error ['+ str(traceback.format_exc()) + ']') 
 #------------------------------------------------------------------------------#
 # do_buttons: Create instance of button module if necessary, instantiate the   #
 #             buttons if necessary and return sensor readings                  #
@@ -146,7 +149,7 @@ def do_buttons(module):
   #if we previously created a valid instance of the 
   #button module then we use that one.
   if  isinstance(module, button_module) and module.module != None:
-    module_name        = module.module_name       
+    module_name        = module.module_name    
     ymodule            = module.module            
     button1            = module.button1   
     button2            = module.button2   

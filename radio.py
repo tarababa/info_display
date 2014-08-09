@@ -11,6 +11,8 @@
 # Description: control MPD (Music Player Deamon) to play radio streams
 #              see also: http://pythonhosted.org//python-mpd2/index.html
 #                        https://github.com/Mic92/python-mpd2
+#              to install library: easy_install-3.4.exe python-mpd2
+#
 ################################################################################
 
 
@@ -36,7 +38,7 @@ logger = None
 # 1.10    hta 25.05.2015 Removed call to arguments, corrected description      #
 #------------------------------------------------------------------------------#
 def init():
-  configuration.init_log(LOGGER);  
+  configuration.init_log(LOGGER)  
 #------------------------------------------------------------------------------#
 # init_radio: intialize a MPD client                                           #
 #                                                                              #

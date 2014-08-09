@@ -66,7 +66,7 @@ def get_module(name):
     # catch things like: "OSError: exception: access violation writing 0x0000000000000000"
     logger.error(str(err))
     return None
-  if name == None:
+  if name == None or name=='':
     #No particular logical name or serial number specified
     #then just get the first humidity sensor and determine
     #its module
@@ -82,8 +82,8 @@ def get_module(name):
   else:
     logger.debug('looking for specific module with logical name[' + name + ']')
     module = YModule.FindModule(name)
-    if module == None:
-      logger.error('failed to module for name['+name+']')
+    if str(module).endswith('unresolved'):
+      logger.error('failed to find module for name['+name+']')
       return None
     else:
       logger.info('got module.get_serialNumber['+ module.get_serialNumber() +']'+

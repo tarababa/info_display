@@ -13,6 +13,7 @@
 ################################################################################
 import os,sys,collections
 import logging
+import configuration
 
 active_menu   = collections.namedtuple('menu', 'id multimenu multipage navigate date date_x date_y time time_x time_y')
 #------------------------------------------------------------------------------#
@@ -26,48 +27,68 @@ class Menu():
  
       
   def __init__(self):
-    #define the structure of the menu. This structure defines which menu is 
-    #shown next when the up, down, left or right button is pressed.
-    self.menu = [ [dict(id='menu_startup', multimenu=False, multipage=False, navigate=None, date=True, date_x=70, date_y=63, time=True, time_x=87, time_y=50)],
-                  [dict(id='menu_meteo_t_graph', multimenu=False, multipage=False, navigate=None, date=True, date_x=70, date_y=63, time=True, time_x=87, time_y=50),
-                   dict(id='menu_meteo_h_graph', multimenu=False, multipage=False, navigate=None, date=True, date_x=70, date_y=63, time=True, time_x=87, time_y=50),
-                   dict(id='menu_meteo_p_graph', multimenu=False, multipage=False, navigate=None, date=True, date_x=70, date_y=63, time=True, time_x=87, time_y=50),
-                   dict(id='menu_meteo_summary', multimenu=False, multipage=False, navigate=None, date=True, date_x=0, date_y=63, time=True, time_x=95, time_y=63)],
-                  [dict(id='menu_weather_forecast', multimenu=True, multipage=True, navigate=None, date=False, date_x=None, date_y=None, time=False, time_x=None, time_y=None)], 
-                  [dict(id='menu_exchange_rate',    multimenu=True, multipage=False, navigate=None, date=True, date_x=40, date_y=63, time=True, time_x=101, time_y=63)], 
-                  [dict(id='menu_radio',    multimenu=True, multipage=True, navigate=None, date=True, date_x=20, date_y=63, time=True, time_x=81, time_y=63)], 
-                  [dict(id='menu_show_characters_small',  multimenu=False, multipage=False, navigate=None, date=False, date_x=None, date_y=None, time=False, time_x=None, time_y=None), 
-                   dict(id='menu_show_characters_8x8',    multimenu=False, multipage=True, navigate=None, date=False, date_x=None, date_y=None, time=False, time_x=None, time_y=None),
-                   dict(id='menu_show_characters_medium', multimenu=False, multipage=True, navigate=None, date=False, date_x=None, date_y=None, time=False, time_x=None, time_y=None)] 
-               ]
+    #load structure of the menu from configuration.       ]
+    self.menu=self.loadMenu()
     #upon start the startup menu is active
     self.active_menu_index=(0,0)                 
     self.setActiveMenu()
     self.ok_activated=False #ok button not activated
+    
+  def loadMenu(self):
+    menu_item={}
+    my_menu=[]
+    menu_items=[]
+    prev_col=0
+    for config in configuration.CONFIG['menu'] :
+      prefix, col, row = config.split('.')
+      for pair in configuration.CONFIG['menu'][config].split(','):
+        #create dictionary for one menu item
+        #containing all its keywords
+        key=(pair.split('=')[0]).strip()
+        val=eval(pair.split('=')[1])
+        menu_item.update(((key,val),))
+      if int(col)==prev_col:
+        #if menu item belongs to same menu point as previous item
+        #then add the menu item to a list of those menu items
+        menu_items.append(menu_item)
+        menu_item={} #previous dictionary still exists in the menu_items list, but menu_item 
+                     #is no longer associated with this menu_item dictionary
+      else:
+        #we have a new menu point, so lets at the list of menu items so far created
+        #i.e. the "previous" menu point to the menu list
+        my_menu.append(menu_items)
+        menu_items= [] #previous menu_items still exist in the my_menu list, but are no longer associated with this  menu_items list
+        menu_items.append(menu_item)
+        menu_item={}
+        prev_col=int(col)  
+    #apped the last menu-point to the my_menu list
+    my_menu.append(menu_items)
+    return my_menu
+    
   
   def setActiveMenu(self):
-      self.active_menu = active_menu(self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('id'),
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('multimenu'),
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('multipage'),
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('navigate'),
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('date'),
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('date_x'),
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('date_y'),
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('time'),
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('time_x'),
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('time_y'))   
+    self.active_menu = active_menu(self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('id'),
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('multimenu'),
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('multipage'),
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('navigate'),
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('date'),
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('date_x'),
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('date_y'),
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('time'),
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('time_x'),
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('time_y'))   
 
   def setNavigate(self,navigate):
-      self.active_menu = active_menu(self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('id'),
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('multimenu'),
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('multipage'),
-                                     navigate,
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('date'),
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('date_x'),
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('date_y'),
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('time'),
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('time_x'),
-                                     self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('time_y'))    
+    self.active_menu = active_menu(self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('id'),
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('multimenu'),
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('multipage'),
+                                   navigate,
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('date'),
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('date_x'),
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('date_y'),
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('time'),
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('time_x'),
+                                   self.menu[self.active_menu_index[0]][self.active_menu_index[1]].get('time_y'))    
   def up(self):
     
     if self.active_menu.multipage and self.ok_activated:
