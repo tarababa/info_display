@@ -1,17 +1,26 @@
-################################################################################
-# Application         : Get Weatherforcast from YR.NO
-# File                : $HeadURL:  $
-# Version             : $Revision: $
-# Created by          : hta
-# Created             : 01.10.2013
-# Changed by          : $Author: b7tarah $
-# File changed        : $Date: 2013-08-21 15:19:43 +0200 (Mi, 21 Aug 2013) $
-# Environment         : Python 3.2.3 
-# ##############################################################################
-# Description: collects wheather data. For more information on the services used
-#              see also: http://api.yr.no/weatherapi/documentation.
+#    Copyright 2014 Helios Taraba 
 #
-################################################################################
+#    This file is part of information_display.
+#
+#    information_display is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    information_display is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with information_display.  If not, see <http://www.gnu.org/licenses/>.
+
+
+"""
+collects wheather data. For more information on the services use
+see also: http://api.yr.no/weatherapi/documentation.
+             
+"""
 
 
 import os,sys

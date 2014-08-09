@@ -1,21 +1,28 @@
-################################################################################
-# Application         : Holds, sets and returns globally relevant values
-# File                : $HeadURL:  $
-# Version             : $Revision: $
-# Created by          : hta
-# Created             : 01.10.2013
-# Changed by          : $Author: b7tarah $
-# File changed        : $Date: 2013-08-21 15:19:43 +0200 (Mi, 21 Aug 2013) $
-# Environment         : Python 3.2.3 
-# ##############################################################################
-# Description : holds, sets and returns globally relevant values such as trace
-#               level and other command line options that might be required 
-#               accross modules. These values should be set only by the
-#               init function in the main program, after wich they may only be
-#               read.
+#    Copyright 2014 Helios Taraba 
 #
+#    This file is part of information_display.
 #
-################################################################################
+#    information_display is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    information_display is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with information_display.  If not, see <http://www.gnu.org/licenses/>.
+
+
+"""
+holds, sets and returns relevant values relevant across an application
+such as tracelevel and other command line options that might be required 
+accross modules. These values should be set only by the init function
+in the main program, after wich they may only be read.
+
+"""
 
 
 import os,sys
