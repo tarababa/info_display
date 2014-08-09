@@ -20,7 +20,8 @@
 Generic timer related classed
              
 """
-
+import os,sys
+import threading
 #------------------------------------------------------------------------------#
 # Timer: Timer class based on the standard threading.Timer class. This class   #
 #        differs from the standard in that it splits the waits up into slices  #
