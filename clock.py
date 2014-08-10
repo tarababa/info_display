@@ -27,16 +27,12 @@ import logging, traceback
 import configuration
 import configparser
 
-configuration.general_configuration();
-configuration.logging_configuration();
-LOGGER = 'CLOCK'     #name of logger 
-configuration.init_log(LOGGER); 
-logger = logging.getLogger(LOGGER)  
-
 class Clock():
   def __init__(self):
     self.clocks=self.doInitClocks()
     self.numOfClocks=len(self.clocks)
+    self.seconds=0
+    self.lastTime=''
     
   #------------------------------------------------------------------------------#
   # doInitClocks: load language files for clocks                                 #
@@ -75,34 +71,28 @@ class Clock():
         clocks.append({'language':language, 'next_hour_from': next_hour_from, 'translation':(hours,minutes)})   
         hours={}
         minutes={}
-        #logger.debug('***'+str(clocks[0].get('language')))   
-        #logger.debug('***'+str(clocks[0].get('translation')[0].get('0000')))   
     return clocks
 
-
   #------------------------------------------------------------------------------#
-  # getClock: get date and time in plain text in a particular language           #
+  # time:  returns time in plain text in a chosen language                       #
   #                                                                              #
-  # Parameter:  index: pointer to specific language                              #
+  # Parameter:  index: pointer to specific language clock                        #
   #                                                                              #
-  # ReturnValues: clock: a string value for current time in chosen language      #
-  #                                                                              #
-  #                                                                              #
+  # ReturnValues: time: a string value for current time in chosen language       #
   #------------------------------------------------------------------------------#
   # version who when       description                                           #
-  # 1.00    hta 24.05.2014 Initial version                                       #
+  # 1.00    hta 09.08.2014 Initial version                                       #
   #------------------------------------------------------------------------------# 
-  def getTime(self,index):
+  def time(self,index):
     time=''
-    if index > self.numOfClocks:
+    if index > self.numOfClocks-1:
       index = 0
     #determine language associated with index  
     language=self.clocks[index].get('language')
     #get current time
     key_hour=str(datetime.datetime.now().hour).zfill(2)
     key_minute=str(datetime.datetime.now().minute).zfill(2)
-    logger.debug('hour['+key_hour+']minute['+key_minute+']')
-    logger.debug('next_hour_from['+str(self.clocks[index].get('next_hour_from'))+']')
+    self.seconds=datetime.datetime.now().second
     
     #Use next hour, language specific
     if int(key_minute) > self.clocks[index].get('next_hour_from'):
@@ -116,9 +106,21 @@ class Clock():
       time=self.clocks[index].get('translation')[1].get(key_minute) + ' ' + self.clocks[index].get('translation')[0].get(key_hour)
     
     return time
-
-if __name__ == '__main__':
-  myClock=Clock()
-  logger.debug('the time is:' + myClock.getTime(0))
-  logger.debug('the time is:' + myClock.getTime(1))
+    
+  #------------------------------------------------------------------------------#
+  # setLastTime:  update value of lastTime to the value passed by the caller     #
+  #               Is used by caller to avoid updating display when time has not  #
+  #               changed between calls, at least not from an hour/minute per-   #
+  #               perspective                                                    #
+  #                                                                              #
+  # Parameter:    time: desired value of lasttime                                #
+  #                                                                              #
+  # ReturnValues: time: a string value for current time in chosen language       #
+  #------------------------------------------------------------------------------#
+  # version who when       description                                           #
+  # 1.00    hta 10.08.2014 Initial version                                       #
+  #------------------------------------------------------------------------------#    
+  def setLastTime(self,time):
+    self.lastTime=time
+    
 

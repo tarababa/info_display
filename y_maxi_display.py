@@ -28,7 +28,7 @@ import queue
 import collections
 import time
 from time import localtime, strftime
-import configuration,y_meteo,weather_yr,menu
+import configuration,y_meteo,weather_yr,menu,clock
 sys.path.append(os.path.join('yoctolib_python','Sources'))
 from yocto_api import *
 from yocto_display import *
@@ -36,10 +36,9 @@ from yocto_files import *
 
 
 LOGGER         = 'MAXIDISPLAY'  #name of logger for the main module
+logger         = ''
 data           = collections.namedtuple('data','sample')
 display_module = collections.namedtuple('display_module', 'module module_name display current uptime')
-#menu           = dict(menu=('METEO_T_GRAPH',menu_meteo_t_graph))
-
 
 
 #------------------------------------------------------------------------------#
@@ -52,7 +51,9 @@ display_module = collections.namedtuple('display_module', 'module module_name di
 # 1.10    hta 25.05.2015 Removed call to arguments, corrected description      #
 #------------------------------------------------------------------------------#
 def init():
-  configuration.init_log(LOGGER);  
+  global logger
+  configuration.init_log(LOGGER)
+  logger = logging.getLogger(LOGGER) 
 
 #------------------------------------------------------------------------------#
 # get_module: Get an instance of the yoctopuce display module                  #
@@ -62,7 +63,7 @@ def init():
 # 1.00    hta 09.11.2013 Initial version                                       #
 #------------------------------------------------------------------------------#  
 def get_module(name):
-  logger = logging.getLogger(LOGGER)  
+  global logger
   errmsg=YRefParam()  
   # Setup the API to use local USB devices
   # Note this may fail with a return code -6, device busy and
@@ -111,7 +112,7 @@ def get_module(name):
 # 1.00    hta 09.11.2013 Initial version                                       #
 #------------------------------------------------------------------------------#   
 def do_display(module):
-  logger = logging.getLogger(LOGGER)
+  global logger
   #if we previously created a valid instance of the 
   #meteo module then we use that one.
   if  isinstance(module, display_module) and module.module != None:
@@ -220,7 +221,7 @@ def getMinMaxAndSampleSize(samples):
 # 1.00    hta 09.11.2013 Initial version                                       #
 #------------------------------------------------------------------------------#
 def showGraph(graph_x,graph_y,width,height,maxResize,samples,display):  
-  logger = logging.getLogger(LOGGER)
+  global logger
   graph         = []
   coordinates   = collections.namedtuple("coordinate","x y")
   x             = graph_x
@@ -333,7 +334,7 @@ def showGraph(graph_x,graph_y,width,height,maxResize,samples,display):
 # 1.00    hta 28.01.2014 Initial version                                       #
 #------------------------------------------------------------------------------#
 def showMinMax(text_x,text_y,uom,minData,maxData,display):  
-  logger = logging.getLogger(LOGGER)
+  global logger
 
   #build graph but dont display it yet
   layer4=display.get_displayLayer(4)
@@ -372,7 +373,7 @@ def showMinMax(text_x,text_y,uom,minData,maxData,display):
 # 1.00    hta 28.01.2014 Initial version                                       #
 #------------------------------------------------------------------------------#
 def showCurrent(text_x,text_y,uom, currVal, header, display):  
-  logger = logging.getLogger(LOGGER)
+  global logger
 
   #build graph but dont display it yet
   layer4=display.get_displayLayer(4)
@@ -411,7 +412,7 @@ def showCurrent(text_x,text_y,uom, currVal, header, display):
 # 1.00    hta 28.01.2014 Initial version                                       #
 #------------------------------------------------------------------------------#
 def showDateTime(activeMenu,display):  
-  logger = logging.getLogger(LOGGER)
+  global logger
 
   #build graph but dont display it yet
   layer4=display.get_displayLayer(4)
@@ -420,11 +421,9 @@ def showDateTime(activeMenu,display):
   
   if activeMenu.date and activeMenu.date_x != None and activeMenu.date_y != None:
     layer4.selectFont('Small.yfm')
-    #layer4.drawText(date_x,63-(date_y+16), YDisplayLayer.ALIGN.TOP_LEFT, strftime('%a, %d %b %Y', localtime())) #date
     layer4.drawText(activeMenu.date_x,63-activeMenu.date_y, YDisplayLayer.ALIGN.TOP_LEFT, strftime('%a, %d %b %Y', localtime())) #date
   if activeMenu.time and activeMenu.time_x != None and activeMenu.time_y != None:
     layer4.selectFont('Small.yfm')
-    #layer4.drawText(time_x+17,63-(time_y+3), YDisplayLayer.ALIGN.TOP_LEFT, strftime('%X', localtime()))         #time
     layer4.drawText(activeMenu.time_x,63-activeMenu.time_y, YDisplayLayer.ALIGN.TOP_LEFT, strftime('%X', localtime()))         #time
   
   #get layer 3, and use it do display the
@@ -637,7 +636,7 @@ def menu_show_characters_small(navigate,menuIndex,pageIndex,cls,display):
 # 1.00    hta 28.01.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
 def multipageNavigator(pages,navigate,menuIndex,pageIndex):
-  logger = logging.getLogger(LOGGER)
+  global logger
 
   if navigate == None and menuIndex == None and pageIndex == None:
     #intial call, show first page
@@ -676,7 +675,7 @@ def multipageNavigator(pages,navigate,menuIndex,pageIndex):
 # 1.00    hta 28.01.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
 def multimenuNavigator(menus,navigate,menuIndex,pageIndex):
-  logger = logging.getLogger(LOGGER)
+  global logger
 
   if navigate == None and menuIndex == None and pageIndex == None:
     #intial call, show first page
@@ -702,6 +701,80 @@ def multimenuNavigator(menus,navigate,menuIndex,pageIndex):
     logger.error('unexpected value for navigate[' + str(navigate) + ']') 
   return menuIndex,pageIndex
 #------------------------------------------------------------------------------#
+# menu_show_clock: show time in plain text                                     #
+#                                                                              #
+# Parameters: clock      object                                                #
+#             navigate   Navigation UP, DOWN, MENU_UP, MENU_DOWN               #
+#             pageIndex current page index                                     #
+#             menuIndex current menu index                                     #
+#             cls       When true screen is cleared before showing information #
+#             display   an instance of the yocto maxi display                  #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 28.01.2014 Initial version                                       #
+#------------------------------------------------------------------------------# 
+def menu_show_clock(clock,navigate,menuIndex,pageIndex,cls,display):
+  global logger
+  x=0
+  y=0
+
+  #create dummy pages for navigator
+  pages=list(range(0,clock.numOfClocks))
+  
+  #decide which page (i.e. clock) to show, only using page index...  
+  menuIndex,pageIndex = multipageNavigator(pages,navigate,menuIndex,pageIndex) 
+  
+  myTime=clock.time(pageIndex)
+  if myTime != clock.lastTime or cls:
+    #get layer 4 clear and hide it for now
+    layer4=display.get_displayLayer(4)
+    layer4.hide()
+    layer4.clear()
+    layer4.selectFont('Medium.yfm')    
+    #time has changed by a minute
+    clock.setLastTime(myTime)
+    #split time in single words
+    words = myTime.split(' ')
+    # we can get four lines of text on the display
+    # lets center the lines
+    y=(64-len(words)*16)/2
+    for word in words:
+      #draw each word starting on a random x-position 
+      #making sure that the whole word will fit.
+      pixelsInword=char_pixel_width(word,'medium')
+      x=random.randint(0, 128-pixelsInword) 
+      #actual drawing of all letters
+      for c in word:
+        layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, c)
+        x=x+char_pixel_width(c,'medium')
+      #next word goes on next line
+      y=y+16
+    #draw seconds marker
+    layer4.drawPixel(2*clock.seconds,63)
+    
+    #clear layers 1,2 and 3
+    if cls:
+      clearScreen(display)
+      cls==False
+    #get layer 0, and use it do display the
+    #clock prepared on layer4
+    layer0=display.get_displayLayer(0)
+    display.swapLayerContent(4,0)      
+  else:
+    #Minutes/hour have not changed then
+    #only update seconds marker.
+    layer0=display.get_displayLayer(0)
+    layer0.selectEraser()
+    for x in range(0,2*clock.seconds):
+      layer0.drawPixel(x,63)
+    layer0.selectGrayPen(255)  
+    layer0.drawPixel(2*clock.seconds,63)
+
+    
+
+  
+  return menuIndex,pageIndex  
+#------------------------------------------------------------------------------#
 # menu_show_characters_small: for test purposes, shows alphabet in small font  #
 #                                                                              #
 # Parameters: display   an instance of the yocto maxi display                  #
@@ -710,7 +783,7 @@ def multimenuNavigator(menus,navigate,menuIndex,pageIndex):
 # 1.00    hta 28.01.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
 def menu_show_characters_medium(navigate,menuIndex,pageIndex,cls,display):
-  logger = logging.getLogger(LOGGER)
+  global logger
   x=0
   y=0
   j=0
@@ -773,7 +846,7 @@ def menu_show_characters_medium(navigate,menuIndex,pageIndex,cls,display):
 # 1.00    hta 28.01.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
 def menu_show_characters_8x8(navigate,menuIndex,pageIndex,cls,display):
-  logger = logging.getLogger(LOGGER)
+  global logger
   x=0
   y=0
   j=0
@@ -840,7 +913,7 @@ def menu_show_characters_8x8(navigate,menuIndex,pageIndex,cls,display):
 # 1.00    hta 28.01.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
 def char_pixel_width(string, font='Small'):
-  logger = logging.getLogger(LOGGER)
+  global logger
   
   width=0
   if font.lower() == 'small':
@@ -867,9 +940,9 @@ def char_pixel_width(string, font='Small'):
     four_pixel  =list('[()\º³trf')
     five_pixel  =list('"*{}²')
     six_pixel   =list('chnxy')
-    seven_pixel =list('+01256789<=>?^JLbdgkopqsuvz§¨µ¿×÷~N£¤¶ø')
+    seven_pixel =list('+01256789<=>?^JLbdgkopqsuvz§¨µ¿×÷~£¤¶ø')
     eight_pixel =list('$34Y«»¢¥ae±')
-    nine_pixel  =list('&#ABEFHKPRSTXZ')
+    nine_pixel  =list('&#ABEFHKPRSTXZN')
     ten_pixel   =list('&CDGOQUw')
     eleven_pixel=list('¼½¾VMm')
     twelve_pixel=list('©%')
@@ -944,7 +1017,7 @@ def char_pixel_width(string, font='Small'):
 # 1.00    hta 28.01.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
 def menu_weather_forecast(forecasts,navigate,menuIndex,pageIndex,cls,display):
-  logger = logging.getLogger(LOGGER)
+  global logger
   
   #get the correct menuIndex and pageIndex page from the forecasts
   menuIndex,pageIndex = multimenuNavigator(forecasts,navigate,menuIndex,pageIndex)
@@ -1079,7 +1152,7 @@ def menu_weather_forecast(forecasts,navigate,menuIndex,pageIndex,cls,display):
 # 1.00    hta 28.01.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
 def menu_exchange_rate(rates,navigate,menuIndex,pageIndex,cls,display):
-  logger = logging.getLogger(LOGGER)
+  global logger
   
   #get the correct menuIndex and pageIndex page from the forecasts
   menuIndex,pageIndex = multimenuNavigator(rates[0],navigate,menuIndex,pageIndex)
@@ -1111,7 +1184,7 @@ def menu_exchange_rate(rates,navigate,menuIndex,pageIndex,cls,display):
 # 1.00    hta 23.05.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
 def menu_radio(radio_info,cls,display):
-  logger = logging.getLogger(LOGGER)
+  global logger
   #clear layers 1,2 and 3
   if cls:
     clearScreen(display)
@@ -1151,7 +1224,7 @@ def menu_radio(radio_info,cls,display):
 # 1.00    hta 28.01.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
 def do_radio(navigate, pageIndex, menuIndex, radio_q):
-  logger = logging.getLogger(LOGGER)
+  global logger
   
   #when MENU_UP or MENU_DOWN we request next or previous
   #previous channel from the radio module
@@ -1187,7 +1260,7 @@ def do_radio(navigate, pageIndex, menuIndex, radio_q):
 # 1.00    hta 03.04.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
 def menu_startup(menuIndex,pageIndex,cls,display):
-  logger = logging.getLogger(LOGGER)
+  global logger
   logger.debug('start')
   if cls:
     #clear 1..4
@@ -1197,7 +1270,7 @@ def menu_startup(menuIndex,pageIndex,cls,display):
   display.set_brightness(100)
   display.playSequence("tom.seq")
   #wait until sequence has completed!
-  time.sleep(5)
+  time.sleep(4.5)
   display.set_brightness(100)
   
   #static display of TOM the moose
@@ -1224,7 +1297,7 @@ def menu_startup(menuIndex,pageIndex,cls,display):
 # 1.00    hta 03.04.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
 def upload_file(path,files,overwrite=False):
-  logger = logging.getLogger(LOGGER)
+  global logger
   
   logger.debug('looking for['+path+']')
   
@@ -1254,7 +1327,7 @@ def upload_file(path,files,overwrite=False):
 # 1.00    hta 03.04.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
 def create_sequence(name,display,files,overwrite=False):
-  logger = logging.getLogger(LOGGER)
+  global logger
   
   if not(overwrite):
     filelist=files.get_list(name)
@@ -1300,7 +1373,7 @@ def create_sequence(name,display,files,overwrite=False):
 # 1.00    hta 28.01.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
 def do_create_sequence(module,overwrite=False):    
-  logger = logging.getLogger(LOGGER)
+  global logger
   #get the filesystem
   files = YFiles.FindFiles(module.module_name + '.files')
   if not files.isOnline():
@@ -1336,12 +1409,12 @@ def do_create_sequence(module,overwrite=False):
 # 1.00    hta 09.11.2013 Initial version                                       #
 #------------------------------------------------------------------------------# 
 def display_deamon(main_q, meteo_q, radio_q, message_q):
+  global logger
+  #setup logging
+  init()
   shutdown = False
   message  = None
   module   = init_module()
-  #setup logging
-  configuration.init_log(LOGGER)
-  logger = logging.getLogger(LOGGER)
   #init local variables
   cleanScreen = False
   activeMenu = menu.active_menu(None,None,None,None,None,None,None,None,None,None)   
@@ -1352,7 +1425,8 @@ def display_deamon(main_q, meteo_q, radio_q, message_q):
   meteoData     = []
   exchangeData  = []
   forecasts  = None
-  
+  #get instance of clock
+  myClock=clock.Clock()
   #initialize module
   while module.module == None:
     module = do_display(init_module())
@@ -1470,6 +1544,11 @@ def display_deamon(main_q, meteo_q, radio_q, message_q):
             ##############            
             elif activeMenu.id == 'menu_radio':
               menuIndex,pageIndex=do_radio(activeMenu.navigate,menuIndex,pageIndex,radio_q)
+            ##############
+            #CLOCK SCREEN#
+            ##############            
+            elif activeMenu.id == 'menu_show_clock':
+              menuIndex,pageIndex=menu_show_clock(myClock,activeMenu.navigate,menuIndex,pageIndex,clearScreen,module.display)              
             ###################
             #TEST SCREEN FONTS#
             ###################
@@ -1519,7 +1598,11 @@ def display_deamon(main_q, meteo_q, radio_q, message_q):
       if module.module != None:
         if activeMenu != None:
           try:
-            showDateTime(activeMenu,module.display)
+            if activeMenu.id == 'menu_show_clock':
+              #showing clock then we must keep it current
+              menuIndex,pageIndex=menu_show_clock(myClock,None,menuIndex,pageIndex,False,module.display)    
+            else:
+              showDateTime(activeMenu,module.display)
           except YAPI.YAPI_Exception as err:
               logger.error(str(err))
               module = display_module(None,None,None,None,None)
