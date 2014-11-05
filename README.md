@@ -14,3 +14,32 @@ Furthermore weatherforecast data is pulled from the yr.no rss and can be viewed 
 
 Navigation through the various menus is done through the six buttons which are integrated in the Yocto display module.
   
+-Get MPD/MPC
+ sudo apt-get install mpd
+ sudo apt-get install mpc (optional)
+ in /etc/mpd.conf ensure following configuration:
+   bind_to_address         "any"
+   port                    "6600"
+   
+
+-Install Info display from git
+ git clone https://github.com/tarababa/info_display.git
+
+-Install python setuptools
+ sudo apt-get update
+ sudo apt-get install python3-pip
+
+-Install python-mpd2 library
+ sudo pip-3.2 install python-mpd2
+
+-To start
+ sudo nohup /usr/bin/python3 /home/pi/information_display/info_display/information_display.py &
+ 
+-Autostart
+ make information_display.py executable: chmod a+x information_display.py
+ sudo cp /home/pi/info_display/etc/info_display /etc/init.d
+ then make info_display executable: sudo chmod a+x info_display
+ sudo update-rc.d info_display defaults
+
+
+
