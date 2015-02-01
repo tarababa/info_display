@@ -42,4 +42,9 @@ Navigation through the various menus is done through the six buttons which are i
  sudo update-rc.d info_display defaults
 
 
-
+-Install lxml (for ESKOM loadshedding information)
+ On windows:
+ Download package from http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml
+ Install using pip
+ D:\03-git\info_display>pip install D:\Data\b7tarah\Downloads\lxml-3.4.1-cp34-none-win32.whl
+ 
