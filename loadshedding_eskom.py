@@ -34,9 +34,8 @@ import json
 import time
 
 LOGGER = 'ESKOM'  #name of logger for this module
-
-loadSheddingSchedule = collections.namedtuple("schedule","lsstatus suburb day period1 period2 period3")
-grid_status          = collections.namedtuple("gridstatus","loadshedding_status powerstatus trend")
+power_status         = collections.namedtuple("powerstatus","level trend")
+loadSheddingSchedule = collections.namedtuple("schedule","power_status lsstatus suburb day period1 period2 period3")
 
 #LS Status to stage
 STATUS2STAGE = {'-1':('1','UNKNOWN'),
@@ -195,15 +194,20 @@ def eskom_get_suburb(municipality,suburb):
 #------------------------------------------------------------------------------#
 # eskom_get_loadshedding_schedule: gets loadshedding schedule for a particular #
 #                                  suburb and loadshedding stage               #
-# Parameters suburbId:  numeric identifier of desired suburb                   #
+# Parameters province: province identifier, required for URL                   #
+#            suburb  : in plaintext, required for return value                 #
+#            suburbId:  numeric identifier of desired suburb                   #
 #            suburbTot: numeric identifier...???                               #
+#            lsstatus: loadshedding status, required to determine loadshedding #
+#                      stage which goes in the URL                             #
+#            powerStatus: for inclusion in the return value                    #
 #                                                                              #
 # Return values: schedule                                                      #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 24.03.2014 Initial version                                       #
 #------------------------------------------------------------------------------#
-def eskom_get_loadshedding_schedule(province,suburb,suburbId,suburbTot, lsstatus):
+def eskom_get_loadshedding_schedule(province,suburb,suburbId,suburbTot, lsstatus, powerStatus):
   logger = logging.getLogger(LOGGER)
   logger.debug('start')
   #set the url
@@ -229,7 +233,7 @@ def eskom_get_loadshedding_schedule(province,suburb,suburbId,suburbTot, lsstatus
         scheduleText.append(str(schedule.text_content().strip()))
       while len(scheduleText) < 4:
         scheduleText.append(None)
-      loadSheddingScheduleDay=loadSheddingSchedule(lsstatus,suburb,scheduleText[0],scheduleText[1],scheduleText[2],scheduleText[3])  
+      loadSheddingScheduleDay=loadSheddingSchedule(powerStatus,lsstatus,suburb,scheduleText[0],scheduleText[1],scheduleText[2],scheduleText[3])  
       myLoadSheddingSchedule.append(loadSheddingScheduleDay)  
     return myLoadSheddingSchedule
   except:
@@ -271,24 +275,13 @@ def eskom_power_status():
     data = json.loads(urllib.request.urlopen(req).read().decode('utf-8')) 
     powerStatus = data['data']['page']
     logger.debug('level[' + powerStatus['level'] + '] powerStatus[' + powerStatus['levelstatus'] + '] status [' + powerStatus['status'] +']')
+    return power_status(powerStatus['level'],powerStatus['levelstatus'])
   except:
     #sometimes we get urllib.error.HTTPError: HTTP Error 400: Bad Request
     #to try and figure out what went wrong we trace the request
     logger.error('req['+str(req)+']')
     logger.error('unexpected error ['+  str(traceback.format_exc()) +']') 
     
-#------------------------------------------------------------------------------#
-# trace_loadshedding_status: Trace loadshedding status to a log file, get a    #
-#                            logger if none is provided                        #
-#                                                                              #
-# Parameters: lsstatus loadshedding status                                     #
-#------------------------------------------------------------------------------#
-# version who when       description                                           #
-# 1.00    hta 24.03.2014 Initial version                                       #
-#------------------------------------------------------------------------------#  
-def trace_loadshedding_status(lsstatus):
-   logger = logging.getLogger(LOGGER) #will use ESKOM logger
-   trace_loadshedding_status(rate,logger)
 #------------------------------------------------------------------------------#
 # trace_loadshedding_schedule: Trace loadshedding schedule to a log file,      #
 #                              get a logger if none is provided                #
@@ -335,6 +328,7 @@ def get_loadshedding_config():
 # doGetSchedule: return schedule                                               #
 #                                                                              #
 # Parameters: cfg: eskom loadshedding configuration, for one particular suburb #
+#             powerStatus: grid load                                           #
 #                                                                              #
 # Returnvalues: Schedule for one particular suburb and current loadshedding    #
 #               stage
@@ -342,7 +336,7 @@ def get_loadshedding_config():
 # version who when       description                                           #
 # 1.00    hta 24.03.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
-def doGetSchedule(cfg):
+def doGetSchedule(cfg,powerStatus):
   #Get loadshedding status as provided by ESKOM website, this is not the same
   #as the loadshedding stage!
   lsstatus=eskom_loadshedding_status()
@@ -351,7 +345,7 @@ def doGetSchedule(cfg):
   #Get suburb parameters
   suburbId,suburbTot=eskom_get_suburb(municipality,cfg[2])
   #now return the schedule to the caller
-  return eskom_get_loadshedding_schedule(cfg[0],cfg[2],suburbId,suburbTot,lsstatus)  
+  return eskom_get_loadshedding_schedule(cfg[0],cfg[2],suburbId,suburbTot,lsstatus,powerStatus)  
 #------------------------------------------------------------------------------#
 # eskom_deamon: responsible for collecting loadshedding status, schedules and  #
 #               grid load, and sending data to display thread                  #
@@ -360,13 +354,14 @@ def doGetSchedule(cfg):
 # version who when       description                                           #
 # 1.00    hta 24.03.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
-def eskom_deamon(main_q,display_q,message_q):
+def eskom_deamon(main_q,message_q,display_q):
   shutdown = False
   message  = None  
   loadshedding_schedules = []
   #setup logging
   init()
   logger = logging.getLogger(LOGGER)
+  #get configuration
   loadshedding_config=get_loadshedding_config()
   
   while not shutdown:
@@ -381,10 +376,11 @@ def eskom_deamon(main_q,display_q,message_q):
         #REQUEST LOADSHEDDING SCHEDULE INFORMATION   #
         ##############################################
         if message.type == 'GET_LOADSHEDDING_SCHEDULE' and message.subtype=='ALL':
+          powerStatus=eskom_power_status()
           schedules = []
           #Loop through all configured locations
           for config in loadshedding_config:
-            schedules.append(doGetSchedule(config))
+            schedules.append(doGetSchedule(config,powerStatus))
           display_q.put( configuration.MESSAGE('ESKOM','DISPLAY','SCHEDULES','DATA', schedules))
         ##################    
         #SHUTDOWN MESSAGE#
@@ -409,15 +405,13 @@ def eskom_deamon(main_q,display_q,message_q):
   logger.debug('done')    
 
 #for testing
-configuration.general_configuration();
-configuration.logging_configuration();
-configuration.init_log(LOGGER);
-logger = logging.getLogger(LOGGER)
-
-
-loadshedding_config=get_loadshedding_config()
-mySchedule=doGetSchedule(loadshedding_config[0])
-trace_loadshedding_schedule(mySchedule, logger)
-
-eskom_power_status()
+#configuration.general_configuration();
+#configuration.logging_configuration();
+#configuration.init_log(LOGGER);
+#logger = logging.getLogger(LOGGER)
+#
+#loadshedding_schedules = []
+#loadshedding_config=get_loadshedding_config()
+#loadshedding_schedules.append(doGetSchedule(loadshedding_config[0],eskom_power_status()))
+#trace_loadshedding_schedule(loadshedding_schedules[0], logger)
 

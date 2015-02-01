@@ -1173,7 +1173,79 @@ def menu_exchange_rate(rates,navigate,menuIndex,pageIndex,cls,display):
   
   #return the current page index
   return menuIndex,pageIndex  
+#------------------------------------------------------------------------------#
+# menu_eskom: menu point, show loadshedding schedules and grid load            #
+#                                                                              #
+# Parameters: schedules  loadshedding schedules                                #
+#             navigate   Navigation UP, DOWN, MENU_UP, MENU_DOWN               #
+#             pageIndex current page index                                     #
+#             menuIndex current menu index                                     #
+#             cls       When true screen is cleared before showing information #
+#             display   an instance of the yocto maxi display                  #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 28.01.2014 Initial version                                       #
+#------------------------------------------------------------------------------# 
+def menu_eskom(schedules,navigate,menuIndex,pageIndex,cls,display):
+  global logger
+  
+  #get the correct menuIndex and pageIndex page from the loadshedding schedules
+  menuIndex,pageIndex = multimenuNavigator(schedules,navigate,menuIndex,pageIndex)
+  menuIndex,pageIndex = multipageNavigator(schedules[menuIndex],navigate,menuIndex,pageIndex)
 
+  #  loadsheddingschedule
+  logger.debug('pageIndex['+str(pageIndex)+']')
+  logger.debug('menuIndex['+str(menuIndex)+']')
+  mySchedule = schedules[menuIndex][pageIndex]
+  
+  #prepare weather forecast to display 
+  #but do not show it
+  layer4=display.get_displayLayer(4)
+  layer4.hide()
+  layer4.clear()
+  
+  #first line
+  x=0
+  y=0
+  if mySchedule.lsstatus == '1':  #lsstatus
+    layer4.selectFont('Small.yfm')
+    layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, mySchedule.suburb)
+    layer4.selectFont('Medium.yfm')
+    x=64
+    y=6
+    layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER, 'NO')
+    y=19    
+    layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER, 'Load-shedding')
+  
+  #next line
+  x=10
+  y=y+10
+
+  #next line
+  x=0
+  y=y+8
+
+  #next line
+  x=64
+  y=y+9
+
+  #next line
+  x=0
+  y=y+9
+  
+  #clear layers 1,2 and 3
+  if cls:
+    clearScreen(display)
+    cls==False
+    
+  #get layer 0, and use it do display the
+  #summary prepared on layer4
+  
+  layer0=display.get_displayLayer(0)
+  display.swapLayerContent(4,0)    
+  
+  #return the current page index
+  return menuIndex,pageIndex
 #------------------------------------------------------------------------------#
 # menu_radio: show channel playing and volume                                  #
 #                                                                              #
@@ -1422,8 +1494,9 @@ def display_deamon(main_q, meteo_q, radio_q, message_q):
   menuIndex  = None
   displayData= None
   radioInfo  = None
-  meteoData     = []
   exchangeData  = []
+  meteoData     = []
+  schedules     = []
   forecasts  = None
   #get instance of clock
   myClock=clock.Clock()
@@ -1490,6 +1563,14 @@ def display_deamon(main_q, meteo_q, radio_q, message_q):
             if activeMenu.id=='menu_weather_forecast':
               menu_weather_forecast(forecasts,None,menuIndex,pageIndex,False,module.display)
 
+          #########################################
+          #MESSAGES FROM ESKOM LOADSHEDDING MODULE#
+          #########################################
+          elif message.type == 'SCHEDULES':
+            schedules=message.content
+            if activeMenu.id=='menu_eskom':
+              menu_eskom(schedules,None,menuIndex,pageIndex,False,module.display)
+              
           ############################
           #MESSAGES FROM RADIO MODULE#
           ############################
@@ -1548,7 +1629,12 @@ def display_deamon(main_q, meteo_q, radio_q, message_q):
             #CLOCK SCREEN#
             ##############            
             elif activeMenu.id == 'menu_show_clock':
-              menuIndex,pageIndex=menu_show_clock(myClock,activeMenu.navigate,menuIndex,pageIndex,clearScreen,module.display)              
+              menuIndex,pageIndex=menu_show_clock(myClock,activeMenu.navigate,menuIndex,pageIndex,clearScreen,module.display)
+            ##############
+            #ESKOM SCREEN#
+            ##############            
+            elif activeMenu.id == 'menu_eskom':
+              menuIndex,pageIndex=menu_eskom(schedules,activeMenu.navigate,menuIndex,pageIndex,clearScreen,module.display)              
             ###################
             #TEST SCREEN FONTS#
             ###################

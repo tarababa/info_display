@@ -34,6 +34,7 @@ import y_meteo, y_button
 import y_maxi_display
 import radio
 import exchange_rates_yahoo
+import loadshedding_eskom
 import timers
 
 LOGGER = 'MAIN'  #name of logger for the main module
@@ -69,6 +70,8 @@ def do_timers(timer, work_queue):
     work_queue.put( configuration.MESSAGE('MAIN','EXCHANGE','GET_EXCHANGE_RATE','ALL', None))
   elif timer=='RADIO':
     work_queue.put( configuration.MESSAGE('MAIN','RADIO','REFRESH','RADIO_INFO', None))
+  elif timer=='ESKOM':
+    work_queue.put( configuration.MESSAGE('MAIN','ESKOM','GET_LOADSHEDDING_SCHEDULE','ALL', None))
   else:
     logger.info ('no action defined for timer[' + timer + ']')
   
@@ -99,6 +102,7 @@ def main():
   button_q  = queue.Queue()
   exchange_q= queue.Queue()
   radio_q   = queue.Queue()
+  eskom_q   = queue.Queue()
 
 
   ###############################
@@ -174,6 +178,20 @@ def main():
   button_thread.name = 'BUTTON'
   button_thread.deamon=False
   button_thread.start()
+  
+  #############################
+  # start ESKOM module thread # 
+  #############################
+  eskom_q.put( configuration.MESSAGE('MAIN','ESKOM','GET_LOADSHEDDING_SCHEDULE','ALL',None))
+  #create and start ESKOM module thread
+  eskom_thread = threading.Thread(target=loadshedding_eskom.eskom_deamon, args=(main_q, eskom_q, display_q))
+  eskom_thread.name = 'ESKOM'
+  eskom_thread.deamon=False
+  eskom_thread.start()
+  #start repeating eskom timer
+  eskom_timer_thread = timers.RepeatingTimer(120, function=do_timers, args=('ESKOM',eskom_q))
+  eskom_timer_thread.name = 'ESKOM_TIMER'
+  eskom_timer_thread.start()     
 
   result=None
   shutdown=False
@@ -202,6 +220,7 @@ def main():
           weather_timer_thread.cancel()
           exchange_timer_thread.cancel()
           radio_timer_thread.cancel()
+          eskom_timer_thread.cancel()
           #send shutdown message to all modules
           button_q.put(  configuration.MESSAGE('MAIN','BUTTON',  'SHUTDOWN',None,None))
           meteo_q.put(   configuration.MESSAGE('MAIN','METEO',   'SHUTDOWN',None,None))
@@ -209,6 +228,7 @@ def main():
           display_q.put( configuration.MESSAGE('MAIN','DISPLAY', 'SHUTDOWN',None,None))          
           exchange_q.put(configuration.MESSAGE('MAIN','EXCHANGE','SHUTDOWN',None,None))          
           radio_q.put(   configuration.MESSAGE('MAIN','RADIO','SHUTDOWN',None,None))          
+          eskom_q.put(   configuration.MESSAGE('MAIN','ESKOM','SHUTDOWN',None,None))          
         else:
           logger.warning('got unknown message')
       else:
