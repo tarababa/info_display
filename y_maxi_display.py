@@ -29,6 +29,7 @@ import collections
 import time
 from time import localtime, strftime
 import configuration,y_meteo,weather_yr,menu,clock
+from loadshedding_eskom import STATUS2STAGE
 sys.path.append(os.path.join('yoctolib_python','Sources'))
 from yocto_api import *
 from yocto_display import *
@@ -1208,6 +1209,7 @@ def menu_eskom(schedules,navigate,menuIndex,pageIndex,cls,display):
   x=0
   y=0
   if mySchedule.lsstatus == '1':  #lsstatus
+    #NOT LOAD-SHEDDING
     layer4.selectFont('Small.yfm')
     layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, mySchedule.suburb)
     layer4.selectFont('Medium.yfm')
@@ -1216,22 +1218,113 @@ def menu_eskom(schedules,navigate,menuIndex,pageIndex,cls,display):
     layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER, 'NO')
     y=19    
     layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER, 'Load-shedding')
-  
-  #next line
-  x=10
-  y=y+10
-
-  #next line
-  x=0
-  y=y+8
-
-  #next line
-  x=64
-  y=y+9
-
-  #next line
-  x=0
-  y=y+9
+    #Grid load status
+    layer4.selectFont('Small.yfm')
+    x=64
+    y=41
+    layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER, 'Load:' + mySchedule.power_status.level)
+    y=y+12
+    layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER,'Trend: ' + mySchedule.power_status.trend)
+    
+  elif mySchedule.lsstatus in ('2','3','4'):
+    #LOAD-SHEDDING
+    layer4.selectFont('Small.yfm')
+    layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, mySchedule.suburb)
+    #######
+    #STAGE#
+    #######
+    x=114
+    y=10
+    layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER,'Stage')    
+    layer4.selectFont('Large.yfm')    
+    y=14
+    layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER, STATUS2STAGE[mySchedule.lsstatus][0])    
+    x=0
+    y=7
+    layer4.selectFont('Medium.yfm')
+    for c in 'Loadshedding':
+      layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, c)
+      x=x+char_pixel_width(c,'Medium')    
+    x=15    
+    center=40 #center schedule around x=center
+    #scheduled day, first calculate expected width
+    w=0
+    for c in mySchedule.day:
+      if c==',':
+        w=w-2
+      w=w+char_pixel_width(c,'8x8')
+      if c==',':
+        w=w-2    
+    #now draw schedule day, centering it around x=40
+    y=23
+    x=center - w/2
+    layer4.selectFont('8x8.yfm')
+    for c in mySchedule.day:
+      if c==',':
+        x=x-2
+      layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, c)
+      x=x+char_pixel_width(c,'8x8')
+      if c==',':
+        x=x-2
+    #period 1#
+    #calculate expected width
+    w=0
+    for c in mySchedule.period1.replace(':',': '):
+      if c==':':
+        w=w-2
+      w=w+char_pixel_width(c,'8x8')     
+    y=34
+    x=center-w/2
+    #draw period1
+    for c in mySchedule.period1.replace(':',': '):
+      if c==':':
+        x=x-2
+      layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, c)
+      x=x+char_pixel_width(c,'8x8') 
+    ##########  
+    #period 2#
+    ##########
+    if mySchedule.period2 is not None:
+      #period 2, calculate expected width
+      w=0
+      for c in mySchedule.period2.replace(':',': '):
+        if c==':':
+          w=w-2
+        w=w+char_pixel_width(c,'8x8')     
+      y=43
+      x=center-w/2
+      #draw period 2
+      for c in mySchedule.period2.replace(':',': '):
+        if c==':':
+          x=x-2
+        layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, c)
+        x=x+char_pixel_width(c,'8x8')
+    ##########  
+    #period 3#
+    ##########
+    if mySchedule.period3 is not None:
+      #period 3, calculate expected width
+      w=0
+      for c in mySchedule.period3.replace(':',': '):
+        if c==':':
+          w=w-2
+        w=w+char_pixel_width(c,'8x8')     
+      y=52
+      x=center-w/2
+      #draw period 3
+      for c in mySchedule.period3.replace(':',': '):
+        if c==':':
+          x=x-2
+        layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, c)
+        x=x+char_pixel_width(c,'8x8')
+        
+    #grid status:load and trend
+    y=44
+    x=80
+    layer4.selectFont('Small.yfm')
+    layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, 'Load: ' + mySchedule.power_status.level)
+    y=y+9
+    layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, 'Trend: ' + mySchedule.power_status.trend)
   
   #clear layers 1,2 and 3
   if cls:
