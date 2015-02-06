@@ -44,7 +44,10 @@ Navigation through the various menus is done through the six buttons which are i
 
 -Install lxml (for ESKOM loadshedding information)
  On windows:
- Download package from http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml
- Install using pip
- D:\03-git\info_display>pip install D:\Data\b7tarah\Downloads\lxml-3.4.1-cp34-none-win32.whl
+   Download package from http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml
+   Install using pip
+   D:\03-git\info_display>pip install D:\Data\b7tarah\Downloads\lxml-3.4.1-cp34-none-win32.whl
+ On raspberry PI:
+   sudo apt-get install python3-lxml
+
  
