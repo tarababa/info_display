@@ -320,22 +320,30 @@ def eskom_twitter():
   for tweet in r['statuses']:
     #when was the tweet created
     created_at = datetime.datetime.strptime(tweet['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
-    time_delta = datetime.datetime.today() - created_at
-    if time_delta.seconds > 24*3600: #older then 24 hours then ignore
-      break #tweets are returned with most recent tweet first.
-    else:
-      text = tweet['text']
-      #Look for something like Stage 1
-      stage = re.findall("i*Stage\s*\d{1}",text)
-      if stage: #got forecasted stage, go and find from-to times
-        #look for something like 08h00
-        times = re.findall("(\d{2}\D{1,3}\d{2})",text)
-        if times: #loadshedding has been forcasted...
-          if len(times)==2:
-            return loadSheddingForecast(stage[0].split(' ')[1],times[0],times[1])
+    today = datetime.datetime.today()
+    text = tweet['text']
+    logger.debug('text['+text+']');
+    #Look for something like Stage 1
+    stage = re.findall("i*Stage\s*\d{1}",text)
+    if stage: #got forecasted stage, go and find from-to times
+      #look for something like 08h00
+      times = re.findall("(\d{2}\D{1,3}\d{2})",text)
+      if times: #loadshedding has been forcasted...
+        if len(times)==2:
+          endTime = re.findall('\d+',times[1]) #get forecasted end time, hour and minutes seperate
+          logger.debug('endTime[' + str(endTime) + ']')
+          if endTime and len(endTime)==2:
+            if today.day == created_at.day and today.hour < int(endTime[0]):
+              #forecast is for today and endtime has not passed yet...
+              #obviously this fails if endtime is only tomorrow... 
+              return loadSheddingForecast(stage[0].split(' ')[1],times[0],times[1])
+            else:
+              break
           else:
-            return loadSheddingForecast(stage.split(' ')[1],times[0],None)
-  
+            break
+        else:
+          return loadSheddingForecast(stage[0].split(' ')[1],times[0],None)
+      
   return loadSheddingForecast(None,None,None)  
 #------------------------------------------------------------------------------#
 # trace_loadshedding_schedule: Trace loadshedding schedule to a log file,      #
