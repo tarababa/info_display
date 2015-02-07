@@ -32,9 +32,29 @@ import configparser
 
 CONFIG = None       #configuration from config.ini
 LOGGING= None       #logging configuration from ini file
+TWITTER= None       #twitter configuration from inin file
 
 MESSAGE   = collections.namedtuple('message', 'sender receiver type subtype content')
-
+#------------------------------------------------------------------------------#
+# set_TWITTER: set globally available configuration (from twitter.ini)         #
+#                                                                              #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 09.11.2013 Initial version                                       #
+#------------------------------------------------------------------------------#
+def set_TWITTER(config):
+  global TWITTER 
+  TWITTER = config
+#------------------------------------------------------------------------------#
+# get_TWITTER: returns globally available configuration (from twitter.ini)     #
+#                                                                              #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 09.11.2013 Initial version                                       #
+#------------------------------------------------------------------------------#
+def get_TWITTER():
+  global TWITTER
+  return TWITTER
 #------------------------------------------------------------------------------#
 # set_CONFIG: set globally available configuration (from config.ini)           #
 #                                                                              #
@@ -76,6 +96,20 @@ def set_LOGGING(config):
 def get_LOGGING():
   global LOGGING
   return LOGGING
+#------------------------------------------------------------------------------#
+# init: Read twitter.ini file                                                  #
+#                                                                              #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 17.11.2013 Initial version                                       #
+#------------------------------------------------------------------------------#
+def twitter_configuration():
+  ###################################
+  # get configuration from ini file #
+  ###################################
+  config = configparser.RawConfigParser(allow_no_value=True)
+  config.read('./etc/twitter.ini',encoding='utf-8')
+  set_TWITTER(config)  
 #------------------------------------------------------------------------------#
 # init: Read config.ini file                                                   #
 #                                                                              #

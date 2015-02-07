@@ -1208,7 +1208,7 @@ def menu_eskom(schedules,navigate,menuIndex,pageIndex,cls,display):
   #first line
   x=0
   y=0
-  if mySchedule.lsstatus == '1':  #lsstatus
+  if mySchedule.lsstatus == '1' and mySchedule.forecast.stage is None:  #lsstatus
     #NOT LOAD-SHEDDING
     layer4.selectFont('Small.yfm')
     layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, mySchedule.suburb)
@@ -1226,7 +1226,7 @@ def menu_eskom(schedules,navigate,menuIndex,pageIndex,cls,display):
     y=y+12
     layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER,'Trend: ' + mySchedule.power_status.trend)
     
-  elif mySchedule.lsstatus in ('2','3','4'):
+  elif mySchedule.lsstatus in ('2','3','4') or mySchedule.forecast.stage in ('1','2','3'):
     #LOAD-SHEDDING
     layer4.selectFont('Small.yfm')
     layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, mySchedule.suburb)
@@ -1234,13 +1234,16 @@ def menu_eskom(schedules,navigate,menuIndex,pageIndex,cls,display):
     #STAGE#
     #######
     x=114
-    y=10
+    y=9
     layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER,'Stage')    
     layer4.selectFont('Large.yfm')    
-    y=14
-    layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER, STATUS2STAGE[mySchedule.lsstatus][0])    
+    y=13
+    if mySchedule.lsstatus in ('2','3','4'):
+      layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER, STATUS2STAGE[mySchedule.lsstatus][0])
+    else:
+      layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER, mySchedule.forecast.stage)
     x=0
-    y=7
+    y=6
     layer4.selectFont('Medium.yfm')
     for c in 'Loadshedding':
       layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, c)
@@ -1256,7 +1259,7 @@ def menu_eskom(schedules,navigate,menuIndex,pageIndex,cls,display):
       if c==',':
         w=w-2    
     #now draw schedule day, centering it around x=40
-    y=23
+    y=21
     x=center - w/2
     layer4.selectFont('8x8.yfm')
     for c in mySchedule.day:
@@ -1273,7 +1276,7 @@ def menu_eskom(schedules,navigate,menuIndex,pageIndex,cls,display):
       if c==':':
         w=w-2
       w=w+char_pixel_width(c,'8x8')     
-    y=34
+    y=31
     x=center-w/2
     #draw period1
     for c in mySchedule.period1.replace(':',': '):
@@ -1291,7 +1294,7 @@ def menu_eskom(schedules,navigate,menuIndex,pageIndex,cls,display):
         if c==':':
           w=w-2
         w=w+char_pixel_width(c,'8x8')     
-      y=43
+      y=39
       x=center-w/2
       #draw period 2
       for c in mySchedule.period2.replace(':',': '):
@@ -1309,7 +1312,7 @@ def menu_eskom(schedules,navigate,menuIndex,pageIndex,cls,display):
         if c==':':
           w=w-2
         w=w+char_pixel_width(c,'8x8')     
-      y=52
+      y=47
       x=center-w/2
       #draw period 3
       for c in mySchedule.period3.replace(':',': '):
@@ -1319,13 +1322,19 @@ def menu_eskom(schedules,navigate,menuIndex,pageIndex,cls,display):
         x=x+char_pixel_width(c,'8x8')
         
     #grid status:load and trend
-    y=44
+    y=40
     x=80
     layer4.selectFont('Small.yfm')
     layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, 'Load: ' + mySchedule.power_status.level)
-    y=y+9
+    y=y+8
     layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, 'Trend: ' + mySchedule.power_status.trend)
-  
+ 
+    #forecast
+    y=y+8
+    x=64
+    if mySchedule.forecast.stage is not None:
+      layer4.selectFont('Small.yfm')
+      layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER, 'Stage: ' + mySchedule.forecast.stage + ' from ' + mySchedule.forecast.time_from + ' to ' + mySchedule.forecast.time_to)      
   #clear layers 1,2 and 3
   if cls:
     clearScreen(display)

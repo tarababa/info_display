@@ -50,4 +50,9 @@ Navigation through the various menus is done through the six buttons which are i
  On raspberry PI:
    sudo apt-get install python3-lxml
 
- 
+-Install twython
+ On windows:
+   pip install twython
+ On Raspberry PI:
+   sudo pip-3.2 install twython
+

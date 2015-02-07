@@ -31,11 +31,15 @@ import configuration
 from lxml import etree
 from lxml.html import fromstring
 import json
-import time
+import time, datetime
+import re
+from twython import Twython
+from configparser import NoOptionError
 
 LOGGER = 'ESKOM'  #name of logger for this module
 power_status         = collections.namedtuple("powerstatus","level trend")
-loadSheddingSchedule = collections.namedtuple("schedule","power_status lsstatus suburb day period1 period2 period3")
+loadSheddingForecast = collections.namedtuple("forecast","stage time_from time_to") #from twitter
+loadSheddingSchedule = collections.namedtuple("schedule","forecast power_status lsstatus suburb day period1 period2 period3")
 
 #LS Status to stage
 STATUS2STAGE = {'-1':('1','UNKNOWN'),
@@ -54,7 +58,6 @@ PROVINCES = {'EASTERN CAPE'  : 1,
              'NORTHERN CAPE' : 8,
              'WESTERN CAPE'  : 9}
           
-
 #http://loadshedding.eskom.co.za/LoadShedding/GetSurburbData/?pageSize=200&pageNum=1&id=208  208 is saldanha bay
 
 #http://loadshedding.eskom.co.za/LoadShedding/GetScheduleM/38312/2/9/330  38312 is langebaan, 2 = stage 2, 9 = western cape, 330 is Tot field from suburb data.
@@ -75,6 +78,7 @@ PROVINCES = {'EASTERN CAPE'  : 1,
 #------------------------------------------------------------------------------#
 def init():
   configuration.init_log(LOGGER); 
+  configuration.twitter_configuration();
 #------------------------------------------------------------------------------#
 # eskom_loadshedding_status: get loadshedding status from                      #
 #                            loadshedding.eskom.co.za                          #
@@ -201,17 +205,21 @@ def eskom_get_suburb(municipality,suburb):
 #            lsstatus: loadshedding status, required to determine loadshedding #
 #                      stage which goes in the URL                             #
 #            powerStatus: for inclusion in the return value                    #
+#            forecast: loadshedding "forecast" from twitter                    #
 #                                                                              #
 # Return values: schedule                                                      #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 24.03.2014 Initial version                                       #
 #------------------------------------------------------------------------------#
-def eskom_get_loadshedding_schedule(province,suburb,suburbId,suburbTot, lsstatus, powerStatus):
+def eskom_get_loadshedding_schedule(province,suburb,suburbId,suburbTot, lsstatus, powerStatus, forecast):
   logger = logging.getLogger(LOGGER)
   logger.debug('start')
   #set the url
-  url = 'http://loadshedding.eskom.co.za/LoadShedding/GetScheduleM/' + str(suburbId) + '/' + STATUS2STAGE[lsstatus][0] + '/' + str(PROVINCES.get(province.upper())) + '/' + str(suburbTot)
+  if lsstatus == '1' and  forecast.stage in ('1','2','3','4','5'):
+    url = 'http://loadshedding.eskom.co.za/LoadShedding/GetScheduleM/' + str(suburbId) + '/' + forecast.stage + '/' + str(PROVINCES.get(province.upper())) + '/' + str(suburbTot)
+  else:
+    url = 'http://loadshedding.eskom.co.za/LoadShedding/GetScheduleM/' + str(suburbId) + '/' + STATUS2STAGE[lsstatus][0] + '/' + str(PROVINCES.get(province.upper())) + '/' + str(suburbTot)    
   logger.debug('url['+url+']')
   #spoof the user agent.
   user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'  
@@ -233,7 +241,7 @@ def eskom_get_loadshedding_schedule(province,suburb,suburbId,suburbTot, lsstatus
         scheduleText.append(str(schedule.text_content().strip()))
       while len(scheduleText) < 4:
         scheduleText.append(None)
-      loadSheddingScheduleDay=loadSheddingSchedule(powerStatus,lsstatus,suburb,scheduleText[0],scheduleText[1],scheduleText[2],scheduleText[3])  
+      loadSheddingScheduleDay=loadSheddingSchedule(forecast,powerStatus,lsstatus,suburb,scheduleText[0],scheduleText[1],scheduleText[2],scheduleText[3])  
       myLoadSheddingSchedule.append(loadSheddingScheduleDay)  
     return myLoadSheddingSchedule
   except:
@@ -281,7 +289,54 @@ def eskom_power_status():
     #to try and figure out what went wrong we trace the request
     logger.error('req['+str(req)+']')
     logger.error('unexpected error ['+  str(traceback.format_exc()) +']') 
-    
+#------------------------------------------------------------------------------#
+# eskom_twitter: get loadshedding forecast from twitter                        #
+#                                                                              #
+# returnvalues: loadshedding_forecast                                          #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 24.03.2014 Initial version                                       #
+#------------------------------------------------------------------------------#
+def eskom_twitter():
+  logger = logging.getLogger(LOGGER)
+  #If access_token not obtained yet then 
+  #go get it now and save it in config.
+  APP_KEY=configuration.TWITTER.get('twitter','APP_KEY',raw=True)
+  APP_SECRET=configuration.TWITTER.get('twitter','APP_SECRET',raw=True)
+  try:
+    ACCESS_TOKEN=configuration.TWITTER.get('twitter','ACCESS_TOKEN',raw=True)
+  except NoOptionError as err:
+    twitter = Twython(APP_KEY, APP_SECRET, oauth_version=2)
+    ACCESS_TOKEN = twitter.obtain_access_token()
+    configuration.TWITTER.set('twitter', 'ACCESS_TOKEN', ACCESS_TOKEN)
+    with open('./etc/twitter.ini', 'w') as twitterfile:
+      configuration.TWITTER.write(twitterfile)
+        
+  twitter = Twython(APP_KEY,access_token=ACCESS_TOKEN)
+  
+  #get search results from twitter
+  r=twitter.search(q='from:Eskom_SA+#load_shedding')
+  
+  for tweet in r['statuses']:
+    #when was the tweet created
+    created_at = datetime.datetime.strptime(tweet['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
+    time_delta = datetime.datetime.today() - created_at
+    if time_delta.seconds > 24*3600: #older then 24 hours then ignore
+      break #tweets are returned with most recent tweet first.
+    else:
+      text = tweet['text']
+      #Look for something like Stage 1
+      stage = re.findall("i*Stage\s*\d{1}",text)
+      if stage: #got forecasted stage, go and find from-to times
+        #look for something like 08h00
+        times = re.findall("(\d{2}\D{1,3}\d{2})",text)
+        if times: #loadshedding has been forcasted...
+          if len(times)==2:
+            return loadSheddingForecast(stage[0].split(' ')[1],times[0],times[1])
+          else:
+            return loadSheddingForecast(stage.split(' ')[1],times[0],None)
+  
+  return loadSheddingForecast(None,None,None)  
 #------------------------------------------------------------------------------#
 # trace_loadshedding_schedule: Trace loadshedding schedule to a log file,      #
 #                              get a logger if none is provided                #
@@ -329,6 +384,7 @@ def get_loadshedding_config():
 #                                                                              #
 # Parameters: cfg: eskom loadshedding configuration, for one particular suburb #
 #             powerStatus: grid load                                           #
+#             forecast: loadshedding forecast from twitter                     #
 #                                                                              #
 # Returnvalues: Schedule for one particular suburb and current loadshedding    #
 #               stage
@@ -336,7 +392,7 @@ def get_loadshedding_config():
 # version who when       description                                           #
 # 1.00    hta 24.03.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
-def doGetSchedule(cfg,powerStatus):
+def doGetSchedule(cfg,powerStatus,forecast):
   #Get loadshedding status as provided by ESKOM website, this is not the same
   #as the loadshedding stage!
   lsstatus=eskom_loadshedding_status()
@@ -345,7 +401,7 @@ def doGetSchedule(cfg,powerStatus):
   #Get suburb parameters
   suburbId,suburbTot=eskom_get_suburb(municipality,cfg[2])
   #now return the schedule to the caller
-  return eskom_get_loadshedding_schedule(cfg[0],cfg[2],suburbId,suburbTot,lsstatus,powerStatus)  
+  return eskom_get_loadshedding_schedule(cfg[0],cfg[2],suburbId,suburbTot,lsstatus,powerStatus,forecast)  
 #------------------------------------------------------------------------------#
 # eskom_deamon: responsible for collecting loadshedding status, schedules and  #
 #               grid load, and sending data to display thread                  #
@@ -377,10 +433,11 @@ def eskom_deamon(main_q,message_q,display_q):
         ##############################################
         if message.type == 'GET_LOADSHEDDING_SCHEDULE' and message.subtype=='ALL':
           powerStatus=eskom_power_status()
+          forecast=eskom_twitter()
           schedules = []
           #Loop through all configured locations
           for config in loadshedding_config:
-            schedules.append(doGetSchedule(config,powerStatus))
+            schedules.append(doGetSchedule(config,powerStatus,forecast))
           display_q.put( configuration.MESSAGE('ESKOM','DISPLAY','SCHEDULES','DATA', schedules))
         ##################    
         #SHUTDOWN MESSAGE#
@@ -407,11 +464,17 @@ def eskom_deamon(main_q,message_q,display_q):
 #for testing
 #configuration.general_configuration();
 #configuration.logging_configuration();
+#configuration.twitter_configuration();
+#
 #configuration.init_log(LOGGER);
 #logger = logging.getLogger(LOGGER)
 #
+#lf=eskom_twitter()
+
+#print (lf)
+#
 #loadshedding_schedules = []
 #loadshedding_config=get_loadshedding_config()
-#loadshedding_schedules.append(doGetSchedule(loadshedding_config[0],eskom_power_status()))
+#loadshedding_schedules.append(doGetSchedule(loadshedding_config[0],eskom_power_status(),eskom_twitter()))
 #trace_loadshedding_schedule(loadshedding_schedules[0], logger)
 
