@@ -315,7 +315,7 @@ def eskom_twitter():
   twitter = Twython(APP_KEY,access_token=ACCESS_TOKEN)
   
   #get search results from twitter
-  r=twitter.search(q='from:Eskom_SA+#load_shedding')
+  r=twitter.search(q='from:Eskom_SA+(#load_shedding OR #PowerAlert)')
   
   for tweet in r['statuses']:
     #when was the tweet created
