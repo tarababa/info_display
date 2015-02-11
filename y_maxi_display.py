@@ -1341,20 +1341,16 @@ def menu_eskom(schedules,navigate,menuIndex,pageIndex,cls,display):
         layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, c)
         x=x+char_pixel_width(c,'8x8')
         
-    #grid status:load and trend
-    #y=40
-    #x=80
-    #layer4.selectFont('Small.yfm')
-    #layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, 'Load: ' + mySchedule.power_status.level)
-    #y=y+8
-    #layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_LEFT, 'Trend: ' + mySchedule.power_status.trend)
- 
     #forecast
     y=56
     x=64
     if mySchedule.forecast.stage is not None:
       layer4.selectFont('Small.yfm')
-      layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER, 'Stage: ' + mySchedule.forecast.stage + ' from ' + str(mySchedule.forecast.time_from) + ' to ' + str(mySchedule.forecast.time_to))      
+      if mySchedule.forecast.time_to is not None: #we have a foercast endtime
+        layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER, 'Stage: ' + mySchedule.forecast.stage + ' from ' + str(mySchedule.forecast.time_from) + ' to ' + str(mySchedule.forecast.time_to))
+      else: # no forecast endtime
+        layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER, 'Stage: ' + mySchedule.forecast.stage + ' from ' + str(mySchedule.forecast.time_from))
+        
   #clear layers 1,2 and 3
   if cls:
     clearScreen(display)

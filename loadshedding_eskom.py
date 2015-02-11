@@ -292,12 +292,14 @@ def eskom_power_status():
 #------------------------------------------------------------------------------#
 # eskom_twitter: get loadshedding forecast from twitter                        #
 #                                                                              #
+# parameters: lsstatus: ESKOM loadshedding status                              #           
+#                                                                              #
 # returnvalues: loadshedding_forecast                                          #
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 24.03.2014 Initial version                                       #
 #------------------------------------------------------------------------------#
-def eskom_twitter():
+def eskom_twitter(lsstatus):
   logger = logging.getLogger(LOGGER)
   #If access_token not obtained yet then 
   #go get it now and save it in config.
@@ -342,8 +344,19 @@ def eskom_twitter():
           else:
             break
         else:
-          return loadSheddingForecast(stage[0].split(' ')[1],times[0],None)
-      
+          #no endtime, lets see if we can turn of this particular forcast message
+          if lsstatus in ('-1','1'): # not loadshedding (or unknown)
+            #current time has gone 30 minutes past the forecasted starttime, and we are not loadshedding 
+            #then we dont need the forecast message anymore
+            if today+datetime.datetime.timedelta(minutes=30) > datetime.datetime.combine(created_at.day(),datetime.timedelta(hours=int(times[0][0:2]), minutes=int(times[0][3:5]))): 
+              None
+            else:
+              logger.debug('got loadshedding from[' + str(times[0]) + ']')
+              return loadSheddingForecast(stage[0].split(' ')[1],times[0],None)
+          else:
+            #we're loadshedding include forecast
+            logger.debug('got loadshedding from[' + str(times[0]) + ']')
+            return loadSheddingForecast(stage[0].split(' ')[1],times[0],None)
   return loadSheddingForecast(None,None,None)  
 #------------------------------------------------------------------------------#
 # trace_loadshedding_schedule: Trace loadshedding schedule to a log file,      #
@@ -392,6 +405,7 @@ def get_loadshedding_config():
 #                                                                              #
 # Parameters: cfg: eskom loadshedding configuration, for one particular suburb #
 #             powerStatus: grid load                                           #
+#             lsstatus: loadshedding status  (this not the same as the stage!) #
 #             forecast: loadshedding forecast from twitter                     #
 #                                                                              #
 # Returnvalues: Schedule for one particular suburb and current loadshedding    #
@@ -400,10 +414,7 @@ def get_loadshedding_config():
 # version who when       description                                           #
 # 1.00    hta 24.03.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
-def doGetSchedule(cfg,powerStatus,forecast):
-  #Get loadshedding status as provided by ESKOM website, this is not the same
-  #as the loadshedding stage!
-  lsstatus=eskom_loadshedding_status()
+def doGetSchedule(cfg,powerStatus,lsstatus,forecast):
   #Get municipality information:
   municipality=eskom_get_municipality(cfg[0],cfg[1])
   #Get suburb parameters
@@ -441,11 +452,12 @@ def eskom_deamon(main_q,message_q,display_q):
         ##############################################
         if message.type == 'GET_LOADSHEDDING_SCHEDULE' and message.subtype=='ALL':
           powerStatus=eskom_power_status()
-          forecast=eskom_twitter()
+          lsstatus=eskom_loadshedding_status()
+          forecast=eskom_twitter(lsstatus)
           schedules = []
           #Loop through all configured locations
           for config in loadshedding_config:
-            schedules.append(doGetSchedule(config,powerStatus,forecast))
+            schedules.append(doGetSchedule(config,powerStatus,lsstatus,forecast))
           display_q.put( configuration.MESSAGE('ESKOM','DISPLAY','SCHEDULES','DATA', schedules))
         ##################    
         #SHUTDOWN MESSAGE#
@@ -476,9 +488,10 @@ def eskom_deamon(main_q,message_q,display_q):
 #
 #configuration.init_log(LOGGER);
 #logger = logging.getLogger(LOGGER)
+#ls=eskom_loadshedding_status()
 #
-#lf=eskom_twitter()
-
+#lf=eskom_twitter(ls)
+#
 #print (lf)
 #
 #loadshedding_schedules = []
