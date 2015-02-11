@@ -315,14 +315,14 @@ def eskom_twitter():
   twitter = Twython(APP_KEY,access_token=ACCESS_TOKEN)
   
   #get search results from twitter
-  r=twitter.search(q='from:Eskom_SA+(#load_shedding OR #PowerAlert)')
+  r=twitter.search(q='from:Eskom_SA -stopped -cancelled -restoration -restored -resumed -resume)')
   
   for tweet in r['statuses']:
     #when was the tweet created
     created_at = datetime.datetime.strptime(tweet['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
     today = datetime.datetime.today()
     text = tweet['text']
-    logger.debug('text['+text+']');
+    logger.debug('created_at['+ tweet['created_at'] + '] text['+text+']');
     #Look for something like Stage 1
     stage = re.findall("i*Stage\s*\d{1}",text)
     if stage: #got forecasted stage, go and find from-to times
@@ -331,11 +331,11 @@ def eskom_twitter():
       if times: #loadshedding has been forcasted...
         if len(times)==2:
           endTime = re.findall('\d+',times[1]) #get forecasted end time, hour and minutes seperate
-          logger.debug('endTime[' + str(endTime) + ']')
           if endTime and len(endTime)==2:
             if today.day == created_at.day and today.hour < int(endTime[0]):
               #forecast is for today and endtime has not passed yet...
               #obviously this fails if endtime is only tomorrow... 
+              logger.debug('got loadshedding from[' + str(times[0]) + '] to[' + str(times[1]) +']')
               return loadSheddingForecast(stage[0].split(' ')[1],times[0],times[1])
             else:
               break
