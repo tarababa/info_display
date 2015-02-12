@@ -348,7 +348,7 @@ def eskom_twitter(lsstatus):
           if lsstatus in ('-1','1'): # not loadshedding (or unknown)
             #current time has gone 30 minutes past the forecasted starttime, and we are not loadshedding 
             #then we dont need the forecast message anymore
-            if today+datetime.datetime.timedelta(minutes=30) > datetime.datetime.combine(created_at.day(),datetime.timedelta(hours=int(times[0][0:2]), minutes=int(times[0][3:5]))): 
+            if today+datetime.timedelta(minutes=30) > datetime.datetime.combine(created_at.date(), datetime.datetime.min.time())+datetime.timedelta(hours=int(times[0][0:2]),minutes=int(times[0][3:5])):
               None
             else:
               logger.debug('got loadshedding from[' + str(times[0]) + ']')
@@ -482,17 +482,17 @@ def eskom_deamon(main_q,message_q,display_q):
   logger.debug('done')    
 
 #for testing
-#configuration.general_configuration();
-#configuration.logging_configuration();
-#configuration.twitter_configuration();
-#
-#configuration.init_log(LOGGER);
-#logger = logging.getLogger(LOGGER)
-#ls=eskom_loadshedding_status()
-#
-#lf=eskom_twitter(ls)
-#
-#print (lf)
+configuration.general_configuration();
+configuration.logging_configuration();
+configuration.twitter_configuration();
+
+configuration.init_log(LOGGER);
+logger = logging.getLogger(LOGGER)
+ls=eskom_loadshedding_status()
+
+lf=eskom_twitter(ls)
+
+print (lf)
 #
 #loadshedding_schedules = []
 #loadshedding_config=get_loadshedding_config()
