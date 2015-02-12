@@ -482,17 +482,17 @@ def eskom_deamon(main_q,message_q,display_q):
   logger.debug('done')    
 
 #for testing
-configuration.general_configuration();
-configuration.logging_configuration();
-configuration.twitter_configuration();
-
-configuration.init_log(LOGGER);
-logger = logging.getLogger(LOGGER)
-ls=eskom_loadshedding_status()
-
-lf=eskom_twitter(ls)
-
-print (lf)
+#configuration.general_configuration();
+#configuration.logging_configuration();
+#configuration.twitter_configuration();
+#
+#configuration.init_log(LOGGER);
+#logger = logging.getLogger(LOGGER)
+#ls=eskom_loadshedding_status()
+#
+#lf=eskom_twitter(ls)
+#
+#print (lf)
 #
 #loadshedding_schedules = []
 #loadshedding_config=get_loadshedding_config()
