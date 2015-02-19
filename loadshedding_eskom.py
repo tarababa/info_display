@@ -28,6 +28,7 @@ import queue
 import urllib, urllib.parse, urllib.request
 import collections
 import configuration
+import configparser
 from lxml import etree
 from lxml.html import fromstring
 import json
@@ -422,6 +423,77 @@ def doGetSchedule(cfg,powerStatus,lsstatus,forecast):
   #now return the schedule to the caller
   return eskom_get_loadshedding_schedule(cfg[0],cfg[2],suburbId,suburbTot,lsstatus,powerStatus,forecast)  
 #------------------------------------------------------------------------------#
+# doUpdateDb: Update database with current loadshedding values, provided they  #
+#             have changed                                                     #
+# Parameters: schedules: current loadshedding status for all configurations    #
+#                                                                              #
+# Returnvalues: None                                                           #
+#                                                                              #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 24.03.2014 Initial version                                       #
+#------------------------------------------------------------------------------# 
+def doUpdateDb(schedules):
+  ESKOM_DB_FILE='./etc/eskom_db.ini'
+  #load the database from file
+  def loadDb():
+    db = configparser.ConfigParser(allow_no_value=True)
+    try:
+      with open(ESKOM_DB_FILE) as f:
+        None
+      db.read(ESKOM_DB_FILE,encoding='utf-8')
+    except IOError:
+      #file doesnt exist, that's ok, go and init the database
+      return initDb(db)
+    return db
+  #Initialize the database
+  def initDb(db):
+    db['stage'] = {'ls_status'         : '-1',
+                   'ls_status_dt'      : '',
+                   'forecast_stage'    : '',
+                   'forecast_dt'       : '',
+                   'forecast_time_from':'',
+                   'forecast_time_to'  : '',
+                   'power_status_level': '',
+                   'power_status_trend':'',
+                   'power_status_dt'   :''}
+    db['schedules'] = {'schedule.0'    : ''}       
+    return db
+  #Write data to file
+  def writeDb(db):
+    with open(ESKOM_DB_FILE, 'w') as f:
+      db.write(f)    
+    return db
+  
+  #load (and initialize if necessary) the database
+  db=loadDb()
+  i=0 #index for schedule
+  for schedule in schedules:
+    now=schedule[0] #only todays schedule
+    if i==0:
+      ## this we only need to once
+      if now.lsstatus is not None and now.lsstatus != db['stage']['ls_status']:
+        db.set('stage', 'ls_status', now.lsstatus)
+        db.set('stage', 'ls_status_dt', datetime.datetime.strftime(datetime.datetime.today(),'%a %b %d %H:%M:%S %Y'))
+      if now.forecast.stage != db['stage']['forecast_stage']:
+        db.set('stage', 'forecast_stage', str(now.forecast.stage))
+        db.set('stage', 'forecast_time_from', str(now.forecast.time_from))
+        db.set('stage', 'forecast_time_to', str(now.forecast.time_to))
+        db.set('stage', 'forecast_dt', datetime.datetime.strftime(datetime.datetime.today(),'%a %b %d %H:%M:%S %Y'))
+      if now.power_status.level is not None and now.power_status.level !=db['stage']['power_status_level']:
+        db.set('stage', 'power_status_level', now.power_status.level)
+        db.set('stage', 'power_status_dt', datetime.datetime.strftime(datetime.datetime.today(),'%a %b %d %H:%M:%S %Y'))
+      if now.power_status.trend is not None and now.power_status.trend !=db['stage']['power_status_trend']:    
+        db.set('stage', 'power_status_trend', now.power_status.trend)
+        db.set('stage', 'power_status_dt', datetime.datetime.strftime(datetime.datetime.today(),'%a %b %d %H:%M:%S %Y'))
+      
+    db.set('schedules', 'schedule.'+str(i), now.suburb+','+now.day+','+str(now.period1)+','+str(now.period2)+','+str(now.period3))
+    i+=1
+  
+  #write current values to DB file  
+  writeDb(db)
+    
+#------------------------------------------------------------------------------#
 # eskom_deamon: responsible for collecting loadshedding status, schedules and  #
 #               grid load, and sending data to display thread                  #
 #                                                                              #
@@ -459,6 +531,8 @@ def eskom_deamon(main_q,message_q,display_q):
           for config in loadshedding_config:
             schedules.append(doGetSchedule(config,powerStatus,lsstatus,forecast))
           display_q.put( configuration.MESSAGE('ESKOM','DISPLAY','SCHEDULES','DATA', schedules))
+          #update eskom_db
+          doUpdateDb(schedules)
         ##################    
         #SHUTDOWN MESSAGE#
         ##################
@@ -480,6 +554,21 @@ def eskom_deamon(main_q,message_q,display_q):
       logger.error('unexpected error ['+  str(traceback.format_exc()) +']')        
       
   logger.debug('done')    
+
+
+#configuration.general_configuration();
+#configuration.logging_configuration();
+#configuration.twitter_configuration();
+#loadshedding_schedules = []
+#init()
+#logger = logging.getLogger(LOGGER)
+#loadshedding_config=get_loadshedding_config()
+#powerStatus=eskom_power_status()
+#lsstatus=eskom_loadshedding_status()
+#forecast=eskom_twitter(lsstatus)
+#schedules = []
+#  
+#doUpdateDb(schedules)        
 
 #for testing
 #configuration.general_configuration();
