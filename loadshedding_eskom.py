@@ -327,7 +327,7 @@ def eskom_twitter(lsstatus):
     text = tweet['text']
     logger.debug('created_at['+ tweet['created_at'] + '] text['+text+']');
     #Look for something like Stage 1
-    stage = re.findall("i*Stage\s*\d{1}",text)
+    stage = re.findall("(?i)STAGE\s*\d{1}",text) 
     if stage: #got forecasted stage, go and find from-to times
       #look for something like 08h00
       times = re.findall("(\d{2}\D{1,3}\d{2})",text)
@@ -339,7 +339,8 @@ def eskom_twitter(lsstatus):
               #forecast is for today and endtime has not passed yet...
               #obviously this fails if endtime is only tomorrow... 
               logger.debug('got loadshedding from[' + str(times[0]) + '] to[' + str(times[1]) +']')
-              return loadSheddingForecast(stage[0].split(' ')[1],times[0],times[1])
+              #return loadSheddingForecast(stage[0].split(' ')[1],times[0],times[1])
+              return loadSheddingForecast(stage[0][-1],times[0],times[1])
             else:
               break
           else:
@@ -571,17 +572,17 @@ def eskom_deamon(main_q,message_q,display_q):
 #doUpdateDb(schedules)        
 
 #for testing
-#configuration.general_configuration();
-#configuration.logging_configuration();
-#configuration.twitter_configuration();
+configuration.general_configuration();
+configuration.logging_configuration();
+configuration.twitter_configuration();
+
+configuration.init_log(LOGGER);
+logger = logging.getLogger(LOGGER)
+ls=eskom_loadshedding_status()
+
+lf=eskom_twitter(ls)
 #
-#configuration.init_log(LOGGER);
-#logger = logging.getLogger(LOGGER)
-#ls=eskom_loadshedding_status()
-#
-#lf=eskom_twitter(ls)
-#
-#print (lf)
+print (lf)
 #
 #loadshedding_schedules = []
 #loadshedding_config=get_loadshedding_config()
