@@ -33,8 +33,29 @@ import configparser
 CONFIG = None       #configuration from config.ini
 LOGGING= None       #logging configuration from ini file
 TWITTER= None       #twitter configuration from inin file
+SMSSERVICE= None    #datbase of SMS service subscribers
 
 MESSAGE   = collections.namedtuple('message', 'sender receiver type subtype content')
+#------------------------------------------------------------------------------#
+# set_SMSSERVICE: set globally available configuration (from sms_service.ini)  #
+#                                                                              #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 09.11.2013 Initial version                                       #
+#------------------------------------------------------------------------------#
+def set_SMSSERVICE(config):
+  global SMSSERVICE 
+  SMSSERVICE = config
+#------------------------------------------------------------------------------#
+# get_SMSSERVICE: returns globally available configuration (sms_service.ini)   #
+#                                                                              #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 09.11.2013 Initial version                                       #
+#------------------------------------------------------------------------------#
+def get_SMSSERVICE():
+  global SMSSERVICE
+  return SMSSERVICE  
 #------------------------------------------------------------------------------#
 # set_TWITTER: set globally available configuration (from twitter.ini)         #
 #                                                                              #
@@ -96,6 +117,31 @@ def set_LOGGING(config):
 def get_LOGGING():
   global LOGGING
   return LOGGING
+#------------------------------------------------------------------------------#
+# init: Read sms_service.ini file                                              #
+#                                                                              #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 17.11.2013 Initial version                                       #
+#------------------------------------------------------------------------------#
+def sms_service_configuration():
+  ###################################
+  # get configuration from ini file #
+  ###################################
+  config = configparser.ConfigParser(allow_no_value=True)
+  config.read('./etc/sms_service.ini',encoding='utf-8')
+  set_SMSSERVICE(config)    
+#------------------------------------------------------------------------------#
+# init: Write sms_service.ini file                                             #
+#                                                                              #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 17.11.2013 Initial version                                       #
+#------------------------------------------------------------------------------#
+def write_sms_service_configuration():
+  if SMSSERVICE is not None:
+    with open('./etc/sms_service.ini', 'w') as f:
+      SMSSERVICE.write(f)    
 #------------------------------------------------------------------------------#
 # init: Read twitter.ini file                                                  #
 #                                                                              #

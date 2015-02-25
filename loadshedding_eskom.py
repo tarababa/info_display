@@ -476,7 +476,7 @@ def doUpdateDb(schedules):
       if now.lsstatus is not None and now.lsstatus != db['stage']['ls_status']:
         db.set('stage', 'ls_status', now.lsstatus)
         db.set('stage', 'ls_status_dt', datetime.datetime.strftime(datetime.datetime.today(),'%a %b %d %H:%M:%S %Y'))
-      if now.forecast.stage != db['stage']['forecast_stage']:
+      if str(now.forecast.stage) != db['stage']['forecast_stage']:
         db.set('stage', 'forecast_stage', str(now.forecast.stage))
         db.set('stage', 'forecast_time_from', str(now.forecast.time_from))
         db.set('stage', 'forecast_time_to', str(now.forecast.time_to))
@@ -488,7 +488,7 @@ def doUpdateDb(schedules):
         db.set('stage', 'power_status_trend', now.power_status.trend)
         db.set('stage', 'power_status_dt', datetime.datetime.strftime(datetime.datetime.today(),'%a %b %d %H:%M:%S %Y'))
       
-    db.set('schedules', 'schedule.'+str(i), now.suburb+','+now.day+','+str(now.period1)+','+str(now.period2)+','+str(now.period3))
+    db.set('schedules', now.suburb, now.day+','+str(now.period1)+','+str(now.period2)+','+str(now.period3))
     i+=1
   
   #write current values to DB file  
@@ -557,32 +557,32 @@ def eskom_deamon(main_q,message_q,display_q):
   logger.debug('done')    
 
 
-#configuration.general_configuration();
-#configuration.logging_configuration();
-#configuration.twitter_configuration();
-#loadshedding_schedules = []
-#init()
-#logger = logging.getLogger(LOGGER)
-#loadshedding_config=get_loadshedding_config()
-#powerStatus=eskom_power_status()
-#lsstatus=eskom_loadshedding_status()
-#forecast=eskom_twitter(lsstatus)
-#schedules = []
-#  
-#doUpdateDb(schedules)        
-
-#for testing
 configuration.general_configuration();
 configuration.logging_configuration();
 configuration.twitter_configuration();
-
-configuration.init_log(LOGGER);
+loadshedding_schedules = []
+init()
 logger = logging.getLogger(LOGGER)
-ls=eskom_loadshedding_status()
+loadshedding_config=get_loadshedding_config()
+powerStatus=eskom_power_status()
+lsstatus=eskom_loadshedding_status()
+forecast=eskom_twitter(lsstatus)
+schedules = []
+schedules.append(doGetSchedule(loadshedding_config[0],eskom_power_status(),lsstatus, forecast))  
+doUpdateDb(schedules)        
 
-lf=eskom_twitter(ls)
+#for testing
+#configuration.general_configuration();
+#configuration.logging_configuration();
+#configuration.twitter_configuration();
 #
-print (lf)
+#configuration.init_log(LOGGER);
+#logger = logging.getLogger(LOGGER)
+#ls=eskom_loadshedding_status()
+#
+#lf=eskom_twitter(LS)
+#
+#print (lf)
 #
 #loadshedding_schedules = []
 #loadshedding_config=get_loadshedding_config()
