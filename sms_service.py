@@ -83,7 +83,7 @@ def eskom_loadshedding_sms(subscribers,gsm):
     update_dt=db['stage']['forecast_dt']
   else:
     update_dt=db['stage']['ls_status_dt']
-    
+
   for subscriber in subscribers:
     if subscriber[0]== 'eskom_loadshedding':
       smsSent=False
@@ -161,9 +161,9 @@ def get_service_subscribers():
       for subscriber in configuration.SMSSERVICE[service]:
         bMutated=False
         try:
-          cellNo,municipality,update_dt=configuration.SMSSERVICE[service][subscriber].split(',')
+          cellNo,municipality,update_dt=configuration.SMSSERVICE[service][subscriber].rstrip(',').split(',')
         except ValueError:
-          cellNo,municipality=configuration.SMSSERVICE[service][subscriber].split(',') #At least subscribers' tel. no. and municipality must be configured
+          cellNo,municipality=configuration.SMSSERVICE[service][subscriber].rstrip(',').split(',') #At least subscribers' tel. no. and municipality must be configured
           update_dt = datetime.datetime.strftime(datetime.datetime.today(),'%a %b %d %H:%M:%S %Y')
           bMutated=True
         if update_dt is None:
