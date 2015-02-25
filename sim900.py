@@ -32,7 +32,6 @@ import serial
 import time
 import configuration
 
-
 IN_WAITING_TIMEOUT = 0.5
 READ_TIMEOUT       = 1
 
@@ -212,12 +211,12 @@ class Sim900():
     #network sends back a message reference value
     #this can take a bit longer
     #increase inWaiting timeout for reception of serial data
-    self.inWaitingTimeout=4
+    self.inWaitingTimeout=2
     self.ser.timeout=20 
     response=self.recv()
     self.ser.timeout=READ_TIMEOUT #restore readtimeout      
     self.inWaitingTimeout=IN_WAITING_TIMEOUT      
-    self.logger.debug(response)  
+    logger.debug(response)  
     return response[len(response)-1]    
   #------------------------------------------------------------------------------#
   # send: send a command to the device                                           #
@@ -253,7 +252,7 @@ class Sim900():
         doneInWaiting=True
         time.sleep(self.inWaitingTimeout)
         iInWaiting=self.ser.inWaiting()
-        self.logger.debug('iInWaiting[' + str(iInWaiting) + ']')
+        logger.debug('iInWaiting[' + str(iInWaiting) + ']')
       if r==bytes('','utf-8'): # i.e. timeout nothing was read
         break
       response+=r
@@ -267,17 +266,17 @@ class Sim900():
     except Exception:
       self.logger.error('unexpected error ['+  str(traceback.format_exc()) +']')    
       
-#configuration.general_configuration();
-#configuration.logging_configuration();
-#configuration.init_log(LOGGER);
-#logger = logging.getLogger(LOGGER)
+configuration.general_configuration();
+configuration.logging_configuration();
+configuration.init_log(LOGGER);
+logger = logging.getLogger(LOGGER)
 
-#sim900=Sim900(logger)
+sim900=Sim900(logger)
 #logger.debug(sim900.getModelIdentification())
 
 #logger.debug(sim900.getAirtimeBalance())
 
-#logger.debug(sim900.selectSMSMessageFormat(1))
+logger.debug(sim900.selectSMSMessageFormat(1))
 
 #logger.debug(sim900.listSMSMessages('ALL'))
 
@@ -285,5 +284,5 @@ class Sim900():
 
 #logger.debug(sim900.listSMSMessages('ALL'))
 
-#logger.debug(sim900.sendSMS('+27782475857','Yippee it is working now\r\ntwo lines'))
+logger.debug(sim900.sendSMS('+27782475857','Yippee it is working now\r\ntwo lines'))
 

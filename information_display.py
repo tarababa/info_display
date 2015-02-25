@@ -36,7 +36,7 @@ import radio
 import exchange_rates_yahoo
 import loadshedding_eskom
 import timers
-import sms_service
+
 LOGGER = 'MAIN'  #name of logger for the main module
 
 #------------------------------------------------------------------------------#
@@ -72,8 +72,6 @@ def do_timers(timer, work_queue):
     work_queue.put( configuration.MESSAGE('MAIN','RADIO','REFRESH','RADIO_INFO', None))
   elif timer=='ESKOM':
     work_queue.put( configuration.MESSAGE('MAIN','ESKOM','GET_LOADSHEDDING_SCHEDULE','ALL', None))
-  elif timer=='SMS':
-    work_queue.put( configuration.MESSAGE('MAIN','SMS','DOSMS','ALL', None))
   else:
     logger.info ('no action defined for timer[' + timer + ']')
   
@@ -105,7 +103,6 @@ def main():
   exchange_q= queue.Queue()
   radio_q   = queue.Queue()
   eskom_q   = queue.Queue()
-  sms_q     = queue.Queue()
 
 
   ###############################
@@ -196,20 +193,6 @@ def main():
   eskom_timer_thread.name = 'ESKOM_TIMER'
   eskom_timer_thread.start()     
 
-  ###########################
-  # start SMS module thread # 
-  ###########################
-  sms_q.put( configuration.MESSAGE('MAIN','SMS','DOSMS','ALL',None))
-  #create and start SMS module thread
-  sms_thread = threading.Thread(target=sms_service.sms_deamon, args=(main_q, sms_q, display_q))
-  sms_thread.name = 'SMS'
-  sms_thread.deamon=False
-  sms_thread.start()
-  #start repeating sms timer
-  sms_timer_thread = timers.RepeatingTimer(30, function=do_timers, args=('SMS',sms_q))
-  sms_timer_thread.name = 'SMS_TIMER'
-  sms_timer_thread.start()    
-  
   result=None
   shutdown=False
   #main thread
@@ -238,7 +221,6 @@ def main():
           exchange_timer_thread.cancel()
           radio_timer_thread.cancel()
           eskom_timer_thread.cancel()
-          sms_timer_thread.cancel()
           #send shutdown message to all modules
           button_q.put(  configuration.MESSAGE('MAIN','BUTTON',  'SHUTDOWN',None,None))
           meteo_q.put(   configuration.MESSAGE('MAIN','METEO',   'SHUTDOWN',None,None))
@@ -247,7 +229,6 @@ def main():
           exchange_q.put(configuration.MESSAGE('MAIN','EXCHANGE','SHUTDOWN',None,None))          
           radio_q.put(   configuration.MESSAGE('MAIN','RADIO','SHUTDOWN',None,None))          
           eskom_q.put(   configuration.MESSAGE('MAIN','ESKOM','SHUTDOWN',None,None))          
-          sms_q.put(     configuration.MESSAGE('MAIN','SMS','SHUTDOWN',None,None))          
         else:
           logger.warning('got unknown message')
       else:
