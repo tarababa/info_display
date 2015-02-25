@@ -83,8 +83,9 @@ def eskom_loadshedding_sms(subscribers,gsm):
     update_dt=db['stage']['forecast_dt']
   else:
     update_dt=db['stage']['ls_status_dt']
-
+  logger.debug(update_dt)
   for subscriber in subscribers:
+    logger.debug(subscriber)
     if subscriber[0]== 'eskom_loadshedding':
       smsSent=False
       if subscriber[4] != update_dt:
@@ -119,6 +120,7 @@ def eskom_loadshedding_sms(subscribers,gsm):
             sLine3= sLine3 + ', ' + p2
           if p3 != 'None':
             sLine3= sLine3 + ', ' + p3
+          sLine4='-'
           if db['stage']['forecast_time_from'] != 'None' and db['stage']['forecast_time_to'] != 'None':
             sLine4 = 'Forecast from '+db['stage']['forecast_time_from'] + ' to ' +db['stage']['forecast_time_to']
           elif db['stage']['forecast_time_from'] != 'None':
