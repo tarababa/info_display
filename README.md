@@ -86,7 +86,7 @@ on any given day and when is published on [Twitter](https://twitter.com/Eskom_SA
 
 Data from all three sources is pulled together to provide as accurate loadshedding information, for a suburb, as possible.
 Using the up and down buttons one can view the current schedule and status for the configured suburbs. Pressing the select
-button changes the function of the up and down buttons so that one can move through the load-shedding schedules of the chosen
+button changes the function of the up and down buttons so one can move through the load-shedding schedules of the chosen
 suburb for the following days and current load-shedding stage. Pressing the select button again returns the function of the
 up and down buttons to normal.
 
