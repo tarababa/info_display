@@ -74,6 +74,33 @@ rate.5=CHF,CZK
 
 ![Exchange rates](https://github.com/tarababa/info_display/blob/master/img/doc/exchange_rate.png)
 
+###Load-shedding
+Load-shedding is a concept not everyone, in particular in first world, may be familiar with. But in South Africa due to
+years of under investment in the state owned electricty company ESKOM the country finds it self in a position where ESKOM
+is not always able to meet the demand for electricity. In order to avoid a nation-wide black-out ESKOM uses rolling black-outs
+turning off suburbs based on a rota system for about two and a half hours at a time. Depending on the lack of capacity it may
+shed 1000MW, 2000MW or 4000MW wich corresponds with stage 1, 2 or 3 load-shedding.
+The current load-shedding stage and the load-shedding schedules are published on [loadshedding.eskom.co.za](http://loadshedding.eskom.co.za),
+The actual load on the system can be viewed on [MyeEskom.co.za](http://myeskom.co.za), whether to actual expect load-shedding
+on any given day with expected start- and end-times is typically published on [Twitter](https://twitter.com/Eskom_SA)
+
+Data from all three sources is pulled together to provide as accurate loadshedding information, for a suburb, as possible.
+Using the up and down buttons one can view the current schedule and status for the configured suburbs. Pressing the select
+button changes the function of the up and down buttons so that one can move through the load-shedding schedules of the chosen
+suburb for the following days and current load-shedding stage. Pressing the select button again returns the function of the
+up and down buttons to normal.
+
+The suburbs for which data is collected is configured in `config.ini` under the heading `[eskom_loadshedding]`, take note
+I've not tested this with multiple suburbs configured, it should work but no guarantees...
+
+```
+[eskom_loadshedding]
+schedule.0=Western Cape,Saldanha Bay,Langebaan
+```
+
+![Load-shedding](https://github.com/tarababa/info_display/blob/master/img/doc/loadshedding.png)
+
+
 
 -Get MPD/MPC
  sudo apt-get install mpd
