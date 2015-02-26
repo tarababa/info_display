@@ -1,14 +1,21 @@
 info_display
 ============
 
-Primary purpose of this project is to get some experience with Python.
+The primary purpose of this project was to for me to gain some experience with Python. Over time the project has grown and bits have been added on
 
 This project uses two Yoctopuce modules, a the maxi display and the meteo module:
-  http://www.yoctopuce.com/EN/products/usb-displays/yocto-maxidisplay
-  http://www.yoctopuce.com/EN/products/usb-environmental-sensors/yocto-meteo
+  [Yocto-maxidisplay](http://www.yoctopuce.com/EN/products/usb-displays/yocto-maxidisplay)
+  [Yocto-meteo](http://www.yoctopuce.com/EN/products/usb-environmental-sensors/yocto-meteo)
+The Elecfreak GSM/GPRS module is used to send SMS-es
+  [EFComPro GSM/GPRS](http://www.elecfreaks.com/store/gprsgsm-moduleefcom-pro-efcompro-p-450.html)
 
+##Functions
+Quite a few, typically configurable, functions have now been included. The following chapters describe these functions
+in a bit more detail.
+###Meteo
 Using the output from the meteo module temprature, humidity and barometric pressure information is aggragated and shown in
-in the form of graphs on the display module.
+in the form of graphs on the display module. Not much to configure here
+![alt text](https://github.com/tarababa/info_display/tree/master/img/doc/temperature.png)
 
 Furthermore weatherforecast data is pulled from the yr.no rss and can be viewed on the display. 
 
