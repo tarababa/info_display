@@ -15,7 +15,7 @@ in a bit more detail.
 ###Meteo
 Using the output from the meteo module temprature, humidity and barometric pressure information is aggragated and shown in
 in the form of graphs on the display module. Not much to configure here
-![alt text](https://github.com/tarababa/info_display/tree/master/img/doc/temperature.png)
+![Temperature](https://github.com/tarababa/info_display/blob/master/img/doc/temperature.png)
 
 Furthermore weatherforecast data is pulled from the yr.no rss and can be viewed on the display. 
 
