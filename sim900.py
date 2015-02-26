@@ -208,12 +208,12 @@ class Sim900():
     time.sleep(1) #this is necessary, if we are too fast the message does not go out properly. 
     cmd=bytes(message+'\x1A','utf-8') #\x1A is CRTL-Z which terminates the message
     self.send(cmd)
-    time.sleep(2) #this is also necessary, if we are too fast the message does not go out properly
+    time.sleep(2.5) #this is also necessary, if we are too fast the message does not go out properly
     #network sends back a message reference value
     #this can take a bit longer
     #increase inWaiting timeout for reception of serial data
-    self.inWaitingTimeout=4
-    self.ser.timeout=20 
+    self.inWaitingTimeout=5
+    self.ser.timeout=25 
     response=self.recv()
     self.ser.timeout=READ_TIMEOUT #restore readtimeout      
     self.inWaitingTimeout=IN_WAITING_TIMEOUT      
