@@ -31,6 +31,8 @@ to turn the radio on and off.
 Using the output from the meteo module temprature, humidity and barometric pressure information is aggragated and shown in
 in the form of graphs on the display module. Not much to configure here
 ![Temperature](https://github.com/tarababa/info_display/blob/master/img/doc/temperature.png)
+The system is setup in such a way that one full graph shows just over 24 hours of measurements, if memory serves a sample
+is taken about once every thirteen minutes.
 
 ###Wheather forecast
 Using the rss feed from yr.no weather forecasts are displayed. 
@@ -54,8 +56,25 @@ Using the up and down buttons will move the menu to the next / previous location
 up and down buttons move us through the advance forecast for the selected location. Pressing the select button again 
 returns the up and down buttons to their normal function.
 
+###Exchange rate
+[Yahoo's finance api](http://query.yahooapis.com) is used to visualise exchange rates over time, the graph shown captures
+about 2 hours of data, queurying Yahoo about once a minute. Using the up and down buttons one can move through the available
+conversions. The conversions shown are configured in the `config.ini` file under the heading `exchange_rates_yahoo` as shown
+below
 
-  
+```
+[exchange_rates_yahoo]
+rate.0=CHF,ZAR
+rate.1=USD,ZAR
+rate.2=EUR,CHF
+rate.3=CHF,USD
+rate.4=CHF,SEK
+rate.5=CHF,CZK
+```
+
+![Exchange rates](https://github.com/tarababa/info_display/blob/master/img/doc/exchange_rate.png)
+
+
 -Get MPD/MPC
  sudo apt-get install mpd
  sudo apt-get install mpc (optional)
