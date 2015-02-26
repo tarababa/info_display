@@ -4,15 +4,19 @@ info_display
 The primary purpose of this project was to for me to gain some experience with Python. Over time the project has grown and bits have been added on
 
 This project uses two Yoctopuce modules, a maxi display and the meteo module:
-  *[Yocto-maxidisplay](http://www.yoctopuce.com/EN/products/usb-displays/yocto-maxidisplay)
-  *[Yocto-meteo](http://www.yoctopuce.com/EN/products/usb-environmental-sensors/yocto-meteo)
+
+  * [Yocto-maxidisplay](http://www.yoctopuce.com/EN/products/usb-displays/yocto-maxidisplay)
+  * [Yocto-meteo](http://www.yoctopuce.com/EN/products/usb-environmental-sensors/yocto-meteo)
+  
 The Elecfreak GSM/GPRS module is used to send SMS-es
-  *[EFComPro GSM/GPRS](http://www.elecfreaks.com/store/gprsgsm-moduleefcom-pro-efcompro-p-450.html)
+
+  * [EFComPro GSM/GPRS](http://www.elecfreaks.com/store/gprsgsm-moduleefcom-pro-efcompro-p-450.html)
 
 ##Functions
 Quite a few, typically configurable, functions have now been included. The following chapters describe these functions
 in a bit more detail.
-For navigation the buttons on the maxi-display module are used. From left to right, the buttons are used as follow:
+For navigation the buttons on the maxi-display module are used. From left to right, the buttons are used as follows:
+
 1. The first button moves to the next *left* menu
 2. The second button moves to the next *right* menu
 3. The third button moves *up* in the menu hierarchy
