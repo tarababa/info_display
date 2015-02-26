@@ -81,8 +81,8 @@ is not always able to meet the demand for electricity. In order to avoid a natio
 turning off suburbs based on a rota system for about two and a half hours at a time. Depending on the lack of capacity it may
 shed 1000MW, 2000MW or 4000MW wich corresponds with stage 1, 2 or 3 load-shedding.
 The current load-shedding stage and the load-shedding schedules are published on [loadshedding.eskom.co.za](http://loadshedding.eskom.co.za),
-The actual load on the system can be viewed on [MyEskom](http://myeskom.co.za), whether to actual expect load-shedding
-on any given day with expected start- and end-times is typically published on [Twitter](https://twitter.com/Eskom_SA)
+The actual load on the system can be viewed on [MyEskom](http://myeskom.co.za), whether to expect load-shedding
+on any given day and when is published on [Twitter](https://twitter.com/Eskom_SA)
 
 Data from all three sources is pulled together to provide as accurate loadshedding information, for a suburb, as possible.
 Using the up and down buttons one can view the current schedule and status for the configured suburbs. Pressing the select
