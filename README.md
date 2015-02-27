@@ -30,7 +30,7 @@ Pressing the select button a second time returns the up and down buttons tho the
 to turn the radio on and off.
 
 The image below shows the start-up screen, the buttons highlighted.
-[Start-up screen]((https://github.com/tarababa/info_display/blob/master/img/doc/startup_screen.png))
+[Start-up screen](https://github.com/tarababa/info_display/blob/master/img/doc/startup_screen.png)
 
 
 ###Meteo
@@ -108,8 +108,8 @@ schedule.0=Western Cape,Saldanha Bay,Langebaan
 
 ###Radio
 A simple MPD (Music Player Daemon) client has been integrated, specifically to tune in to internet radio stations.
-Using the up and down buttons one can step through they available stations.Pressing the select button changes the function
-of the left and right buttons to volume control, pressing the select button again reverts the function of the lef and right
+Using the up and down buttons one can step through the available stations. The select button changes the function
+of the left and right buttons to volume control, pressing the select button again reverts the function of the left and right
 buttons to normal. When the radio menu is chosen the radio is on by default and remains on even when navigated away from
 the radio menu. To turn the radio of use the on/off button in the radio menu (i.e. the sixth button)
 
