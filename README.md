@@ -30,7 +30,7 @@ Pressing the select button a second time returns the up and down buttons tho the
 to turn the radio on and off.
 
 The image below shows the start-up screen, the buttons highlighted.
-[Start-up screen](https://github.com/tarababa/info_display/blob/master/img/doc/startup_screen.png)
+![Start-up screen](https://github.com/tarababa/info_display/blob/master/img/doc/startup_screen.png)
 
 
 ###Meteo
