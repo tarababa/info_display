@@ -155,6 +155,21 @@ indicative of the language such as `[english]` and `[dutch]`. A dot at the botto
 
 ![Clock](https://github.com/tarababa/info_display/blob/master/img/doc/clock.png)
 
+###SMS Service
+A SMS service is provided through the EFComPro GSM/GPRS module. Each time the loadshedding status changes or the
+forecasted loadshedding status changes all subscribers are notified by means of an SMS. Sofar only a load-shedding
+SMS service has been implemented. For now the subscribers to the SMS service are configured in `sms_service.ini` under
+the heading `[eskom_loadshedding]` as shown in the snippet below. I plan to rework the configuration in such a fashion
+the subscribers are configured in `[config.ini]` and the `sms_service.ini` will be created as required. The data in
+`sms_service.ini` and `eskom_db.ini` are used to detected whether a load-shedding SMS need to be sent.
+
+```
+[eskom_loadshedding]
+subscriber.0 = +27xxxxxxxxx,langebaan
+subscriber.1 = +27xxxxxxxxx,langebaan
+```
+
+
 
 -Get MPD/MPC
  sudo apt-get install mpd
