@@ -15,6 +15,8 @@ The Elecfreak GSM/GPRS module is used to send SMS-es
 ##Functions
 Quite a few, typically configurable, functions have now been included. The following chapters describe these functions
 in a bit more detail.
+
+###Navigation
 For navigation the buttons on the maxi-display module are used. From left to right, the buttons are used as follows:
 
 1. The first button moves to the next *left* menu
@@ -24,8 +26,12 @@ For navigation the buttons on the maxi-display module are used. From left to rig
 5. The fifth button is a *select* button, when supported by the chosen menu the up and down buttons can be used to view additional
 data for the chosen options such as weather forecasts and loadshedding schedules for the next days on the chosen location. 
 Pressing the select button a second time returns the up and down buttons tho their normal functions
-6. The sixth button is now used to terminate the info-display program, expect when in the "radio" menu, then it is used
+6. The sixth button is now used to terminate the info-display program, except when in the "radio" menu, then it is used
 to turn the radio on and off.
+
+The image below shows the start-up screen, the buttons highlighted.
+[Start-up screen]((https://github.com/tarababa/info_display/blob/master/img/doc/startup_screen.png))
+
 
 ###Meteo
 Using the output from the meteo module temprature, humidity and barometric pressure information is aggragated and shown in
@@ -100,7 +106,47 @@ schedule.0=Western Cape,Saldanha Bay,Langebaan
 
 ![Load-shedding](https://github.com/tarababa/info_display/blob/master/img/doc/loadshedding.png)
 
+###Radio
+A simple MPD (Music Player Daemon) client has been integrated, specifically to tune in to internet radio stations.
+Using the up and down buttons one can step through they available stations.Pressing the select button changes the function
+of the left and right buttons to volume control, pressing the select button again reverts the function of the lef and right
+buttons to normal. When the radio menu is chosen the radio is on by default and remains on even when navigated away from
+the radio menu. To turn the radio of use the on/off button in the radio menu (i.e. the sixth button)
 
+The available radio stations are configured in `config.ini` under the heading `[[radio_playlist]` as shown in the example below.
+
+```
+[radio_playlist]
+playlist.0=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_intl_lc_radio1_q,BBC1 - UK
+playlist.1=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_intl_lc_radio2_p,BBC2 - UK
+playlist.2=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_intl_lc_radio3_p,BBC3 - UK
+playlist.3=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_intl_lc_radio4_p,BBC4 - UK
+playlist.4=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_intl_lc_radio4extra_p,BBC4 Extra - UK
+playlist.5=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_intl_lc_5live_p,BBC5 Live - UK
+playlist.6=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_intl_lc_5sportxtra_p,BB5 Sports Extra - UK
+playlist.7=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_intl_lc_6music_p,BBC6 Music - UK
+playlist.8=mms://a219.l9068742218.c90687.g.lm.akamaistream.net/D/219/90687/v0001/reflector:42218,Rix FM - Swedish
+playlist.9=http://icelive0.03872-icelive0.cdn.qbrick.com/5982/03872_mix_mp3,Mix Megapol - Swedish
+playlist.10=http://http-live.sr.se/p1-mp3-192,Sveriges Radio P1 - Swedish
+playlist.11=http://http-live.sr.se/p2-mp3-192,Sveriges Radio P2 - Swedish
+playlist.12=http://http-live.sr.se/p3-mp3-192,Sveriges Radio P3 - Swedish
+playlist.13=http://http-live.sr.se/p4sport-mp3-192,Sveriges Radio P4 sport - Swedish
+playlist.14=http://icecast.omroep.nl:80/radio1-bb-mp3,Radio 1 - Dutch
+playlist.15=http://icecast.omroep.nl:80/radio2-bb-mp3,Radio 2 - Dutch
+Playlist.16=http://icecast.omroep.nl:80/3fm-bb-mp3, 3FM - Dutch
+playlist.17=http://icecast4.play.cz:80/frekvence1-128.mp3,Frekvence 1 - Czech
+playlist.18=http://pool.cdn.lagardere.cz:80/web-f1-legendy,Frekvence 1 Legendy - Czech
+playlist.19=http://pool.cdn.lagardere.cz:80/web-80,Frekvence 1 Osmdesatky - Czech
+playlist.20=http://icecast8.play.cz/cro1-128.mp3,ČRo Radiozurnal - Czech
+playlist.21=http://icecast2.play.cz/cro2-128aac,ČRo 2 - Czech
+playlist.22=http://icecast2.play.cz/cro3-128aac,ČRo 3 - Czech
+playlist.23=mms://dms-cl-022.skypro-media.net/argovia-128,Radio Argovia - Swiss
+playlist.24=http://stream.srg-ssr.ch/m/drs1/mp3_128,Radio SRF1 - Swiss
+playlist.25=http://stream.srg-ssr.ch/m/drs2/mp3_128,Radio SRF2 - Swiss
+playlist.26=http://stream.srg-ssr.ch/m/drs3/mp3_128,Radio SRF3 - Swiss
+```
+
+![Radio](https://github.com/tarababa/info_display/blob/master/img/doc/radio.png)
 
 -Get MPD/MPC
  sudo apt-get install mpd
