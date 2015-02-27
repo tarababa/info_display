@@ -113,7 +113,7 @@ of the left and right buttons to volume control, pressing the select button agai
 buttons to normal. When the radio menu is chosen the radio is on by default and remains on even when navigated away from
 the radio menu. To turn the radio of use the on/off button in the radio menu (i.e. the sixth button)
 
-The available radio stations are configured in `config.ini` under the heading `[[radio_playlist]` as shown in the example below.
+The available radio stations are configured in `config.ini` under the heading `[radio_playlist]` as shown in the example below.
 
 ```
 [radio_playlist]
@@ -147,6 +147,14 @@ playlist.26=http://stream.srg-ssr.ch/m/drs3/mp3_128,Radio SRF3 - Swiss
 ```
 
 ![Radio](https://github.com/tarababa/info_display/blob/master/img/doc/radio.png)
+
+###Clock
+A clock which shows the time in words, implemented in a configurable fashion allowing additional languages to be added.
+At present an English and a Ducth clock have been configured. The clocks are configured in `clocks.ini` under a heading
+indicative of the language such as `[english]` and `[dutch]`. A dot at the bottom of the screens shows the passing of seconds.
+
+![Clock](https://github.com/tarababa/info_display/blob/master/img/doc/clock.png)
+
 
 -Get MPD/MPC
  sudo apt-get install mpd
