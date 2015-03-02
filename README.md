@@ -169,7 +169,7 @@ subscriber.0 = +27xxxxxxxxx,langebaan
 subscriber.1 = +27xxxxxxxxx,langebaan
 ```
 
-![Load-shedding](https://github.com/tarababa/info_display/blob/master/img/doc/loadshedding_1.png) | ![Load-shedding](https://github.com/tarababa/info_display/blob/master/img/doc/loadshedding_2.png)
+![Load-shedding](https://github.com/tarababa/info_display/blob/master/img/doc/loadshedding_1.png)  ![Load-shedding](https://github.com/tarababa/info_display/blob/master/img/doc/loadshedding_2.png)  ![Load-shedding](https://github.com/tarababa/info_display/blob/master/img/doc/loadshedding_3.png)
 
 
 -Get MPD/MPC
