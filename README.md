@@ -1,7 +1,7 @@
 info_display
 ============
 
-The primary purpose of this project was to for me to gain some experience with Python. Over time the project has grown and bits have been added on
+The primary purpose of this project was for me to gain some experience with Python. Over time the project has grown and bits have been added on
 
 This project uses two Yoctopuce modules, a maxi display and the meteo module:
 
@@ -157,7 +157,7 @@ indicative of the language such as `[english]` and `[dutch]`. A dot at the botto
 
 ###SMS Service
 A SMS service is provided through the EFComPro GSM/GPRS module. Each time the loadshedding status changes or the
-forecasted loadshedding status changes all subscribers are notified by means of an SMS. Sofar only a load-shedding
+forecasted loadshedding status changes all subscribers are notified by means of a SMS. Sofar only a load-shedding
 SMS service has been implemented. For now the subscribers to the SMS service are configured in `sms_service.ini` under
 the heading `[eskom_loadshedding]` as shown in the snippet below. I plan to rework the configuration in such a fashion
 the subscribers are configured in `[config.ini]` and the `sms_service.ini` will be created as required. The data in
@@ -169,6 +169,7 @@ subscriber.0 = +27xxxxxxxxx,langebaan
 subscriber.1 = +27xxxxxxxxx,langebaan
 ```
 
+![Load-shedding](https://github.com/tarababa/info_display/blob/master/img/doc/loadshedding_1.png) | ![Load-shedding](https://github.com/tarababa/info_display/blob/master/img/doc/loadshedding_2.png)
 
 
 -Get MPD/MPC
