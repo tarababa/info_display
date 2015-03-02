@@ -199,7 +199,9 @@ Use “#” at the start of the line to comment it out.
 
 ####cmdline.txt
 Having made the changes according to the previous to chapters the my cmdline.txt looks as follows:
-```dwc_otg.lpm_enable=0 dwc_otg.speed=1 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait```
+```
+dwc_otg.lpm_enable=0 dwc_otg.speed=1 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait
+```
 For the changes to take effect the the Raspberry Pi must be restarted `sudo shutdown -r now`
 
 ###Music Deamon Player (MPD)
