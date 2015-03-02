@@ -173,6 +173,28 @@ subscriber.1 = +27xxxxxxxxx,langebaan
 ![Load-shedding](https://github.com/tarababa/info_display/blob/master/img/doc/loadshedding_3.png) ![Load-shedding](https://github.com/tarababa/info_display/blob/master/img/doc/loadshedding_4.png)
 
 
+##Installation
+
+###Raspbian
+I'm using the [2014-09-09 wheezy Raspbian release](http://downloads.raspberrypi.org/raspbian/images/raspbian-2014-09-12/2014-09-09-wheezy-raspbian.zip), anything of a later date should work too and can be downloaded from 
+the [Raspberry Pi website](http://www.raspberrypi.org/downloads/).
+
+####USB Full speed
+With the 2014-09-09 release of Raspbian I've found that the following change is not required, but on some earlier releases
+the Yoctopuce hardware would not work correctly withouth the USB running in "full-speed" mode. Add `dwc_otg.speed=1` to the
+/boot/cmdline.txt file as shown futher below.
+
+```dwc_otg.lpm_enable=0 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 dwc_otg.speed=1 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait```
+
+####Turn off serial console on UART
+To be able to use the UART as a serial interface to the EfcomPro GSM/GPRS module we need to turn of the serial console, to do so
+remove 
+
+```dwc_otg.lpm_enable=0 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 dwc_otg.speed=1 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait```
+
+
+To force USB to run in "full-speed" mode, simply add dwc_otg.speed=1 to the /boot/cmdline.txt file, as follows: 
+
 -Get MPD/MPC
  sudo apt-get install mpd
  sudo apt-get install mpc (optional)
