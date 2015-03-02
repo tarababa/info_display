@@ -182,17 +182,20 @@ the [Raspberry Pi website](http://www.raspberrypi.org/downloads/).
 
 ####USB Full speed
 With the 2014-09-09 release of Raspbian I've found that the following change is not required, but on some earlier releases
-the Yoctopuce hardware would not work correctly withouth the USB running in "full-speed" mode. Add `dwc_otg.speed=1` to the
+the Yoctopuce hardware would not work correctly without the USB running in "full-speed" mode. Add `dwc_otg.speed=1` to the
 /boot/cmdline.txt file as shown below.
 
 ```dwc_otg.lpm_enable=0 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 dwc_otg.speed=1 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait```
 
 ####Turn off serial console on UART
 To be able to use the UART as a serial interface to the EFComPro GSM/GPRS module we need to turn of the serial console, to do so
-remove any references to `ttyAMA0`` from the /boot/cmdline.txt file, in the example below `console=ttyAMA0,115200` and `kgdboc=ttyAMA0,115200`
+remove any references to `ttyAMA0` from the /boot/cmdline.txt file, in the example below `console=ttyAMA0,115200` and `kgdboc=ttyAMA0,115200`
 must be removed.
 
 ```dwc_otg.lpm_enable=0 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 dwc_otg.speed=1 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait```
+
+You'll also have to edit the `/etc/inittab` file, search for lines specifying the serial port `ttyAMA0`. 
+Use “#” at the start of the line to comment it out.  Then press CTRL+X to save and exit.
 
 ####cmdline.txt
 Having made the changes according to the previous to chapters the my cmdline.txt looks as follows:
