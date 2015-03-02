@@ -195,7 +195,7 @@ must be removed.
 ```dwc_otg.lpm_enable=0 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 dwc_otg.speed=1 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait```
 
 You'll also have to edit the `/etc/inittab` file, search for lines specifying the serial port `ttyAMA0`. 
-Use “#” at the start of the line to comment it out.  Then press CTRL+X to save and exit.
+Use “#” at the start of the line to comment it out.  
 
 ####cmdline.txt
 Having made the changes according to the previous to chapters the my cmdline.txt looks as follows:
