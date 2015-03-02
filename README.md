@@ -10,7 +10,7 @@ This project uses two Yoctopuce modules, a maxi display and the meteo module:
   
 The Elecfreak GSM/GPRS module is used to send SMS-es
 
-  * [EFComPro GSM/GPRS](http://www.elecfreaks.com/store/gprsgsm-moduleefcom-pro-efcompro-p-450.html)
+  * [EFComPro GSM/GPRS](http://www.elecfreaks.com/store/gprsgsm-moduleefcom-pro-EFComPro-p-450.html)
 
 ##Functions
 Quite a few, typically configurable, functions have now been included. The following chapters describe these functions
@@ -188,7 +188,7 @@ the Yoctopuce hardware would not work correctly withouth the USB running in "ful
 ```dwc_otg.lpm_enable=0 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 dwc_otg.speed=1 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait```
 
 ####Turn off serial console on UART
-To be able to use the UART as a serial interface to the EfcomPro GSM/GPRS module we need to turn of the serial console, to do so
+To be able to use the UART as a serial interface to the EFComPro GSM/GPRS module we need to turn of the serial console, to do so
 remove any references to `ttyAMA0`` from the /boot/cmdline.txt file, in the example below `console=ttyAMA0,115200` and `kgdboc=ttyAMA0,115200`
 must be removed.
 
@@ -236,16 +236,16 @@ the info display application on a Raspberry Pi.
 ```pip install twython```
 
 ###pyserial
-Python serial library used to communicate with the EfcomPro GSM/GPRS module, to install on Raspberry Pi:
+Python serial library used to communicate with the EFComPro GSM/GPRS module, to install on Raspberry Pi:
 ```sudo pip-3.2 install pyserial```
 If you would like to install Twython on a Windows environment then use pip in a command window, again this is **not required** to run
 the info display application on a Raspberry Pi.
 ```pip install pyserial```
 
-###EfcomPro GSM/GPRS
-Connect TXD pin 8 of the Raspberry Pi to the Rx pin of the EfcomPro module, Raspberry Pi Pin 10, RXD is connected to the TX pin
-of the EfcomPro module.
-If using a seperate powersupply for the EfcomPro module then connect GND of the EfcompPro module's powersupply to GND of the 
+###EFComPro GSM/GPRS
+Connect TXD pin 8 of the Raspberry Pi to the Rx pin of the EFComPro module, Raspberry Pi Pin 10, RXD is connected to the TX pin
+of the EFComPro module.
+If using a seperate powersupply for the EFComPro module then connect GND of the EfcompPro module's powersupply to GND of the 
 Raspberry Pi i.e. pin 6. The numbering of the pins on the GPIO header of the Raspberry Pi can for instance be found on this [cheatsheet](https://www.dropbox.com/s/m5l185qxq9w5mzk/raspberry-pi-gpio-cheat-sheet.jpg)
 
 ***WARNING: the Raspberry Pi is a 3.3V device, connecting 5V to the GPIO pins may cause irreversible damage to the Raspberry Pi***
