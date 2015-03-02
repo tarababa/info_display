@@ -174,6 +174,7 @@ subscriber.1 = +27xxxxxxxxx,langebaan
 
 
 ##Installation
+This installation manual may not be entirely correct or complete so be warned. I will in time test this description and complete/correct as required.
 
 ###Raspbian
 I'm using the [2014-09-09 wheezy Raspbian release](http://downloads.raspberrypi.org/raspbian/images/raspbian-2014-09-12/2014-09-09-wheezy-raspbian.zip), anything of a later date should work too and can be downloaded from 
@@ -182,58 +183,98 @@ the [Raspberry Pi website](http://www.raspberrypi.org/downloads/).
 ####USB Full speed
 With the 2014-09-09 release of Raspbian I've found that the following change is not required, but on some earlier releases
 the Yoctopuce hardware would not work correctly withouth the USB running in "full-speed" mode. Add `dwc_otg.speed=1` to the
-/boot/cmdline.txt file as shown futher below.
+/boot/cmdline.txt file as shown below.
 
 ```dwc_otg.lpm_enable=0 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 dwc_otg.speed=1 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait```
 
 ####Turn off serial console on UART
 To be able to use the UART as a serial interface to the EfcomPro GSM/GPRS module we need to turn of the serial console, to do so
-remove 
+remove any references to `ttyAMA0`` from the /boot/cmdline.txt file, in the example below `console=ttyAMA0,115200` and `kgdboc=ttyAMA0,115200`
+must be removed.
 
 ```dwc_otg.lpm_enable=0 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 dwc_otg.speed=1 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait```
 
+####cmdline.txt
+Having made the changes according to the previous to chapters the my cmdline.txt looks as follows:
+```dwc_otg.lpm_enable=0 dwc_otg.speed=1 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait```
+For the changes to take effect the the Raspberry Pi must be restarted `sudo shutdown -r now`
 
-To force USB to run in "full-speed" mode, simply add dwc_otg.speed=1 to the /boot/cmdline.txt file, as follows: 
-
--Get MPD/MPC
+###Music Deamon Player (MPD)
+For the radio function to work MPD must be installed on the Raspberry Pi, the instructions below also install the Music Player Client
+which is optional, the radio function does not depend on this. It may help however to test correct installation of the MPD.
+```
  sudo apt-get install mpd
- sudo apt-get install mpc (optional)
- in /etc/mpd.conf ensure following configuration:
-   bind_to_address         "any"
-   port                    "6600"
+ sudo apt-get install mpc
+```
+Ensure that the `/etc/mpd.conf` configuration file reflects the folling values:
+```
+bind_to_address         "any"
+port                    "6600"
+```   
+#####python-mpd2 library
+The info display application uses the mpd2 library to communicate with MPD, to install:
+```sudo o pip-3.2 install python-mpd2```
+If Python Install tools are not isntalled, install them as follows:
+```
+sudo apt-get update
+sudo apt-get install python3-pip
+```
+
+###lxml
+To parse some of the load-shedding data we use the lxml library to install on Raspberry Pi:
+```sudo apt-get install python3-lxml```
+If you would like to install lxml on a Windows environment then download the [lxml package](http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml)
+and install it using pip on the command window, the example below assumes the command is executed in the directory where the lxml package
+was downloaded to. **Note: the latter is not required to make the application run on the Raspberry Pi**
+```pip install lxml-3.4.1-cp34-none-win32.whl```
    
+###Twython
+A Python Twitter API, also used to collect load-shedding information (forecast), to install on Raspberry Pi:
+```sudo pip-3.2 install twython```
+If you would like to install Twython on a Windows environment then use pip in a command window, again this is **not required** to run
+the info display application on a Raspberry Pi.
+```pip install twython```
 
--Install Info display from git
- git clone https://github.com/tarababa/info_display.git
+###pyserial
+Python serial library used to communicate with the EfcomPro GSM/GPRS module, to install on Raspberry Pi:
+```sudo pip-3.2 install pyserial```
+If you would like to install Twython on a Windows environment then use pip in a command window, again this is **not required** to run
+the info display application on a Raspberry Pi.
+```pip install pyserial```
 
--Install python setuptools
- sudo apt-get update
- sudo apt-get install python3-pip
+###EfcomPro GSM/GPRS
+Connect TXD pin 8 of the Raspberry Pi to the Rx pin of the EfcomPro module, Raspberry Pi Pin 10, RXD is connected to the TX pin
+of the EfcomPro module.
+If using a seperate powersupply for the EfcomPro module then connect GND of the EfcompPro module's powersupply to GND of the 
+Raspberry Pi i.e. pin 6. The numbering of the pins on the GPIO header of the Raspberry Pi can for instance be found on this [cheatsheet](https://www.dropbox.com/s/m5l185qxq9w5mzk/raspberry-pi-gpio-cheat-sheet.jpg)
 
--Install python-mpd2 library
- sudo pip-3.2 install python-mpd2
+***WARNING: the Raspberry Pi is a 3.3V device, connecting 5V to the GPIO pins may cause irreversible damage to the Raspberry Pi***
 
--To start
- sudo nohup /usr/bin/python3 /home/pi/information_display/info_display/information_display.py &
- 
--Autostart
- make information_display.py executable: chmod a+x information_display.py
- sudo cp /home/pi/info_display/etc/info_display /etc/init.d
- then make info_display executable: sudo chmod a+x info_display
- sudo update-rc.d info_display defaults
+###Info Display
+This is the actual info display application, clone it from git:
+```git clone https://github.com/tarababa/info_display.git```
+
+####Starting info display
+To start the info display application on the Raspberry Pi so it will run in the background:
+```sudo nohup /usr/bin/python3 /home/pi/information_display/info_display/information_display.py &```
+
+####Auto start info display
+You can also make the info display application start automatically when the Raspberry Pi starts.
+1. Make information_display.py executable: `chmod a+x information_display.py`
+2.  Copy init.d configuration: `sudo cp /home/pi/info_display/etc/info_display /etc/init.d`
+3.  Make info_display executable: `sudo chmod a+x /etc/init.d/info_display`
+4.  `sudo update-rc.d info_display defaults`
+
+The next time you restart the Raspberry Pi the info display application will start automatically. You can also start, stop and restart
+the info display application using the following commands:
+```
+sudo service info_display start
+sudo service info_display stop
+sudo service info_display restart
+```
 
 
--Install lxml (for ESKOM loadshedding information)
- On windows:
-   Download package from http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml
-   Install using pip
-   D:\03-git\info_display>pip install D:\Data\b7tarah\Downloads\lxml-3.4.1-cp34-none-win32.whl
- On raspberry PI:
-   sudo apt-get install python3-lxml
 
--Install twython
- On windows:
-   pip install twython
- On Raspberry PI:
-   sudo pip-3.2 install twython
+
+
 
