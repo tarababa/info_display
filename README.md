@@ -253,6 +253,8 @@ of the EFComPro module.
 If using a seperate powersupply for the EFComPro module then connect GND of the EfcompPro module's powersupply to GND of the 
 Raspberry Pi i.e. pin 6. The numbering of the pins on the GPIO header of the Raspberry Pi can for instance be found on this [cheatsheet](https://www.dropbox.com/s/m5l185qxq9w5mzk/raspberry-pi-gpio-cheat-sheet.jpg)
 
+At present the Raspberry Pi does not control the Power and Reset pins on the EFComPro module, this means the module needs to be (re-)started manually using the Power button on the EFComPro module itself.
+
 ***WARNING: the Raspberry Pi is a 3.3V device, connecting 5V to the GPIO pins may cause irreversible damage to the Raspberry Pi***
 
 ###Info Display
