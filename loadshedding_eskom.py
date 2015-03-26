@@ -36,6 +36,8 @@ import time, datetime
 import re
 from twython import Twython
 from configparser import NoOptionError
+import socket
+
 
 LOGGER = 'ESKOM'  #name of logger for this module
 power_status         = collections.namedtuple("powerstatus","level trend")
@@ -511,7 +513,10 @@ def eskom_deamon(main_q,message_q,display_q):
   logger = logging.getLogger(LOGGER)
   #get configuration
   loadshedding_config=get_loadshedding_config()
-  
+  #sometimes getting eskom's power status hangs indefinetely
+  #to avoid this we set a socket timeout
+  socket.setdefaulttimeout(10)
+
   while not shutdown:
     try:
       message=message_q.get(timeout=120)
@@ -557,19 +562,19 @@ def eskom_deamon(main_q,message_q,display_q):
   logger.debug('done')    
 
 
-configuration.general_configuration();
-configuration.logging_configuration();
-configuration.twitter_configuration();
-loadshedding_schedules = []
-init()
-logger = logging.getLogger(LOGGER)
-loadshedding_config=get_loadshedding_config()
-powerStatus=eskom_power_status()
-lsstatus=eskom_loadshedding_status()
-forecast=eskom_twitter(lsstatus)
-schedules = []
-schedules.append(doGetSchedule(loadshedding_config[0],eskom_power_status(),lsstatus, forecast))  
-doUpdateDb(schedules)        
+#configuration.general_configuration();
+#configuration.logging_configuration();
+#configuration.twitter_configuration();
+#loadshedding_schedules = []
+#init()
+#logger = logging.getLogger(LOGGER)
+#loadshedding_config=get_loadshedding_config()
+#powerStatus=eskom_power_status()
+#lsstatus=eskom_loadshedding_status()
+#forecast=eskom_twitter(lsstatus)
+#schedules = []
+#schedules.append(doGetSchedule(loadshedding_config[0],eskom_power_status(),lsstatus, forecast))  
+#doUpdateDb(schedules)        
 
 #for testing
 #configuration.general_configuration();
