@@ -36,7 +36,6 @@ import time, datetime
 import re
 from twython import Twython
 from configparser import NoOptionError
-import socket
 
 
 LOGGER = 'ESKOM'  #name of logger for this module
@@ -283,7 +282,7 @@ def eskom_power_status():
   #get a json document containing amongst other things
   #the national power status
   try:
-    data = json.loads(urllib.request.urlopen(req).read().decode('utf-8')) 
+    data = json.loads(urllib.request.urlopen(req, timeout=120).read().decode('utf-8')) 
     powerStatus = data['data']['page']
     logger.debug('level[' + powerStatus['level'] + '] powerStatus[' + powerStatus['levelstatus'] + '] status [' + powerStatus['status'] +']')
     return power_status(powerStatus['level'],powerStatus['levelstatus'])
@@ -513,9 +512,6 @@ def eskom_deamon(main_q,message_q,display_q):
   logger = logging.getLogger(LOGGER)
   #get configuration
   loadshedding_config=get_loadshedding_config()
-  #sometimes getting eskom's power status hangs indefinetely
-  #to avoid this we set a socket timeout
-  socket.setdefaulttimeout(120)
 
   while not shutdown:
     try:
