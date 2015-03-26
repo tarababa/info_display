@@ -515,7 +515,7 @@ def eskom_deamon(main_q,message_q,display_q):
   loadshedding_config=get_loadshedding_config()
   #sometimes getting eskom's power status hangs indefinetely
   #to avoid this we set a socket timeout
-  socket.setdefaulttimeout(10)
+  socket.setdefaulttimeout(120)
 
   while not shutdown:
     try:
