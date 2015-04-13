@@ -104,7 +104,7 @@ def eskom_loadshedding_status():
   req = urllib.request.Request(url, None, headers)
   #read html page, find the element lsstatus which contains the load shedding status
   try:
-    lsstatus =urllib.request.urlopen(req).read().decode('utf-8') 
+    lsstatus =urllib.request.urlopen(req, timeout=120).read().decode('utf-8') 
     logger.debug('lsstatus[' + lsstatus + ']')
   except:
     #sometimes we get urllib.error.HTTPError: HTTP Error 400: Bad Request
@@ -140,7 +140,7 @@ def eskom_get_municipality(province,municipality):
   req = urllib.request.Request(url, None, headers)
   #get a json list of all municipalities in our chosen province
   try:
-    municipalities = json.loads(urllib.request.urlopen(req).read().decode('utf-8')) 
+    municipalities = json.loads(urllib.request.urlopen(req, timeout=120).read().decode('utf-8')) 
   except:
     #sometimes we get urllib.error.HTTPError: HTTP Error 400: Bad Request
     #to try and figure out what went wrong we trace the request
@@ -181,7 +181,7 @@ def eskom_get_suburb(municipality,suburb):
   req = urllib.request.Request(url, None, headers)
   #get a json list of all municipalities in our chosen province
   try:
-    suburbs = json.loads(urllib.request.urlopen(req).read().decode('utf-8')) 
+    suburbs = json.loads(urllib.request.urlopen(req, timeout=120).read().decode('utf-8')) 
   except:
     #sometimes we get urllib.error.HTTPError: HTTP Error 400: Bad Request
     #to try and figure out what went wrong we trace the request
@@ -232,7 +232,7 @@ def eskom_get_loadshedding_schedule(province,suburb,suburbId,suburbTot, lsstatus
   #get a html document containing the loadshedding schedule for the chosen
   #suburb and the actual loadshedding stage
   try:
-    scheduleContent = (urllib.request.urlopen(req).read().decode('utf-8'))
+    scheduleContent = (urllib.request.urlopen(req, timeout=120).read().decode('utf-8'))
     scheduleDoc     =  fromstring(scheduleContent)
     dayMonth = scheduleDoc.find_class('dayMonth')
     scheduleDay = scheduleDoc.find_class('scheduleDay')
