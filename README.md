@@ -240,10 +240,10 @@ If you would like to install Twython on a Windows environment then use pip in a 
 the info display application on a Raspberry Pi.
 ```pip install twython```
 
-###pyserial
+###Pyserial
 Python serial library used to communicate with the EFComPro GSM/GPRS module, to install on Raspberry Pi:
 ```sudo pip-3.2 install pyserial```
-If you would like to install Twython on a Windows environment then use pip in a command window, again this is **not required** to run
+If you would like to install Pyserial on a Windows environment then use pip in a command window, again this is **not required** to run
 the info display application on a Raspberry Pi.
 ```pip install pyserial```
 
