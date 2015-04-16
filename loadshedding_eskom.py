@@ -319,7 +319,7 @@ def eskom_twitter(lsstatus):
   twitter = Twython(APP_KEY,access_token=ACCESS_TOKEN)
   
   #get search results from twitter
-  r=twitter.search(q='from:Eskom_SA -stopped -cancelled -restoration -restored -resumed -resume)')
+  r=twitter.search(q='from:Eskom_SA -stopped -cancelled -restoration -restored -resumed)')
   
   for tweet in r['statuses']:
     #when was the tweet created
