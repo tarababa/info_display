@@ -218,7 +218,8 @@ def eskom_get_loadshedding_schedule(province,suburb,suburbId,suburbTot, lsstatus
   logger = logging.getLogger(LOGGER)
   logger.debug('start')
   #set the url
-  if lsstatus == '1' and  forecast.stage in ('1','2','3','4','5'):
+  if lsstatus.isdigit() and forecast.stage.isdigit() and int(lsstatus)>=int(forecast.stage):
+    #if forecast stage higher than actual stage then get schedule for forecast stage.
     url = 'http://loadshedding.eskom.co.za/LoadShedding/GetScheduleM/' + str(suburbId) + '/' + forecast.stage + '/' + str(PROVINCES.get(province.upper())) + '/' + str(suburbTot)
   else:
     url = 'http://loadshedding.eskom.co.za/LoadShedding/GetScheduleM/' + str(suburbId) + '/' + STATUS2STAGE[lsstatus][0] + '/' + str(PROVINCES.get(province.upper())) + '/' + str(suburbTot)    
@@ -340,8 +341,10 @@ def eskom_twitter(lsstatus):
               #forecast is for today and endtime has not passed yet...
               #obviously this fails if endtime is only tomorrow... 
               logger.debug('got loadshedding from[' + str(times[0]) + '] to[' + str(times[1]) +']')
-              #return loadSheddingForecast(stage[0].split(' ')[1],times[0],times[1])
-              return loadSheddingForecast(stage[0][-1],times[0],times[1])
+              #"stage[len(stage)-1][-1]" ensures that from following twitter message we take 
+              #the second stage, not the first.
+              #PowerAlert: Please note that #load_shedding moved from stage 1 to stage 2 at 12h00.
+              return loadSheddingForecast(stage[len(stage)-1][-1],times[0],times[1])
             else:
               break
           else:
@@ -355,11 +358,11 @@ def eskom_twitter(lsstatus):
               None
             else:
               logger.debug('got loadshedding from[' + str(times[0]) + ']')
-              return loadSheddingForecast(stage[0].split(' ')[1],times[0],None)
+              return loadSheddingForecast(stage[len(stage)-1].split(' ')[1],times[0],None)
           else:
             #we're loadshedding include forecast
             logger.debug('got loadshedding from[' + str(times[0]) + ']')
-            return loadSheddingForecast(stage[0].split(' ')[1],times[0],None)
+            return loadSheddingForecast(stage[len(stage)-1].split(' ')[1],times[0],None)
   return loadSheddingForecast(None,None,None)  
 #------------------------------------------------------------------------------#
 # trace_loadshedding_schedule: Trace loadshedding schedule to a log file,      #
