@@ -336,7 +336,11 @@ def radio_deamon(result_q, message_q, display_q):
             previousStation(radio_info,mpdc)
           elif message.subtype == 'NEXT':
             nextStation(radio_info,mpdc)
-   
+        ###############################
+        #RADIO MENU HAS BEEN ACTIVATED#
+        ###############################
+        elif message.type == 'ACTIVE':
+          None #send radio info to y_maxi_display.
         ##################
         #SHUTDOWN REQUEST#
         ##################

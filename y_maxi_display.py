@@ -1423,7 +1423,9 @@ def do_radio(navigate, pageIndex, menuIndex, radio_q):
   if pageIndex is None:
     pageIndex=0
     menuIndex=0
-    radio_q.put( configuration.MESSAGE('DISPLAY','RADIO','PLAY','ON', 'turn radio on'))        
+    #radio_q.put( configuration.MESSAGE('DISPLAY','RADIO','PLAY','ON', 'turn radio on'))
+    #Use button six to turn radio on/off, in this fashion radio is off by default.
+    radio_q.put( configuration.MESSAGE('DISPLAY','RADIO','ACTIVE','', 'radio menu has been activated'))
   elif navigate == 'MENU_UP':
     radio_q.put( configuration.MESSAGE('DISPLAY','RADIO','CHANNEL','PREV', 'request previous channel'))    
   elif navigate == 'MENU_DOWN':
