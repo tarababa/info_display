@@ -218,7 +218,7 @@ def eskom_get_loadshedding_schedule(province,suburb,suburbId,suburbTot, lsstatus
   logger = logging.getLogger(LOGGER)
   logger.debug('start')
   #set the url
-  if lsstatus.isdigit() and forecast.stage.isdigit() and int(lsstatus)>=int(forecast.stage):
+  if forecast.stage != None and lsstatus.isdigit() and forecast.stage.isdigit() and int(lsstatus)>=int(forecast.stage):
     #if forecast stage higher than actual stage then get schedule for forecast stage.
     url = 'http://loadshedding.eskom.co.za/LoadShedding/GetScheduleM/' + str(suburbId) + '/' + forecast.stage + '/' + str(PROVINCES.get(province.upper())) + '/' + str(suburbTot)
   else:
