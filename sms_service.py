@@ -90,7 +90,7 @@ def eskom_loadshedding_sms(subscribers,gsm):
       smsSent=False
       if subscriber[4] != update_dt:
         #subscriber is not up to date yet we must send a message
-        if db['stage']['ls_status'] not in ('2','3','4') and db['stage']['forecast_time_from'] != 'None' and db['stage']['forecast_stage'] != 'None':
+        if db['stage']['ls_status'] not in ('2','3','4','5') and db['stage']['forecast_time_from'] != 'None' and db['stage']['forecast_stage'] != 'None':
           #NOT LOAD SHEDDING YET
           sLine1='NOT Loadshedding YET!'
           sLine2='Forecast stage '+ db['stage']['forecast_stage']
@@ -109,8 +109,11 @@ def eskom_loadshedding_sms(subscribers,gsm):
           sSms=sLine1+chr(10)+sLine2+chr(10)+sLine3+chr(10)+sLine4+chr(10)+sLine5
           logger.debug(sSms)
           result=gsm.sendSMS(subscriber[2],sSms)          
-          smsSent=True
-        elif  db['stage']['ls_status'] in ('2','3','4'):
+          if result != 'ERROR':
+            smsSent=True
+          else:
+            logger.debug('Expected OK but got result[' + result +']')  
+        elif  db['stage']['ls_status'] in ('2','3','4','5'):
           #LOAD SHEDDING
           sLine1='LOADSHEDDING, stage '+ str(int(db['stage']['ls_status'])-1)
           day, date, p1, p2, p3 = db['schedules'][subscriber[3]].split(',') 
@@ -129,7 +132,10 @@ def eskom_loadshedding_sms(subscribers,gsm):
           sSms=sLine1+chr(10)+sLine2+chr(10)+sLine3+chr(10)+sLine4+chr(10)+sLine5
           logger.debug(sSms)
           result=gsm.sendSMS(subscriber[2],sSms)          
-          smsSent=True
+          if result != 'ERROR':
+            smsSent=True
+          else:
+            logger.debug('Expected OK but got result[' + result +']')
         elif  db['stage']['ls_status']=='1':
           #NOT LOADSHEDDING
           sLine1='NOT LOADSHEDDING'
@@ -137,7 +143,10 @@ def eskom_loadshedding_sms(subscribers,gsm):
           sSms=sLine1+chr(10)+sLine2
           logger.debug(sSms)
           result=gsm.sendSMS(subscriber[2],sSms)
-          smsSent=True
+          if result != 'ERROR':
+            smsSent=True
+          else:
+            logger.debug('Expected OK but got result[' + result +']')          
         #update timestamp on subscriber.
         if smsSent:
           configuration.SMSSERVICE.set(subscriber[0],subscriber[1],subscriber[2]+','+subscriber[3]+','+update_dt)  
