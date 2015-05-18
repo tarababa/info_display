@@ -334,17 +334,19 @@ def eskom_twitter(lsstatus):
       #look for something like 08h00
       times = re.findall("(\d{2}\D{1,3}\d{2})",text)
       if times: #loadshedding has been forcasted...
-        if len(times)==2:
+        if len(times)==2 or len(times)==3:
           endTime = re.findall('\d+',times[1]) #get forecasted end time, hour and minutes seperate
           if endTime and len(endTime)==2:
             if today.day == created_at.day and today.hour < int(endTime[0]):
               #forecast is for today and endtime has not passed yet...
               #obviously this fails if endtime is only tomorrow... 
-              logger.debug('got loadshedding from[' + str(times[0]) + '] to[' + str(times[1]) +']')
+              logger.debug('got loadshedding from[' + str(times[0]) + '] to[' + str(times[len(times)-1]) +']')
               #"stage[len(stage)-1][-1]" ensures that from following twitter message we take 
               #the second stage, not the first.
               #PowerAlert: Please note that #load_shedding moved from stage 1 to stage 2 at 12h00.
-              return loadSheddingForecast(stage[len(stage)-1][-1],times[0],times[1])
+              #from the following twitter message we use second stage and first and last time...
+              #Eskom will implement stage 1 #load_shedding at 16:00 and move to stage 2 at 17:00 until 22:00 this evening.
+              return loadSheddingForecast(stage[len(stage)-1][-1],times[0],times[len(times)-1])
             else:
               break
           else:
