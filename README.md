@@ -229,7 +229,7 @@ sudo apt-get install python3-pip
 To parse some of the load-shedding data we use the lxml library, to install on Raspberry Pi:
 ```sudo apt-get install python3-lxml```
 If you would like to install lxml on a Windows environment then download the [lxml package](http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml)
-and install it using pip on the command window, the example below assumes the command is executed in the directory where the lxml package
+and install it using pip in a command window, the example below assumes the command is executed in the directory where the lxml package
 was downloaded to. **Note: the latter is not required to make the application run on the Raspberry Pi**
 ```pip install lxml-3.4.1-cp34-none-win32.whl```
    
