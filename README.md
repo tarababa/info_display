@@ -198,7 +198,7 @@ You'll also have to edit the `/etc/inittab` file, search for lines specifying th
 Use “#” at the start of the line to comment it out.  
 
 ####cmdline.txt
-Having made the changes according to the previous to chapters the my cmdline.txt looks as follows:
+Having made the changes according to the previous chapters the cmdline.txt should now look this:
 ```
 dwc_otg.lpm_enable=0 dwc_otg.speed=1 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait
 ```
