@@ -511,6 +511,7 @@ def doUpdateDb(schedules):
 def eskom_deamon(main_q,message_q,display_q):
   shutdown = False
   message  = None  
+  LSSTATUS = -1
   loadshedding_schedules = []
   #setup logging
   init()
@@ -532,6 +533,12 @@ def eskom_deamon(main_q,message_q,display_q):
         if message.type == 'GET_LOADSHEDDING_SCHEDULE' and message.subtype=='ALL':
           powerStatus=eskom_power_status()
           lsstatus=eskom_loadshedding_status()
+          if lsstatus == -1:
+            logger.debug('got lsstatus['  + str(lsstatus) + '] using LSSTATUS[' + str(LSSTATUS) + '] instead')
+            lsstatus = LSSTATUS # could not obtain lsstatus then use previously obtained value
+          else:
+            LSSTATUS = lsstatus
+          
           forecast=eskom_twitter(lsstatus)
           schedules = []
           #Loop through all configured locations
