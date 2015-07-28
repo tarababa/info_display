@@ -1402,7 +1402,7 @@ def menu_radio(radio_info,cls,display):
   display.swapLayerContent(4,0)   
   
 #------------------------------------------------------------------------------#
-# do_radio: user has chose radio menu, so we must inform the radio module and  #
+# do_radio: user has chosen radio menu, so we must inform the radio module and #
 #           and request it to be turned on                                     #
 #                                                                              #
 # Parameters: navigate  Navigation UP, DOWN, MENU_UP, MENU_DOWN                #
@@ -1439,6 +1439,44 @@ def do_radio(navigate, pageIndex, menuIndex, radio_q):
     
 
   return menuIndex,pageIndex  
+#------------------------------------------------------------------------------#
+# menu_sim900_airtime: show sim900 airtime                                     #
+#                                                                              #
+# Parameters: airTime   airtime information from sim900 module                 #
+#             display   an instance of the yocto maxi display                  #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 03.07.2015 Initial version                                       #
+#------------------------------------------------------------------------------# 
+def menu_sim900_airtime(airTime,cls,display):
+  x=0
+  y=5
+  #build summary but dont display it yet
+  layer4=display.get_displayLayer(4)
+  layer4.hide()
+  layer4.clear()
+  layer4.selectFont('Small.yfm')
+  layer4.drawText(64,0,  YDisplayLayer.ALIGN.TOP_CENTER, 'SIM 900 Information');
+  
+  #For the data to be shown correctly the reply airTime information is supposed to look something like shown below.
+  #Unfortunately we have no real control over this and may vary from network to network, a network provider could
+  #also change the format as he pleases....
+  #'+CUSD: 0,"R0.00 airtime, 100 SMS and 0 MB of data. Dial *141*1# for details. WoW! Use 50c airtime to get R5 MTN-MTN+5MB. Free to join. Dial *130*406#",64'  
+  layer4.drawText(x,15, YDisplayLayer.ALIGN.TOP_LEFT, 'Airtime: ' + airTime.split('"')[1].split(' ')[0]);
+  layer4.drawText(x,25, YDisplayLayer.ALIGN.TOP_LEFT, 'SMS: '     + airTime.split('"')[1].split(' ')[2]);
+  layer4.drawText(x,35, YDisplayLayer.ALIGN.TOP_LEFT, 'Data: '    + airTime.split('"')[1].split(' ')[5]);
+  
+  #clear layers 1,2 and 3
+  if cls:
+    clearScreen(display)
+    cls==False
+    
+  #get layer 0, and use it do display the
+  #summary prepared on layer4
+  
+  layer0=display.get_displayLayer(0)
+  display.swapLayerContent(4,0)    
+  
 
 #------------------------------------------------------------------------------#
 # menu_start: start screen                                                     #
@@ -1618,6 +1656,7 @@ def display_deamon(main_q, meteo_q, radio_q, message_q):
   meteoData     = []
   schedules     = []
   forecasts  = None
+  airTime    = 'NO DATA YET'
   #get instance of clock
   myClock=clock.Clock()
   #initialize module
@@ -1702,7 +1741,17 @@ def display_deamon(main_q, meteo_q, radio_q, message_q):
                 #only once radio_info has been initialised
                 menu_radio(radio_info,clearScreen,module.display)
                 clearScreen=False
-              
+
+          ##########################
+          #MESSAGES FROM SMS MODULE#
+          ##########################
+          elif message.type == 'SMS_SERVICE':
+            if message.subtype == 'AIRTIME':
+              airTime=message.content
+              logger.debug('airTime['+str(airTime)+']')
+              if activeMenu.id=='menu_sim900_airtime':
+                if airTime is not None:
+                  menu_sim900_airtime(airTime,False,module.display)
           #########################################
           #MESSAGES FROM (YOCTOPUCE) BUTTON MODULE#
           #########################################
@@ -1754,7 +1803,12 @@ def display_deamon(main_q, meteo_q, radio_q, message_q):
             #ESKOM SCREEN#
             ##############            
             elif activeMenu.id == 'menu_eskom':
-              menuIndex,pageIndex=menu_eskom(schedules,activeMenu.navigate,menuIndex,pageIndex,clearScreen,module.display)              
+              menuIndex,pageIndex=menu_eskom(schedules,activeMenu.navigate,menuIndex,pageIndex,clearScreen,module.display)    
+            ###############
+            #SIM900 SCREEN#
+            ###############            
+            elif activeMenu.id == 'menu_sim900':
+              menu_sim900_airtime(airTime,clearScreen,module.display)               
             ###################
             #TEST SCREEN FONTS#
             ###################

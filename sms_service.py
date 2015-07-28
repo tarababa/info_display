@@ -204,6 +204,11 @@ def sms_deamon(result_q, message_q, display_q):
   #Initialize sim900 device to send sms
   gsm=sim900.Sim900(logger)
   gsm.selectSMSMessageFormat(1)  
+  #go get available airtime
+  airTime=gsm.getAirtimeBalance()
+  logger.debug('airTime[' + str(airTime) + ']')
+  #send available airtime to display module
+  display_q.put( configuration.MESSAGE('SMS_SERVICE','DISPLAY','SMS_SERVICE','AIRTIME', airTime))
 
 
   #listen for message to execute.
@@ -224,7 +229,11 @@ def sms_deamon(result_q, message_q, display_q):
           #we need to read them each time because we change
           #the timestamp after each sms we send for a subscriber/service
           subscribers=get_service_subscribers()            
-          eskom_loadshedding_sms(subscribers, gsm)          
+          eskom_loadshedding_sms(subscribers, gsm)     
+        elif message.type == 'GETAIRTIMEBALANCE': #maybe once a day or so
+          airTime=gsm.getAirtimeBalance()
+          logger.debug('airTime[' + str(airTime) + ']')
+          display_q.put( configuration.MESSAGE('SMS_SERVICE','DISPLAY','SMS_SERVICE','AIRTIME', airTime))
         ##################
         #SHUTDOWN REQUEST#
         ##################

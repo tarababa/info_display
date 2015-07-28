@@ -58,7 +58,7 @@ class Sim900():
   #------------------------------------------------------------------------------#
   # getAirtimeBalance: request airtime balance from the network                  #
   #                                                                              #
-  # Parameters: none                                                        #
+  # Parameters: none                                                             #
   #                                                                              #
   # returnvalues: reply from the network                                         #
   #------------------------------------------------------------------------------#
@@ -66,9 +66,14 @@ class Sim900():
   # 1.00    hta 12.05.2014 Initial version                                       #
   #------------------------------------------------------------------------------#      
   def getAirtimeBalance(self):
+    self.logger.debug('getAirtimeBalance - start')
     # get configured ussd code, this is network dependent
-    ussd = serialPort=str(configuration.CONFIG['sim900']['ussd_balance'])
-    return self.unstructSuppServiceData(ussd)
+    ussd = str(configuration.CONFIG['sim900']['ussd_balance'])
+    response=self.unstructSuppServiceData(ussd)
+    if response == 'ERROR':
+      return response
+    else:
+      return response[-1]
 
   #------------------------------------------------------------------------------#
   # getModelIdentification: retrieve model identification from device            #
@@ -100,17 +105,21 @@ class Sim900():
   # 1.00    hta 12.05.2014 Initial version                                       #
   #------------------------------------------------------------------------------#      
   def unstructSuppServiceData(self,ussd):
+    self.logger.debug('unstructSuppServiceData (USSD) - start')
     # prepare the command
     cmd=bytes('AT+CUSD=1,"'+ussd+'"\r\n','utf-8')
     self.send(cmd)
+    time.sleep(5) #this is also necessary, if we are too fast the message does not go out properly
+    self.inWaitingTimeout=10
+    self.ser.timeout=15 
     response=self.recv()
-    if response[len(response)-1]=='OK':
-      #device processed command, now we need to wait for
-      #the reply from the network, this can take a bit longer
-      self.ser.timeout=20 
-      response=self.recv()
-      self.ser.timeout=READ_TIMEOUT #restore readtimeout
-    return response
+    self.logger.debug('response[' + str(response) + ']')
+    self.ser.timeout=READ_TIMEOUT #restore readtimeout      
+    self.inWaitingTimeout=IN_WAITING_TIMEOUT     
+    if response[len(response)-1]=='OK' or (len(response)>=3 and response[len(response)-3]=='OK'):
+      return response
+    else:
+      return 'ERROR'
   #------------------------------------------------------------------------------#
   # selectSMSMessageFormat: select sms message format                            #
   #                                                                              #
@@ -271,13 +280,13 @@ class Sim900():
 #configuration.logging_configuration();
 #configuration.init_log(LOGGER);
 #logger = logging.getLogger(LOGGER)
-
+#
 #sim900=Sim900(logger)
 #logger.debug(sim900.getModelIdentification())
+#logger.debug(sim900.selectSMSMessageFormat(1))
 
 #logger.debug(sim900.getAirtimeBalance())
 
-#logger.debug(sim900.selectSMSMessageFormat(1))
 
 #logger.debug(sim900.listSMSMessages('ALL'))
 

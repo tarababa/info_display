@@ -74,6 +74,8 @@ def do_timers(timer, work_queue):
     work_queue.put( configuration.MESSAGE('MAIN','ESKOM','GET_LOADSHEDDING_SCHEDULE','ALL', None))
   elif timer=='SMS':
     work_queue.put( configuration.MESSAGE('MAIN','SMS','DOSMS','ALL', None))
+  elif timer=='SMS_AIRTIME':
+    work_queue.put( configuration.MESSAGE('MAIN','SMS','GETAIRTIMEBALANCE','ALL', None))
   else:
     logger.info ('no action defined for timer[' + timer + ']')
   
@@ -209,6 +211,10 @@ def main():
   sms_timer_thread = timers.RepeatingTimer(30, function=do_timers, args=('SMS',sms_q))
   sms_timer_thread.name = 'SMS_TIMER'
   sms_timer_thread.start()    
+  #start repeating sms timer
+  sms_airtime_timer_thread = timers.RepeatingTimer(86400, function=do_timers, args=('SMS_AIRTIME',sms_q)) #once every 24 hours = 86400
+  sms_airtime_timer_thread.name = 'SMS_AIRTIME_TIMER'
+  sms_airtime_timer_thread.start()   
   
   result=None
   shutdown=False
@@ -239,6 +245,7 @@ def main():
           radio_timer_thread.cancel()
           eskom_timer_thread.cancel()
           sms_timer_thread.cancel()
+          sms_airtime_timer_thread.cancel()
           #send shutdown message to all modules
           button_q.put(  configuration.MESSAGE('MAIN','BUTTON',  'SHUTDOWN',None,None))
           meteo_q.put(   configuration.MESSAGE('MAIN','METEO',   'SHUTDOWN',None,None))
