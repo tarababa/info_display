@@ -68,7 +68,13 @@ PROVINCES = {'EASTERN CAPE'  : 1,
 
 #http://loadshedding.eskom.co.za/LoadShedding/GetStatus?_= 1,2,3,4
 
-
+#define exceptions
+class eFailedMunicipality(Exception):
+    pass
+class eFailedSuburb(Exception):
+    pass  
+class eFailedSchedule(Exception):
+    pass  
 #------------------------------------------------------------------------------#
 # init: Content of config.ini as made available globally to all modules through#
 #       through the configuration module and has been setup by the main        #
@@ -146,7 +152,8 @@ def eskom_get_municipality(province,municipality):
     #to try and figure out what went wrong we trace the request
     logger.error('req['+str(req)+']')
     logger.error('unexpected error ['+  str(traceback.format_exc()) +']') 
-  
+    raise eFailedMunicipality
+ 
   #find our municipality
   municipalityDict = next((m for m in municipalities if m['Text'] == municipality), None)
   if municipalityDict is not None:
@@ -187,8 +194,9 @@ def eskom_get_suburb(municipality,suburb):
     #to try and figure out what went wrong we trace the request
     logger.error('req['+str(req)+']')
     logger.error('unexpected error ['+  str(traceback.format_exc()) +']') 
-  
-  #find our municipality
+    raise eFailedSuburb
+    
+  #find our suburb
   suburbsDict = next((s for s in suburbs['Results'] if s['text'] == suburb), None)
   if suburbsDict is not None:
     logger.debug('found suburbsDict[' + str(suburbsDict) +']')
@@ -252,6 +260,7 @@ def eskom_get_loadshedding_schedule(province,suburb,suburbId,suburbTot, lsstatus
     #to try and figure out what went wrong we trace the request
     logger.error('req['+str(req)+']')
     logger.error('unexpected error ['+  str(traceback.format_exc()) +']') 
+    raise eFailedSchedule
 #------------------------------------------------------------------------------#
 # eskom_power_status: gets the national power status from myeskom.co.za        #
 #                                  suburb and loadshedding stage               #
@@ -423,10 +432,13 @@ def get_loadshedding_config():
 # 1.00    hta 24.03.2014 Initial version                                       #
 #------------------------------------------------------------------------------# 
 def doGetSchedule(cfg,powerStatus,lsstatus,forecast):
-  #Get municipality information:
-  municipality=eskom_get_municipality(cfg[0],cfg[1])
-  #Get suburb parameters
-  suburbId,suburbTot=eskom_get_suburb(municipality,cfg[2])
+  try:
+    #Get municipality information:
+    municipality=eskom_get_municipality(cfg[0],cfg[1])
+    #Get suburb parameters
+    suburbId,suburbTot=eskom_get_suburb(municipality,cfg[2])
+  except:
+    raise eFailedSchedule('Failed to get municipality or suburb')
   #now return the schedule to the caller
   return eskom_get_loadshedding_schedule(cfg[0],cfg[2],suburbId,suburbTot,lsstatus,powerStatus,forecast)  
 #------------------------------------------------------------------------------#
@@ -542,11 +554,14 @@ def eskom_deamon(main_q,message_q,display_q):
           forecast=eskom_twitter(lsstatus)
           schedules = []
           #Loop through all configured locations
-          for config in loadshedding_config:
-            schedules.append(doGetSchedule(config,powerStatus,lsstatus,forecast))
-          display_q.put( configuration.MESSAGE('ESKOM','DISPLAY','SCHEDULES','DATA', schedules))
-          #update eskom_db
-          doUpdateDb(schedules)
+          try:
+            for config in loadshedding_config:
+              schedules.append(doGetSchedule(config,powerStatus,lsstatus,forecast))
+            display_q.put( configuration.MESSAGE('ESKOM','DISPLAY','SCHEDULES','DATA', schedules))
+            #update eskom_db
+            doUpdateDb(schedules)
+          except:
+            logger.error('processing schedules failed['+  str(traceback.format_exc()) +']')             
         ##################    
         #SHUTDOWN MESSAGE#
         ##################
