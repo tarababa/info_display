@@ -188,7 +188,7 @@ the Yoctopuce hardware would not work correctly without the USB running in "full
 ```dwc_otg.lpm_enable=0 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 dwc_otg.speed=1 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait```
 
 ####Turn off serial console on UART
-To be able to use the UART as a serial interface to the EFComPro GSM/GPRS module we need to turn of the serial console, to do so
+To be able to use the UART as a serial interface to the EFComPro GSM/GPRS module we need to turn off the serial console, to do so
 remove any references to `ttyAMA0` from the /boot/cmdline.txt file, in the example below `console=ttyAMA0,115200` and `kgdboc=ttyAMA0,115200`
 must be removed.
 
