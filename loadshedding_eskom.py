@@ -59,7 +59,9 @@ PROVINCES = {'EASTERN CAPE'  : 1,
              'NORTH WEST'    : 7,
              'NORTHERN CAPE' : 8,
              'WESTERN CAPE'  : 9}
-          
+
+POWERSTATUS_LEVEL = '?'
+POWERSTATUS_TREND = '?'
 #http://loadshedding.eskom.co.za/LoadShedding/GetSurburbData/?pageSize=200&pageNum=1&id=208  208 is saldanha bay
 
 #http://loadshedding.eskom.co.za/LoadShedding/GetScheduleM/38312/2/9/330  38312 is langebaan, 2 = stage 2, 9 = western cape, 330 is Tot field from suburb data.
@@ -254,7 +256,7 @@ def eskom_get_loadshedding_schedule(province,suburb,suburbId,suburbTot, lsstatus
         scheduleText.append(None)
       loadSheddingScheduleDay=loadSheddingSchedule(forecast,powerStatus,lsstatus,suburb,scheduleText[0],scheduleText[1],scheduleText[2],scheduleText[3])  
       myLoadSheddingSchedule.append(loadSheddingScheduleDay)
-    logger.debug('done with schedule[' + str(myLoadSheddingSchedule) + ']')
+    logger.debug('done with schedule')
     return myLoadSheddingSchedule
   except:
     #sometimes we get urllib.error.HTTPError: HTTP Error 400: Bad Request
@@ -275,7 +277,8 @@ def eskom_get_loadshedding_schedule(province,suburb,suburbId,suburbTot, lsstatus
 def eskom_power_status():
   logger = logging.getLogger(LOGGER)
   logger.debug('start')
-
+  global POWERSTATUS_LEVEL, POWERSTATUS_TREND
+  
   #set the url, not sure whether timestamp will break this in other timezones..
   url = 'https://www.myeskom.co.za/pages/Dashboard/24?v=' + str(int(time.time() * 1000))
   logger.debug('url['+url+']')
@@ -296,12 +299,15 @@ def eskom_power_status():
     data = json.loads(urllib.request.urlopen(req, timeout=120).read().decode('utf-8')) 
     powerStatus = data['data']['page']
     logger.debug('level[' + powerStatus['level'] + '] powerStatus[' + powerStatus['levelstatus'] + '] status [' + powerStatus['status'] +']')
+    POWERSTATUS_LEVEL = powerStatus['level']
+    POWERSTATUS_TREND = powerStatus['levelstatus']
     return power_status(powerStatus['level'],powerStatus['levelstatus'])
   except:
     #sometimes we get urllib.error.HTTPError: HTTP Error 400: Bad Request
     #to try and figure out what went wrong we trace the request
     logger.error('req['+str(req)+']')
     logger.error('unexpected error ['+  str(traceback.format_exc()) +']') 
+    return power_status(POWERSTATUS_LEVEL, POWERSTATUS_TREND)
 #------------------------------------------------------------------------------#
 # eskom_twitter: get loadshedding forecast from twitter                        #
 #                                                                              #

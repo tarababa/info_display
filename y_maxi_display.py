@@ -1222,7 +1222,7 @@ def menu_eskom(schedules,navigate,menuIndex,pageIndex,cls,display):
     layer4.selectFont('Small.yfm')
     x=64
     y=41
-    layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER, 'Load:' + mySchedule.power_status.level)
+    layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER, 'Load: ' + mySchedule.power_status.level)
     y=y+12
     layer4.drawText(x,y, YDisplayLayer.ALIGN.TOP_CENTER,'Trend: ' + mySchedule.power_status.trend)
     
