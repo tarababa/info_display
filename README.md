@@ -267,10 +267,11 @@ To start the info display application on the Raspberry Pi so it will run in the 
 
 ####Auto start info display
 You can also make the info display application start automatically when the Raspberry Pi starts.
-1. Make information_display.py executable: `chmod a+x information_display.py`
-2.  Copy init.d configuration: `sudo cp /home/pi/info_display/etc/info_display /etc/init.d`
-3.  Make info_display executable: `sudo chmod a+x /etc/init.d/info_display`
-4.  `sudo update-rc.d info_display defaults`
+
+1. Make information_display.py executable: ```chmod a+x information_display.py```
+2. Copy init.d configuration: ```sudo cp /home/pi/info_display/etc/info_display /etc/init.d```
+3. Make info_display executable: ```sudo chmod a+x /etc/init.d/info_display```
+4. ```sudo update-rc.d info_display defaults```
 
 The next time you restart the Raspberry Pi the info display application will start automatically. You can also start, stop and restart
 the info display application using the following commands:
