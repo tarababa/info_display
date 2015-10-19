@@ -579,7 +579,42 @@ def menu_meteo_summary(meteoData,action,cls,display):
   
   layer0=display.get_displayLayer(0)
   display.swapLayerContent(4,0)    
-
+#------------------------------------------------------------------------------#
+# menu_show_corners: for test purposes, to align display in housing            #
+#                                                                              #
+# Parameters: display   an instance of the yocto maxi display                  #
+#------------------------------------------------------------------------------#
+# version who when       description                                           #
+# 1.00    hta 10.10.2015 Initial version                                       #
+#------------------------------------------------------------------------------# 
+def menu_show_corners(navigate,menuIndex,pageIndex,cls,display):
+  x=0
+  y=0
+  j=0
+  #build summary but dont display it yet
+  layer4=display.get_displayLayer(4)
+  layer4.hide()
+  layer4.clear()
+  layer4.selectFont('Small.yfm')
+  
+  layer4.moveTo(0,0)
+  layer4.lineTo(127,0)
+  layer4.lineTo(127,63)
+  layer4.lineTo(0,63)
+  layer4.lineTo(0,0)
+      
+  #clear layers 1,2 and 3
+  if cls:
+    clearScreen(display)
+    cls==False
+    
+  #get layer 0, and use it do display the
+  #summary prepared on layer4
+  
+  layer0=display.get_displayLayer(0)
+  display.swapLayerContent(4,0)    
+  
+  return menuIndex,pageIndex
 #------------------------------------------------------------------------------#
 # menu_show_characters_small: for test purposes, shows alphabet in small font  #
 #                                                                              #
@@ -1809,10 +1844,10 @@ def display_deamon(main_q, meteo_q, radio_q, message_q):
             ###############            
             elif activeMenu.id == 'menu_sim900':
               menu_sim900_airtime(airTime,clearScreen,module.display)               
-            ###################
-            #TEST SCREEN FONTS#
-            ###################
-            elif activeMenu.id in('menu_show_characters_small','menu_show_characters_medium','menu_show_characters_8x8'):    
+            ###############################
+            #TEST SCREEN FONTS AND OUTLINE#
+            ###############################
+            elif activeMenu.id in('menu_show_characters_small','menu_show_characters_medium','menu_show_characters_8x8','menu_show_corners'):    
               #menu_show_characters_small(clearScreen,module.display)
               menuIndex,pageIndex=getattr(sys.modules[__name__],activeMenu.id)(activeMenu.navigate,menuIndex,pageIndex,clearScreen,module.display)              
             else:
