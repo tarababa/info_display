@@ -28,21 +28,24 @@ data for the chosen options such as weather forecasts and loadshedding schedules
 Pressing the select button a second time returns the up and down buttons tho their normal functions
 6. The sixth button is now used to terminate the info-display program, except when in the "radio" menu, then it is used
 to turn the radio on and off.
-
 The image below shows the start-up screen, the buttons highlighted.
+
 ![Start-up screen](https://github.com/tarababa/info_display/blob/master/img/doc/startup_screen.png)
 
 
 ###Meteo
 Using the output from the meteo module temprature, humidity and barometric pressure information is aggragated and shown in
 in the form of graphs on the display module. Not much to configure here
+
 ![Temperature](https://github.com/tarababa/info_display/blob/master/img/doc/temperature.png)
 The system is setup in such a way that one full graph shows just over 24 hours of measurements, if memory serves a sample
 is taken about once every thirteen minutes.
 
 ###Wheather forecast
 Using the rss feed from yr.no weather forecasts are displayed. 
+
 ![Weather forecast](https://github.com/tarababa/info_display/blob/master/img/doc/weather_forecast.png)
+
 
 The locations for which weather forecasts are available can be configured in the `config.ini` configuration file under 
 the section `[weather_yr]` as shown in the snippet below:
