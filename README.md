@@ -67,6 +67,7 @@ returns the up and down buttons to their normal function.
 about 2 hours of data, queurying Yahoo about once a minute. Using the up and down buttons one can move through the available
 conversions. The conversions shown are configured in the `config.ini` file under the heading `exchange_rates_yahoo` as shown
 below
+As Yahoo's api has become somewhat erratic in providing data the provider can now be changed to xe.com by setting the provider configuration to 'XE'
 
 ```
 [exchange_rates_yahoo]
@@ -76,6 +77,7 @@ rate.2=EUR,CHF
 rate.3=CHF,USD
 rate.4=CHF,SEK
 rate.5=CHF,CZK
+provider=XE
 ```
 
 ![Exchange rates](https://github.com/tarababa/info_display/blob/master/img/doc/exchange_rate.png)
