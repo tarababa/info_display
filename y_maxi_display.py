@@ -1740,7 +1740,7 @@ def display_deamon(main_q, meteo_q, radio_q, message_q):
           ####################################
           elif message.type == 'EXCHANGE_RATES': 
             if message.subtype == 'GRAPH':
-              #Append meteo data to list so that we have
+              #Append exchange data to list so that we have
               #historical data to show a graph
               exchangeData.append(message.content)
               ######################################  

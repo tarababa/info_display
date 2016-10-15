@@ -17,7 +17,7 @@
 
 
 """
-collects exchange rate information from yahoo and passes the information on to
+collects exchange rate information from xe.com and passes the information on to
 the y_maxi_display.py module for visualisation
              
 """
@@ -31,7 +31,7 @@ import collections
 import configuration
 
 
-LOGGER = 'YAHOO.EXCHANGE'  #name of logger for this module
+LOGGER = 'XE.EXCHANGE'  #name of logger for this module
 
 #define collections to hold exchange rates
 exchange_rate = collections.namedtuple("exchange_rate","from_currency to_currency rate date time ask bid")
@@ -47,16 +47,50 @@ exchange_rate = collections.namedtuple("exchange_rate","from_currency to_currenc
 #------------------------------------------------------------------------------#
 def init():
   configuration.init_log(LOGGER); 
+  
+def getExchangeRate():
+  logger = logging.getLogger(LOGGER)
+  logger.debug('start')
+  
+  #provider of exchange rate
+  url = 'http://www.xe.com/currencyconverter/convert.cgi'
+  #spoof the user agent.
+  user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
 
+  headers = { 'User-Agent' : user_agent }
+
+  #SLOG proxy
+  #proxy_support = urllib.request.ProxyHandler({'http' : '172.20.5.199:8080'})
+  #opener = urllib.request.build_opener(proxy_support)
+  #urllib.request.install_opener(opener)
+  logger.debug('url['+url+'?'+url_values+']')  
+  req = urllib.request.Request(url+'?'+url_values, None, headers)
+  response = urllib.request.urlopen(req)
+  the_page = response.read()
+
+  myString = str( the_page, encoding='utf8' )
+  #print (myString)
+  mySubString=myString[myString.find("1 CHF ="):   myString.find("1 CHF =") + myString[myString.find("1 CHF ="):].find(" ZAR</span>")+4]
+  logger.debug('mySubString[' + mySubString + ']') 
+  
+ 
+  sTimestamp=myString[myString.find("Live rates at ")+14:myString.find("Live rates at ")+14+23]
+  logger.debug('sTimestamp[' + sTimestamp + ']') 
+  #Live rates at 2013.09.01 07:25:00 UTC &#160; </div>
+  
+  sBaseCurrency = "CHF"
+  sCurrency     = "ZAR"
+  sRate         = mySubString[mySubString.find("1 CHF = ")+8: mySubString.find(" ZAR")]
+  logger.debug('sRate[' + sRate + ']')   
+  return sBaseCurrency, sCurrency, sRate, sTimestamp
 #------------------------------------------------------------------------------#
-# yahoo_exchange_rate_xml: get exchange rate in XML format from yahoo          #
+# xe_exchange_rate_xml: get exchange rate from XE                              #
 #                                                                              #
-# http://query.yahooapis.com/v1/public/yql?q=select * from yahoo.finance.xchange where pair in ("CHFZAR")&diagnostics=false&env=store://datatables.org/alltableswithkeys
 #------------------------------------------------------------------------------#
 # version who when       description                                           #
 # 1.00    hta 24.03.2014 Initial version                                       #
 #------------------------------------------------------------------------------#
-def yahoo_exchange_rate_xml(config):
+def xe_exchange_rate(config):
   logger = logging.getLogger(LOGGER)
   logger.debug('start')
   #set the url to desired location
@@ -68,31 +102,29 @@ def yahoo_exchange_rate_xml(config):
   headers = { 'User-Agent' : user_agent }
   #create request
   req = urllib.request.Request(url, None, headers)
-  #read xml tree
+
   try:
-    xml_rate = ET.parse(urllib.request.urlopen(req,timeout=120)).getroot()
+    response = str( urllib.request.urlopen(req,timeout=120).read(), encoding='utf8' )
   except:
     #sometimes we get urllib.error.HTTPError: HTTP Error 400: Bad Request
     #to try and figure out what went wrong we trace the request
     logger.error('req['+str(req)+']')
-    logger.error('unexpected error ['+  str(traceback.format_exc()) +']') 
+    logger.error('unexpected error ['+  str(traceback.format_exc()) +']')   
   
-  #get exchange rate
-  for rate in xml_rate.iter('rate'):
-    for child in rate:
-      if child.tag == 'Name': 
-        name=child.text
-      elif child.tag == 'Rate':
-        this_exchange_rate = child.text
-      elif child.tag == 'Date':
-        date = child.text
-      elif child.tag == 'Time':
-        time = child.text
-      elif child.tag == 'Ask':
-        ask = child.text
-      elif child.tag == 'Bid':
-        bid = child.text
-      logger.debug('child.tag['+str(child.tag)+']child.attrib['+str(child.attrib)+'][child.text['+str(child.text)+']')
+  fromCurrency = '1 ' + config[0] + ' = '
+  toCurrency   = ' '  + config[1] + '</span>'
+  #find exchange rate  
+  this_exchange_rate = response[response.find(fromCurrency)+len(fromCurrency) : response.find(toCurrency)]
+  logger.debug('this_exchange_rate['+this_exchange_rate+']')
+  ask = this_exchange_rate 
+  bid = this_exchange_rate 
+  
+  #find time and date
+  dateTimeMarker = 'Live rates at '
+  date=response[response.find(dateTimeMarker)+len(dateTimeMarker):response.find(dateTimeMarker)+len(dateTimeMarker)+10]
+  time=response[response.find(dateTimeMarker)+len(dateTimeMarker)+10+1:response.find(dateTimeMarker)+len(dateTimeMarker)+10+1+8]
+  logger.debug('date[' + date + ']') 
+  logger.debug('time[' + time + ']') 
  
   return exchange_rate(config[0], config[1] , this_exchange_rate, date, time, ask, bid)
 
@@ -138,12 +170,17 @@ def trace_exchange_rate(rate,logger):
 def get_exchange_rate_config():
   logger = logging.getLogger(LOGGER)
   exchange_config=[]
-  url_yahooapi='http://query.yahooapis.com/v1/public/yql?q=select * from yahoo.finance.xchange where pair in ("#PAIR")&diagnostics=false&env=store://datatables.org/alltableswithkeys'
+  data={}
+  data['template']='crm1'
+  data['Amount']='1'  
+  url_xe='http://www.xe.com/currencyconverter/convert.cgi?'
   for config in configuration.CONFIG['exchange_rates'] :
-    if config.find('rate.') >= 0:
+    if config.find('rate.') >= 0:    
       from_currency,to_currency=configuration.CONFIG['exchange_rates'][config].split(',')
-      #replace #PAIR tag in url_yahooapi with exchange rate pair
-      url =url_yahooapi.replace('#PAIR', from_currency+to_currency)
+      data['From']=from_currency
+      data['To']=to_currency
+      url_values = urllib.parse.urlencode(data)    
+      url = url_xe + url_values  
       #fix encoding "non-ascii" characters in URL
       url    = urllib.parse.urlsplit(url)
       url    = list(url)    
@@ -186,7 +223,7 @@ def exchange_rate_deamon(main_q,display_q,message_q):
           rates = []
           #Loop through all configured location urls
           for config in exchange_rate_config:
-            rates.append(yahoo_exchange_rate_xml(config))
+            rates.append(xe_exchange_rate(config))
           display_q.put( configuration.MESSAGE('EXCHANGE','DISPLAY','EXCHANGE_RATES','GRAPH', rates))
         ##################    
         #SHUTDOWN MESSAGE#
@@ -219,5 +256,10 @@ exchange_rates = []
 rates = []
 init()
 exchange_rate_config=get_exchange_rate_config()
+print(xe_exchange_rate(exchange_rate_config[0]))
+
+
 for config in exchange_rate_config:
-  rates.append(yahoo_exchange_rate_xml(config))
+  rates.append(xe_exchange_rate(config))
+  
+print (rates)

@@ -34,6 +34,7 @@ import y_meteo, y_button
 import y_maxi_display
 import radio
 import exchange_rates_yahoo
+import exchange_rates_xe
 import loadshedding_eskom
 import timers
 import sms_service
@@ -137,14 +138,19 @@ def main():
   # start exchange rate thread # 
   ##############################
   exchange_q.put( configuration.MESSAGE('MAIN','EXCHANGE','GET_EXCHANGE_RATE','ALL', None))
-  #create and start weather forecaset thread
-  exchange_thread = threading.Thread(target=exchange_rates_yahoo.exchange_rate_deamon, args=(main_q, display_q, exchange_q))
+  #create and start exchange thread
+  logger.debug('Exchange provider[' + configuration.CONFIG['exchange_rates']['provider'] + ']')
+  exchange_thread = None
+  if configuration.CONFIG['exchange_rates']['provider'] == 'XE':
+    exchange_thread = threading.Thread(target=exchange_rates_xe.exchange_rate_deamon, args=(main_q, display_q, exchange_q))    
+  else:
+    exchange_thread = threading.Thread(target=exchange_rates_yahoo.exchange_rate_deamon, args=(main_q, display_q, exchange_q))
   exchange_thread.name = 'EXCHANGE'  
   exchange_thread.deamon=False
   exchange_thread.start()
   #start repeating exchange rate timer (times out every minute)
   exchange_timer_thread = timers.RepeatingTimer(60, function=do_timers, args=('EXCHANGE',exchange_q))
-  exchange_timer_thread.name = 'WEATHER_TIMER'
+  exchange_timer_thread.name = 'EXCHANGE_TIMER'
   exchange_timer_thread.start()     
   
   ######################
