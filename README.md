@@ -30,19 +30,24 @@ Pressing the select button a second time returns the up and down buttons tho the
 to turn the radio on and off.
 
 The image below shows the start-up screen, the buttons highlighted.
+
 ![Start-up screen](https://github.com/tarababa/info_display/blob/master/img/doc/startup_screen.png)
 
 
 ###Meteo
 Using the output from the meteo module temprature, humidity and barometric pressure information is aggragated and shown in
 in the form of graphs on the display module. Not much to configure here
+
 ![Temperature](https://github.com/tarababa/info_display/blob/master/img/doc/temperature.png)
+
 The system is setup in such a way that one full graph shows just over 24 hours of measurements, if memory serves a sample
 is taken about once every thirteen minutes.
 
 ###Wheather forecast
 Using the rss feed from yr.no weather forecasts are displayed. 
+
 ![Weather forecast](https://github.com/tarababa/info_display/blob/master/img/doc/weather_forecast.png)
+
 
 The locations for which weather forecasts are available can be configured in the `config.ini` configuration file under 
 the section `[weather_yr]` as shown in the snippet below:
@@ -67,6 +72,7 @@ returns the up and down buttons to their normal function.
 about 2 hours of data, queurying Yahoo about once a minute. Using the up and down buttons one can move through the available
 conversions. The conversions shown are configured in the `config.ini` file under the heading `exchange_rates_yahoo` as shown
 below
+As Yahoo's api has become somewhat erratic in providing data the provider can now be changed to xe.com by setting the provider configuration to 'XE'
 
 ```
 [exchange_rates_yahoo]
@@ -76,6 +82,7 @@ rate.2=EUR,CHF
 rate.3=CHF,USD
 rate.4=CHF,SEK
 rate.5=CHF,CZK
+provider=XE
 ```
 
 ![Exchange rates](https://github.com/tarababa/info_display/blob/master/img/doc/exchange_rate.png)
