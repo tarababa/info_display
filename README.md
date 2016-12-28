@@ -246,6 +246,27 @@ A Python Twitter API, also used to collect load-shedding information (forecast),
 If you would like to install Twython on a Windows environment then use pip in a command window, again this is **not required** to run
 the info display application on a Raspberry Pi.
 ```pip install twython```
+If running info_display in foreground gives following error
+
+```
+pi@raspberrypi:~/info_display $ sudo /usr/bin/python3 /home/pi/info_display/information_display.py
+Traceback (most recent call last):
+  File "/home/pi/info_display/information_display.py", line 34, in <module>
+    import y_maxi_display
+  File "/home/pi/info_display/y_maxi_display.py", line 32, in <module>
+    from loadshedding_eskom import STATUS2STAGE
+  File "/home/pi/info_display/loadshedding_eskom.py", line 37, in <module>
+    from twython import Twython
+  File "/usr/lib/python3/dist-packages/twython/__init__.py", line 23, in <module>
+    from .api import Twython
+  File "/usr/lib/python3/dist-packages/twython/api.py", line 14, in <module>
+    from requests_oauthlib import OAuth1, OAuth2
+ImportError: No module named 'requests_oauthlib'
+```
+Then install:
+
+```sudo apt-get install -y python3-oauth python3-oauth2client python3-oauthlib python3-requests-oauthlib```
+
 
 ###Pyserial
 Python serial library used to communicate with the EFComPro GSM/GPRS module, to install on Raspberry Pi:
