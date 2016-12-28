@@ -218,11 +218,25 @@ which is optional, the radio function does not depend on this. It may help howev
  sudo apt-get install mpd
  sudo apt-get install mpc
 ```
-Ensure that the `/etc/mpd.conf` configuration file reflects the folling values:
+Ensure that the `/etc/mpd.conf` configuration file reflects the following values:
 ```
 bind_to_address         "any"
 port                    "6600"
 ```   
+and
+```
+audio_output {
+        type            "alsa"
+        name            "My ALSA Device"
+#        device          "hw:1,0"        # optional
+        format          "44100:16:2"    # optional
+        mixer_type      "software"      # optional
+        mixer_device    "default"       # optional
+        mixer_control   "PCM"           # optional
+        mixer_index     "0"             # optional
+}
+```
+
 #####python-mpd2 library
 The info display application uses the mpd2 library to communicate with MPD, to install:
 ```sudo o pip-3.2 install python-mpd2```
@@ -230,6 +244,16 @@ If Python Install tools are not isntalled, install them as follows:
 ```
 sudo apt-get update
 sudo apt-get install python3-pip
+```
+
+To use usb audio by default (on 2016-11-25-raspbian-jessie) create a file ```/etc/modprobe.d/alsa-base.conf``` with the following content
+```
+# This sets the index value of the cards but doesn't reorder.
+options snd_usb_audio index=0
+options snd_bcm2835 index=1
+
+# Does the reordering.
+options snd slots=snd_usb_audio,snd_bcm2835
 ```
 
 ###lxml
@@ -291,7 +315,7 @@ This is the actual info display application, clone it from git:
 
 ####Starting info display
 To start the info display application on the Raspberry Pi so it will run in the background:
-```sudo nohup /usr/bin/python3 /home/pi/information_display/info_display/information_display.py &```
+```sudo nohup /usr/bin/python3 /home/pi/info_display/information_display.py &```
 
 ####Auto start info display
 You can also make the info display application start automatically when the Raspberry Pi starts.
