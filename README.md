@@ -190,7 +190,7 @@ the [Raspberry Pi website](http://www.raspberrypi.org/downloads/).
 ####USB Full speed
 With the 2014-09-09 release of Raspbian I've found that the following change is not required, but on some earlier releases
 the Yoctopuce hardware would not work correctly without the USB running in "full-speed" mode. Add `dwc_otg.speed=1` to the
-/boot/cmdline.txt file as shown below.
+/boot/cmdline.txt file as shown below. Using 2016-11-25-raspbian-jessie I have found ```dwc_otg.speed=1``` must be set.
 
 ```dwc_otg.lpm_enable=0 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 dwc_otg.speed=1 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait```
 
