@@ -33,14 +33,20 @@ sys.path.append(os.path.join('yoctolib_python','Sources'))
 from yocto_api import *
 from yocto_anbutton import *
 
-LOGGER = 'BUTTON'     #name of logger for the yoctopuce button module
-logger = None
-button_q = None
+LOGGER         = 'BUTTON'     #name of logger for the yoctopuce button module
+logger         = None
+button_q       = None
 button_module  = collections.namedtuple('button_module', 'module module_name ' +
                                                          'button1 button2 ' +
                                                          'button3 button4 ' +
                                                          'button5 button6 ' +
                                                          'current uptime')
+B1LastTimeReleased = 0
+B2LastTimeReleased = 0
+B3LastTimeReleased = 0
+B4LastTimeReleased = 0
+B5LastTimeReleased = 0
+B6LastTimeReleased = 0
 #------------------------------------------------------------------------------#
 # init: Content of config.ini as made available globally to all modules through#
 #       through the configuration module and has been setup by the main        #
@@ -122,11 +128,48 @@ def get_module(name):
 # 1.00    hta 30.05.2014 Initial version                                       #
 #------------------------------------------------------------------------------#   
 def doValueChangeCallback(data,value):
-  global logger, button_q
+  global logger, button_q, B1LastTimeReleased, B2LastTimeReleased, B3LastTimeReleased
+  global B4LastTimeReleased, B5LastTimeReleased, B6LastTimeReleased
+  delay = 250 #Minimum delay between button presses
+  delayTooShort = False
   userData = data.get_userData()  
   logger.info('got button['+userData['button'] +'] value['+value+']')
   try:
-    if int(value) < 10:
+    lastTimeReleased = data.get_lastTimeReleased()
+    if userData['button'] == 'B1':
+      logger.info('got button['+userData['button'] +'] lastTimeReleased['+str(lastTimeReleased)+'] B1LastTimeReleased['+str(B1LastTimeReleased)+']')          
+      if lastTimeReleased - B1LastTimeReleased < delay:
+        delayTooShort = True
+      else: B1LastTimeReleased = lastTimeReleased
+    elif userData['button'] == 'B2':
+      logger.info('got button['+userData['button'] +'] lastTimeReleased['+str(lastTimeReleased)+'] B1LastTimeReleased['+str(B2LastTimeReleased)+']')          
+      if lastTimeReleased - B2LastTimeReleased < delay:
+        delayTooShort = True
+      else: B2LastTimeReleased = lastTimeReleased
+    elif userData['button'] == 'B3':
+      logger.info('got button['+userData['button'] +'] lastTimeReleased['+str(lastTimeReleased)+'] B1LastTimeReleased['+str(B3LastTimeReleased)+']')          
+      if lastTimeReleased - B3LastTimeReleased < delay:
+        delayTooShort = True
+      else: B3LastTimeReleased = lastTimeReleased     
+    elif userData['button'] == 'B4':
+      logger.info('got button['+userData['button'] +'] lastTimeReleased['+str(lastTimeReleased)+'] B1LastTimeReleased['+str(B4LastTimeReleased)+']')          
+      if lastTimeReleased - B4LastTimeReleased < delay:
+        delayTooShort = True
+      else: B4LastTimeReleased = lastTimeReleased  
+    elif userData['button'] == 'B5':
+      logger.info('got button['+userData['button'] +'] lastTimeReleased['+str(lastTimeReleased)+'] B1LastTimeReleased['+str(B5LastTimeReleased)+']')          
+      if lastTimeReleased - B5LastTimeReleased < delay:
+        delayTooShort = True
+      else: B5LastTimeReleased = lastTimeReleased       
+    elif userData['button'] == 'B6':
+      logger.info('got button['+userData['button'] +'] lastTimeReleased['+str(lastTimeReleased)+'] B1LastTimeReleased['+str(B6LastTimeReleased)+']')          
+      if lastTimeReleased - B6LastTimeReleased < delay:
+        delayTooShort = True
+      else: B6LastTimeReleased = lastTimeReleased           
+  except Exception as err:
+    logger.error('unexpected error ['+ str(traceback.format_exc()) + ']')   
+  try:
+    if int(value) > 700 and not delayTooShort:
       #button pressed
       message = configuration.MESSAGE('BUTTON','BUTTON','BUTTON','PRESSED',userData['button'])
       button_q.put(message)     
@@ -180,37 +223,49 @@ def do_buttons(module):
       if button1 == None:
         button1 = YAnButton.FindAnButton(module_name + '.anButton1')
         button1.registerValueCallback(None)        
-        button1.set_sensitivity(999)
+        button1.set_sensitivity(1000)
+        button1.set_calibrationMax(10)
+        button1.set_calibrationMin(0)      
         button1.set_userData({'button':'B1','unit':''})
         button1.registerValueCallback(doValueChangeCallback)        
       if button2 == None:
         button2 = YAnButton.FindAnButton(module_name + '.anButton2')
         button2.registerValueCallback(None)        
-        button2.set_sensitivity(999)
+        button2.set_sensitivity(1000)
+        button2.set_calibrationMax(10)
+        button2.set_calibrationMin(0)          
         button2.set_userData({'button':'B2','unit':''})
         button2.registerValueCallback(doValueChangeCallback)          
       if button3 == None:
         button3 = YAnButton.FindAnButton(module_name + '.anButton3')
         button3.registerValueCallback(None)                
-        button3.set_sensitivity(999)
+        button3.set_sensitivity(1000)
+        button3.set_calibrationMax(10)
+        button3.set_calibrationMin(0)          
         button3.set_userData({'button':'B3','unit':''})
         button3.registerValueCallback(doValueChangeCallback)          
       if button4 == None:
         button4 = YAnButton.FindAnButton(module_name + '.anButton4')
         button4.registerValueCallback(None)                        
-        button4.set_sensitivity(999)
+        button4.set_sensitivity(1000)
+        button4.set_calibrationMax(10)
+        button4.set_calibrationMin(0)         
         button4.set_userData({'button':'B4','unit':''})
         button4.registerValueCallback(doValueChangeCallback)             
       if button5 == None:
         button5 = YAnButton.FindAnButton(module_name + '.anButton5')
         button5.registerValueCallback(None)                        
-        button5.set_sensitivity(999)
+        button5.set_sensitivity(1000)
+        button5.set_calibrationMax(10)
+        button5.set_calibrationMin(0)              
         button5.set_userData({'button':'B5','unit':''})
         button5.registerValueCallback(doValueChangeCallback)         
       if button6 == None:
         button6 = YAnButton.FindAnButton(module_name + '.anButton6')
         button6.registerValueCallback(None)                
-        button6.set_sensitivity(999)
+        button6.set_sensitivity(1000)
+        button6.set_calibrationMax(10)
+        button6.set_calibrationMin(0)              
         button6.set_userData({'button':'B6','unit':''})
         button6.registerValueCallback(doValueChangeCallback)            
         

@@ -249,17 +249,17 @@ def exchange_rate_deamon(main_q,display_q,message_q):
       
 
 
-configuration.logging_configuration()  
-configuration.general_configuration()  
-#configuration.init_log(LOGGER)
-exchange_rates = []
-rates = []
-init()
-exchange_rate_config=get_exchange_rate_config()
-print(xe_exchange_rate(exchange_rate_config[0]))
-
-
-for config in exchange_rate_config:
-  rates.append(xe_exchange_rate(config))
-  
-print (rates)
+#configuration.logging_configuration()  
+#configuration.general_configuration()  
+##configuration.init_log(LOGGER)
+#exchange_rates = []
+#rates = []
+#init()
+#exchange_rate_config=get_exchange_rate_config()
+#print(xe_exchange_rate(exchange_rate_config[0]))
+#
+#
+#for config in exchange_rate_config:
+#  rates.append(xe_exchange_rate(config))
+#  
+#print (rates)
