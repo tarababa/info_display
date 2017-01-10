@@ -3,7 +3,7 @@ info_display
 
 The primary purpose of this project was for me to gain some experience with Python and the [Raspberry Pi](https://www.raspberrypi.org/). Over time the project has grown and bits have been added on and packaged in a wooden case.
 
-<img src="https://github.com/tarababa/info_display/tree/master/img/doc/finished.jpg" alt="info display in wooden case" width="550">
+<img src="https://github.com/tarababa/info_display/blob/master/img/doc/finished.jpg" alt="info display in wooden case" width="550">
 
 Besides a Raspberry Pi this project uses two Yoctopuce modules, a maxi display and the meteo module:
 
