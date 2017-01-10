@@ -38,14 +38,14 @@ The image below shows the start-up screen, the buttons highlighted.
 **Note:** In the final version as shown in the image at the top of this readme external push buttons are used which are normally closed and wired to 0V. The code has been adapted to accomodate this, further changes were made to reduce the "sensitivity" of the pushbuttons to eliminate spurious signals. 
 To use the internal buttons on the display itself change the code on line 172 of y_button.py from:
 
-```
+```python
     if int(value) > 700 and not delayTooShort:
       #button pressed
       message = configuration.MESSAGE('BUTTON','BUTTON','BUTTON','PRESSED',userData['button'])
     ...
 ```
 to:
-```
+```python
     if int(value) < 10 and not delayTooShort:
       #button pressed
       message = configuration.MESSAGE('BUTTON','BUTTON','BUTTON','PRESSED',userData['button'])
