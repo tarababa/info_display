@@ -14,11 +14,11 @@ The Elecfreak GSM/GPRS module is used to send SMS-es
 
   * [EFComPro GSM/GPRS](http://www.elecfreaks.com/store/gprsgsm-moduleefcom-pro-EFComPro-p-450.html)
 
-##Functions
+## Functions
 Quite a few, typically configurable, functions have now been included. The following chapters describe these functions
 in a bit more detail.
 
-###Navigation
+### Navigation
 For navigation the buttons on the maxi-display module are used. From left to right, the buttons are used as follows:
 
 1. The first button moves to the next *left* menu
@@ -52,7 +52,7 @@ to:
     ...
 ```
 
-###Meteo
+### Meteo
 Using the output from the meteo module temprature, humidity and barometric pressure information is aggragated and shown in
 in the form of graphs on the display module. Not much to configure here
 
@@ -85,7 +85,7 @@ Using the up and down buttons will move the menu to the next / previous location
 up and down buttons move us through the advance forecast for the selected location. Pressing the select button again 
 returns the up and down buttons to their normal function.
 
-###Exchange rate
+### Exchange rate
 [Yahoo's finance api](http://query.yahooapis.com) is used to visualise exchange rates over time, the graph shown captures
 about 2 hours of data, queurying Yahoo about once a minute. Using the up and down buttons one can move through the available
 conversions. The conversions shown are configured in the `config.ini` file under the heading `exchange_rates_yahoo` as shown
@@ -105,7 +105,7 @@ provider=XE
 
 ![Exchange rates](https://github.com/tarababa/info_display/blob/master/img/doc/exchange_rate.png)
 
-###Load-shedding
+### Load-shedding
 Load-shedding is a concept not everyone, in particular in first world, may be familiar with. But in South Africa due to
 years of under investment in the state owned electricty company ESKOM the country finds it self in a position where ESKOM
 is not always able to meet the demand for electricity. In order to avoid a nation-wide black-out ESKOM uses rolling black-outs
@@ -131,7 +131,7 @@ schedule.0=Western Cape,Saldanha Bay,Langebaan
 
 ![Load-shedding](https://github.com/tarababa/info_display/blob/master/img/doc/loadshedding.png)
 
-###Radio
+### Radio
 A simple MPD (Music Player Daemon) client has been integrated, specifically to tune in to internet radio stations.
 Using the up and down buttons one can step through the available stations. The select button changes the function
 of the left and right buttons to volume control, pressing the select button again reverts the function of the left and right
@@ -169,14 +169,14 @@ playlist.26=http://stream.srg-ssr.ch/m/drs3/mp3_128,Radio SRF3 - Swiss
 
 ![Radio](https://github.com/tarababa/info_display/blob/master/img/doc/radio.png)
 
-###Clock
+### Clock
 A clock which shows the time in words, implemented in a configurable fashion allowing additional languages to be added.
 At present an English and a Ducth clock have been configured. The clocks are configured in `clocks.ini` under a heading
 indicative of the language such as `[english]` and `[dutch]`. A dot at the bottom of the screens shows the passing of seconds.
 
 ![Clock](https://github.com/tarababa/info_display/blob/master/img/doc/clock.png)
 
-###SMS Service
+### SMS Service
 A SMS service is provided through the EFComPro GSM/GPRS module. Each time the loadshedding status changes or the
 forecasted loadshedding status changes all subscribers are notified by means of a SMS. Sofar only a load-shedding
 SMS service has been implemented. For now the subscribers to the SMS service are configured in `sms_service.ini` under
@@ -194,21 +194,21 @@ subscriber.1 = +27xxxxxxxxx,langebaan
 ![Load-shedding](https://github.com/tarababa/info_display/blob/master/img/doc/loadshedding_3.png) ![Load-shedding](https://github.com/tarababa/info_display/blob/master/img/doc/loadshedding_4.png)
 
 
-##Installation
+## Installation
 This installation manual may not be entirely correct or complete so be warned. I will in time test this description and complete/correct as required.
 
-###Raspbian
+### Raspbian
 I'm using the [2014-09-09 wheezy Raspbian release](http://downloads.raspberrypi.org/raspbian/images/raspbian-2014-09-12/2014-09-09-wheezy-raspbian.zip), anything of a later date should work too and can be downloaded from 
 the [Raspberry Pi website](http://www.raspberrypi.org/downloads/).
 
-####USB Full speed
+#### USB Full speed
 With the 2014-09-09 release of Raspbian I've found that the following change is not required, but on some earlier releases
 the Yoctopuce hardware would not work correctly without the USB running in "full-speed" mode. Add `dwc_otg.speed=1` to the
 /boot/cmdline.txt file as shown below. Using 2016-11-25-raspbian-jessie I have found ```dwc_otg.speed=1``` must be set.
 
 ```dwc_otg.lpm_enable=0 console=ttyAMA0,115200 kgdboc=ttyAMA0,115200 dwc_otg.speed=1 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait```
 
-####Turn off serial console on UART
+#### Turn off serial console on UART
 To be able to use the UART as a serial interface to the EFComPro GSM/GPRS module we need to turn off the serial console, to do so
 remove any references to `ttyAMA0` from the /boot/cmdline.txt file, in the example below `console=ttyAMA0,115200` and `kgdboc=ttyAMA0,115200`
 must be removed.
@@ -218,14 +218,14 @@ must be removed.
 You'll also have to edit the `/etc/inittab` file, search for lines specifying the serial port `ttyAMA0`. 
 Use “#” at the start of the line to comment it out.  
 
-####cmdline.txt
+#### cmdline.txt
 Having made the changes according to the previous chapters the cmdline.txt should now look this:
 ```
 dwc_otg.lpm_enable=0 dwc_otg.speed=1 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait
 ```
 For the changes to take effect the the Raspberry Pi must be restarted `sudo shutdown -r now`
 
-###Music Deamon Player (MPD)
+### Music Deamon Player (MPD)
 For the radio function to work MPD must be installed on the Raspberry Pi, the instructions below also install the Music Player Client
 which is optional, the radio function does not depend on this. It may help however to test correct installation of the MPD.
 ```
@@ -251,10 +251,11 @@ audio_output {
 }
 ```
 
-#####python-mpd2 library
+#### python-mpd2 library
 The info display application uses the mpd2 library to communicate with MPD, to install:
 ```sudo o pip-3.2 install python-mpd2```
 If Python Install tools are not isntalled, install them as follows:
+
 ```
 sudo apt-get update
 sudo apt-get install python3-pip
@@ -262,15 +263,15 @@ sudo apt-get install python3-pip
 
 To use usb audio by default (on 2016-11-25-raspbian-jessie) create a file ```/etc/modprobe.d/alsa-base.conf``` with the following content
 ```
-# This sets the index value of the cards but doesn't reorder.
+#This sets the index value of the cards but doesn't reorder.
 options snd_usb_audio index=0
 options snd_bcm2835 index=1
 
-# Does the reordering.
+#Does the reordering.
 options snd slots=snd_usb_audio,snd_bcm2835
 ```
 
-###lxml
+### lxml
 To parse some of the load-shedding data we use the lxml library, to install on Raspberry Pi:
 ```sudo apt-get install python3-lxml```
 If you would like to install lxml on a Windows environment then download the [lxml package](http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml)
@@ -278,7 +279,7 @@ and install it using pip in a command window, the example below assumes the comm
 was downloaded to. **Note: the latter is not required to make the application run on the Raspberry Pi**
 ```pip install lxml-3.4.1-cp34-none-win32.whl```
    
-###Twython
+### Twython
 A Python Twitter API, also used to collect load-shedding information (forecast), to install on Raspberry Pi:
 ```sudo pip-3.2 install twython```
 If you would like to install Twython on a Windows environment then use pip in a command window, again this is **not required** to run
@@ -306,14 +307,14 @@ Then install:
 ```sudo apt-get install -y python3-oauth python3-oauth2client python3-oauthlib python3-requests-oauthlib```
 
 
-###Pyserial
+### Pyserial
 Python serial library used to communicate with the EFComPro GSM/GPRS module, to install on Raspberry Pi:
 ```sudo pip-3.2 install pyserial```
 If you would like to install Pyserial on a Windows environment then use pip in a command window, again this is **not required** to run
 the info display application on a Raspberry Pi.
 ```pip install pyserial```
 
-###EFComPro GSM/GPRS
+### EFComPro GSM/GPRS
 Connect TXD pin 8 of the Raspberry Pi to the Rx pin of the EFComPro module, Raspberry Pi Pin 10, RXD is connected to the TX pin
 of the EFComPro module.
 If using a seperate powersupply for the EFComPro module then connect GND of the EfcompPro module's powersupply to GND of the 
@@ -323,15 +324,15 @@ At present the Raspberry Pi does not control the Power and Reset pins on the EFC
 
 ***WARNING: the Raspberry Pi is a 3.3V device, connecting 5V to the GPIO pins may cause irreversible damage to the Raspberry Pi***
 
-###Info Display
+### Info Display
 This is the actual info display application, clone it from git:
 ```git clone https://github.com/tarababa/info_display.git```
 
-####Starting info display
+#### Starting info display
 To start the info display application on the Raspberry Pi so it will run in the background:
 ```sudo nohup /usr/bin/python3 /home/pi/info_display/information_display.py &```
 
-####Auto start info display
+#### Auto start info display
 You can also make the info display application start automatically when the Raspberry Pi starts.
 
 1. Make information_display.py executable: ```chmod a+x information_display.py```
