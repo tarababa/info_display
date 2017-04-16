@@ -1,7 +1,9 @@
 info_display
 ============
 
-The primary purpose of this project was for me to gain some experience with Python and the [Raspberry Pi](https://www.raspberrypi.org/). Over time the project has grown and bits have been added on
+The primary purpose of this project was for me to gain some experience with Python and the [Raspberry Pi](https://www.raspberrypi.org/). Over time the project has grown and bits have been added on and packaged in a wooden case.
+
+<img src="https://github.com/tarababa/info_display/blob/master/img/doc/finished.jpg" alt="info display in wooden case" width="900">
 
 Besides a Raspberry Pi this project uses two Yoctopuce modules, a maxi display and the meteo module:
 
@@ -33,6 +35,22 @@ The image below shows the start-up screen, the buttons highlighted.
 
 ![Start-up screen](https://github.com/tarababa/info_display/blob/master/img/doc/startup_screen.png)
 
+**Note:** In the final version as shown in the image at the top of this readme external push buttons are used which are normally closed and wired to 0V. The code has been adapted to accomodate this, further changes were made to reduce the "sensitivity" of the pushbuttons to eliminate spurious signals. 
+To use the internal buttons on the display itself change the code on line 172 of y_button.py from:
+
+```python
+    if int(value) > 700 and not delayTooShort:
+      #button pressed
+      message = configuration.MESSAGE('BUTTON','BUTTON','BUTTON','PRESSED',userData['button'])
+    ...
+```
+to:
+```python
+    if int(value) < 10 and not delayTooShort:
+      #button pressed
+      message = configuration.MESSAGE('BUTTON','BUTTON','BUTTON','PRESSED',userData['button'])
+    ...
+```
 
 ###Meteo
 Using the output from the meteo module temprature, humidity and barometric pressure information is aggragated and shown in
@@ -124,16 +142,12 @@ The available radio stations are configured in `config.ini` under the heading `[
 
 ```
 [radio_playlist]
-playlist.0=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_intl_lc_radio1_q,BBC1 - UK
-playlist.1=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_intl_lc_radio2_p,BBC2 - UK
-playlist.2=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_intl_lc_radio3_p,BBC3 - UK
-playlist.3=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_intl_lc_radio4_p,BBC4 - UK
-playlist.4=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_intl_lc_radio4extra_p,BBC4 Extra - UK
-playlist.5=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_intl_lc_5live_p,BBC5 Live - UK
-playlist.6=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_intl_lc_5sportxtra_p,BB5 Sports Extra - UK
-playlist.7=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_intl_lc_6music_p,BBC6 Music - UK
-playlist.8=mms://a219.l9068742218.c90687.g.lm.akamaistream.net/D/219/90687/v0001/reflector:42218,Rix FM - Swedish
-playlist.9=http://icelive0.03872-icelive0.cdn.qbrick.com/5982/03872_mix_mp3,Mix Megapol - Swedish
+playlist.3=http://sj128.hnux.com/,Smoothjazz.com - Montereye Bay
+playlist.4=http://pianosolo.streamguys.net/live,Radio Solo Piano
+playlist.6=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio1_mf_p,BBC1
+playlist.7=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio2_mf_p,BBC2
+playlist.8=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio3_mf_p,BBC3
+playlist.9=http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio4fm_mf_p,BBC4
 playlist.10=http://http-live.sr.se/p1-mp3-192,Sveriges Radio P1 - Swedish
 playlist.11=http://http-live.sr.se/p2-mp3-192,Sveriges Radio P2 - Swedish
 playlist.12=http://http-live.sr.se/p3-mp3-192,Sveriges Radio P3 - Swedish
