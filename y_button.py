@@ -142,27 +142,27 @@ def doValueChangeCallback(data,value):
         delayTooShort = True
       else: B1LastTimeReleased = lastTimeReleased
     elif userData['button'] == 'B2':
-      logger.info('got button['+userData['button'] +'] lastTimeReleased['+str(lastTimeReleased)+'] B1LastTimeReleased['+str(B2LastTimeReleased)+']')          
+      logger.info('got button['+userData['button'] +'] lastTimeReleased['+str(lastTimeReleased)+'] B2LastTimeReleased['+str(B2LastTimeReleased)+']')          
       if lastTimeReleased - B2LastTimeReleased < delay:
         delayTooShort = True
       else: B2LastTimeReleased = lastTimeReleased
     elif userData['button'] == 'B3':
-      logger.info('got button['+userData['button'] +'] lastTimeReleased['+str(lastTimeReleased)+'] B1LastTimeReleased['+str(B3LastTimeReleased)+']')          
+      logger.info('got button['+userData['button'] +'] lastTimeReleased['+str(lastTimeReleased)+'] B3LastTimeReleased['+str(B3LastTimeReleased)+']')          
       if lastTimeReleased - B3LastTimeReleased < delay:
         delayTooShort = True
       else: B3LastTimeReleased = lastTimeReleased     
     elif userData['button'] == 'B4':
-      logger.info('got button['+userData['button'] +'] lastTimeReleased['+str(lastTimeReleased)+'] B1LastTimeReleased['+str(B4LastTimeReleased)+']')          
+      logger.info('got button['+userData['button'] +'] lastTimeReleased['+str(lastTimeReleased)+'] B4LastTimeReleased['+str(B4LastTimeReleased)+']')          
       if lastTimeReleased - B4LastTimeReleased < delay:
         delayTooShort = True
       else: B4LastTimeReleased = lastTimeReleased  
     elif userData['button'] == 'B5':
-      logger.info('got button['+userData['button'] +'] lastTimeReleased['+str(lastTimeReleased)+'] B1LastTimeReleased['+str(B5LastTimeReleased)+']')          
+      logger.info('got button['+userData['button'] +'] lastTimeReleased['+str(lastTimeReleased)+'] B5LastTimeReleased['+str(B5LastTimeReleased)+']')          
       if lastTimeReleased - B5LastTimeReleased < delay:
         delayTooShort = True
       else: B5LastTimeReleased = lastTimeReleased       
     elif userData['button'] == 'B6':
-      logger.info('got button['+userData['button'] +'] lastTimeReleased['+str(lastTimeReleased)+'] B1LastTimeReleased['+str(B6LastTimeReleased)+']')          
+      logger.info('got button['+userData['button'] +'] lastTimeReleased['+str(lastTimeReleased)+'] B6LastTimeReleased['+str(B6LastTimeReleased)+']')          
       if lastTimeReleased - B6LastTimeReleased < delay:
         delayTooShort = True
       else: B6LastTimeReleased = lastTimeReleased           
