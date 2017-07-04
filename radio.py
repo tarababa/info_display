@@ -162,13 +162,13 @@ def toggleOnOff(radio_info, mpdc):
 #------------------------------------------------------------------------------# 
 def nextStation(radio_info, mpdc):            
   global logger
-  if int(radio_info.get('playlistlength',1))-1 == int(radio_info.get('song')):
+  logger.debug('song['+ radio_info.get('song','0')+']')
+  logger.debug('playlistlength['+ radio_info.get('playlistlength','1')+']')  
+  if int(radio_info.get('playlistlength',1))-1 == int(radio_info.get('song',0)):
     #at end of playlist? then start at beginning
-    logger.debug('song['+ radio_info.get('song')+']')
-    logger.debug('playlistlength['+ radio_info.get('playlistlength')+']')
     mpdc.play(0)
   else:
-    mpdc.play(int(radio_info.get('song'))+1)
+    mpdc.play(int(radio_info.get('song',0))+1)
 #------------------------------------------------------------------------------#
 # previoustation: activate previous station in playlist, if at first station   #
 #                 then activate last station in playlist                       #
@@ -180,12 +180,12 @@ def nextStation(radio_info, mpdc):
 #------------------------------------------------------------------------------# 
 def previousStation(radio_info, mpdc):            
   global logger
-  if int(radio_info.get('song')) != 0:
-    logger.debug('song['+radio_info.get('song')+']')
+  if int(radio_info.get('song',0)) != 0:
+    logger.debug('song['+radio_info.get('song','0')+']')
     mpdc.previous()
   else:
-    logger.debug('playlistlength['+ radio_info.get('playlistlength')+']')
-    mpdc.play(int(radio_info.get('playlistlength'))-1)   
+    logger.debug('playlistlength['+ radio_info.get('playlistlength','1')+']')
+    mpdc.play(int(radio_info.get('playlistlength',1))-1)   
     
 #------------------------------------------------------------------------------#
 # refreshRadioInfo: get latest radio status information from the mpd           #
